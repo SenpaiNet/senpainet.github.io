@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>未来図推進 | Miraizu Suisen</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <div class="logo">
+        <div class="logo-icon">M</div>
+        <div>
+          <div class="logo-title">未来図推進</div>
+          <div class="logo-sub">Miraizu Suisen</div>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="#about">概要</a>
+        <a href="#services">事業内容</a>
+        <a href="#works">実績</a>
+        <a href="#contact">お問い合わせ</a>
+      </nav>
+      <button id="mobile-menu-btn" class="mobile-btn">☰</button>
+    </div>
+    <div id="mobile-menu" class="mobile-menu hidden">
+      <a href="#about">概要</a>
+      <a href="#services">事業内容</a>
+      <a href="#works">実績</a>
+      <a href="#contact">お問い合わせ</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero container">
+    <div class="hero-text">
+      <h1>地域と企業の『未来図』を一緒に描く</h1>
+      <p>私たちは地域活性化・教育支援・DX導入などを通じて、持続可能な未来づくりを推進します。</p>
+      <div class="hero-buttons">
+        <a href="#contact" class="btn btn-main">無料相談を申し込む</a>
+        <a href="#about" class="btn btn-outline">詳しく見る</a>
+      </div>
+      <p class="contact-info">電話: 03-1234-5678 | メール: info@example.com</p>
+    </div>
+    <div class="hero-img">
+      <img src="https://images.unsplash.com/photo-1504470695779-753c0faec0f0?auto=format&fit=crop&w=1200&q=60" alt="Hero" />
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="section container">
+    <h2>私たちについて</h2>
+    <p>地域の現場を大切にし、教育・デジタル推進・地域連携の3軸でサポートを行います。</p>
+    <div class="stats">
+      <div class="stat"><span>設立</span>2018年</div>
+      <div class="stat"><span>プロジェクト数</span>120+</div>
+      <div class="stat"><span>相談実績</span>500+</div>
+      <div class="stat"><span>スタッフ</span>20名</div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section id="services" class="section container">
+    <h2>サービス</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>地域活性化支援</h3>
+        <p>イベント企画・地域ブランディング・資金調達支援など。</p>
+      </div>
+      <div class="card">
+        <h3>教育プログラム</h3>
+        <p>家庭でできるコンピュータ教育、教員研修、教材開発。</p>
+      </div>
+      <div class="card">
+        <h3>DX導入支援</h3>
+        <p>業務改善ツール導入、データ利活用、ワークショップ。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Works -->
+  <section id="works" class="section container">
+    <h2>実績</h2>
+    <div class="works">
+      <div class="work">
+        <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=800&q=60" alt="">
+        <h4>地域おこしワークショップ</h4>
+      </div>
+      <div class="work">
+        <img src="https://images.unsplash.com/photo-1581094288330-44e6b9b3d5b9?auto=format&fit=crop&w=800&q=60" alt="">
+        <h4>小中学生向けプログラミング教室</h4>
+      </div>
+      <div class="work">
+        <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981d?auto=format&fit=crop&w=800&q=60" alt="">
+        <h4>行政のデジタル化支援</h4>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="section container">
+    <h2>お問い合わせ</h2>
+    <form id="contact-form" class="contact-form">
+      <input type="text" name="name" placeholder="お名前" required>
+      <input type="email" name="email" placeholder="メールアドレス" required>
+      <textarea name="message" placeholder="ご相談内容" required></textarea>
+      <button type="submit" class="btn btn-main">送信する</button>
+    </form>
+    <p id="form-msg" class="form-msg"></p>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 未来図推進 | info@example.com | 03-1234-5678</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
