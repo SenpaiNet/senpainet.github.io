@@ -1,53 +1,69 @@
-lamalamalamalam
-dahahahahahah
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SenpaiNet｜いつでもどこでも先輩に相談を</title>
+  <title>SenpaiNet｜相談プラットフォーム</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Header -->
-  <header class="navbar">
-    <div class="container nav-inner">
-      <div class="logo">
-        <div class="logo-icon">M</div>
-        <div>
-          <div class="logo-title">未来図推進</div>
-          <div class="logo-sub">Miraizu Suisen</div>
-        </div>
-      </div>
-      <nav class="nav-links">
-        <a href="#about">概要</a>
-        <a href="#services">事業内容</a>
-        <a href="#works">実績</a>
-        <a href="#contact">お問い合わせ</a>
-      </nav>
-      <button id="mobile-menu-btn" class="mobile-btn">☰</button>
+<header class="navbar">
+  <div class="navbar-container">
+    <!-- 左：ロゴ -->
+    <div class="navbar-logo">
+      <a href="archive.html">SenpaiNet</a>
     </div>
-    <div id="mobile-menu" class="mobile-menu hidden">
-      <a href="#about">概要</a>
-      <a href="#services">事業内容</a>
-      <a href="#works">実績</a>
-      <a href="#contact">お問い合わせ</a>
-    </div>
-  </header>
+
+    <!-- 右：メニュー -->
+    <nav class="navbar-menu">
+      <a href="post.html">相談する</a>
+      <a href="archive.html">相談を見る</a>
+      <a href="#">実績</a>
+      <a href="#">お問い合わせ</a>
+      <a href="signup.html" class="account-link">👤 アカウント</a>
+    </nav>
+  </div>
+</header>
+
 
   <!-- Hero -->
   <section class="hero container">
     <div class="hero-text">
-      <h1>地域と企業の『未来図』を一緒に描く</h1>
-      <p>私たちは地域活性化・教育支援・DX導入などを通じて、持続可能な未来づくりを推進します。</p>
+      <h1>その悩み、『先輩』に相談してみない？</h1>
+      <p>ISSの在校生が卒業生に気軽に相談できるプラットフォームを目指します</p>
       <div class="hero-buttons">
         <a href="#contact" class="btn btn-main">無料相談を申し込む</a>
         <a href="#about" class="btn btn-outline">詳しく見る</a>
       </div>
-      <p class="contact-info">電話: 03-1234-5678 | メール: info@example.com</p>
+      <p class="contact-info">メール: issjukensoudandokoro@gmail.com</p>
     </div>
-    <div class="hero-img">
-      <img src="https://images.unsplash.com/photo-1504470695779-753c0faec0f0?auto=format&fit=crop&w=1200&q=60" alt="Hero" />
+    <div class="senpainet logo.png">
+    </div>
+  </section>
+
+<!--相談セクション-->
+  <section class="hero container">
+    <div class="hero-text">
+      <h1>相談を開始する</h1>
+      <p>相談内容を匿名で投稿できます！</p>
+      <div class="hero-buttons">
+        <a href="post.html" class="post-btn">＋ 新しい相談を投稿</a>
+      </div>
+    </div>
+    <div class="senpainet logo.png">
+    </div>
+  </section>
+
+<!--相談閲覧-->
+  <section class="hero container">
+    <div class="hero-text">
+      <h1>投稿を見る</h1>
+      <p>既に投稿されている相談を見ることができます！</p>
+      <div class="hero-buttons">
+        <a href="archive.html" class="post-btn">投稿を見る</a>
+      </div>
+    </div>
+    <div class="senpainet logo.png">
     </div>
   </section>
 
@@ -115,7 +131,7 @@ dahahahahahah
 
   <footer class="footer">
     <div class="container">
-      <p>© 未来図推進 | info@example.com | 03-1234-5678</p>
+      <p>© SenpaiNet 2025</p>
     </div>
   </footer>
 
