@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>SenpaiNet｜相談を投稿</title>
+  <link rel="stylesheet" href="post.css">
+</head>
+<body class="post-page">
+
+  <div class="post-wrapper">
+    <div class="post-card">
+      <h2>💬 新しい相談を投稿する</h2>
+      <p class="subtitle">あなたの悩み・質問をシェアしてみよう</p>
+
+      <form id="postForm">
+        <div class="form-group">
+          <label for="title">タイトル</label>
+          <input type="text" id="title" placeholder="例：AO入試で使える課外活動について" required>
+        </div>
+
+        <div class="form-group">
+          <label for="content">内容</label>
+          <textarea id="content" rows="6" placeholder="詳しい相談内容を書いてください…" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>タグを選択</label>
+          <div id="tagSelect" class="tag-select">
+            <span class="tag-option" data-tag="一般入試">#一般入試</span>
+            <span class="tag-option" data-tag="AO入試">#AO入試</span>
+            <span class="tag-option" data-tag="DP">#DP</span>
+            <span class="tag-option" data-tag="課外活動">#課外活動</span>
+            <span class="tag-option" data-tag="履修">#履修</span>
+            <span class="tag-option" data-tag="海外大学">#海外大学</span>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">🚀 投稿する</button>
+      </form>
+
+      <a href="index.html" class="back-link">← ホームに戻る</a>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

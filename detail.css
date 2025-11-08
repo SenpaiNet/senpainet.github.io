@@ -1,0 +1,59 @@
+/* === 詳細ページ === */
+body.detail-page {
+  background: linear-gradient(135deg, #e0f2fe 0%, #e0ffe7 100%);
+  font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.detail-wrapper {
+  max-width: 700px;
+  width: 90%;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px 50px;
+  animation: fadeIn 0.6s ease;
+}
+
+.detail-card h2 {
+  color: #1e3a8a;
+  margin-bottom: 15px;
+}
+
+.detail-card p {
+  color: #475569;
+  line-height: 1.7;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.detail-card .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.detail-card .tag {
+  background: #e0e7ff;
+  color: #1e3a8a;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: #4338ca;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}

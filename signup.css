@@ -1,0 +1,73 @@
+/* === アカウント作成ページ === */
+.signup-page {
+  background: linear-gradient(135deg, #c7d2fe, #e0f2fe, #e0ffe7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.signup-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px 50px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  max-width: 480px;
+  width: 90%;
+  animation: fadeIn 0.5s ease;
+}
+
+.signup-card h2 {
+  text-align: center;
+  color: #1e3a8a;
+  margin-bottom: 25px;
+}
+
+label {
+  font-weight: 600;
+  color: #1e293b;
+  display: block;
+  margin-top: 12px;
+}
+
+input, select {
+  width: 100%;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 5px;
+  font-size: 1rem;
+}
+
+.user-type label {
+  margin-right: 20px;
+  color: #334155;
+}
+
+.tag-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tag-option {
+  background: #e0e7ff;
+  color: #1e3a8a;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.tag-option.selected {
+  background: linear-gradient(90deg, #1e40af, #2563eb);
+  color: white;
+  transform: scale(1.05);
+}
+
+.hidden {
+  display: none;
+}

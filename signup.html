@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>アカウント作成 | 未来図プラットフォーム</title>
+  <link rel="stylesheet" href="signup.css">
+</head>
+<body class="signup-page">
+
+  <div class="signup-wrapper">
+    <div class="signup-card">
+      <h2>👤 アカウントを作成</h2>
+
+      <form id="signupForm">
+
+        <!-- ① 在校生 or 卒業生 -->
+        <label>あなたは？</label>
+        <div class="user-type">
+          <label><input type="radio" name="userType" value="在校生" checked> 在校生</label>
+          <label><input type="radio" name="userType" value="卒業生"> 卒業生</label>
+        </div>
+
+        <!-- ② 基本情報 -->
+        <label for="email">メールアドレス</label>
+        <input type="email" id="email" placeholder="example@email.com" required>
+
+        <label for="nickname">ニックネーム</label>
+        <input type="text" id="nickname" placeholder="個人名はお控えください" required>
+
+        <label for="grade">何回生ですか？</label>
+        <select id="grade" required>
+          <option value="">選択してください</option>
+          <option>13回生</option>
+          <option>14回生</option>
+          <option>15回生</option>
+          <option>16回生</option>
+        </select>
+
+        <!-- ③ 卒業生タグ選択 -->
+        <div id="alumniTags" class="tag-select hidden">
+          <label>得意分野（最大3つ）</label>
+          <div class="tag-options">
+            <span class="tag-option" data-tag="教育">#教育</span>
+            <span class="tag-option" data-tag="キャリア">#キャリア</span>
+            <span class="tag-option" data-tag="AI">#AI</span>
+            <span class="tag-option" data-tag="海外">#海外</span>
+            <span class="tag-option" data-tag="テクノロジー">#テクノロジー</span>
+            <span class="tag-option" data-tag="ボランティア">#ボランティア</span>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">🚀 アカウント作成</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="signup.js"></script>
+</body>
+</html>

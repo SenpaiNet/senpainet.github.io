@@ -1,0 +1,217 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  background: white;
+  min-height: 100vh;
+  color: #e3e8f7;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  background: transparent;
+  color: #fff;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  position:relative;
+  background:transparent;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  margin-right: 24px;
+  height: 48px;
+  flex: 0 0 auto;
+}
+
+.logo-img {
+  height: 70px; /* 検索バーと高さを合わせる */
+  width: auto;
+  cursor: pointer;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 30px;
+  color: #132774;
+  min-width: 340px;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 24px;
+  flex: 1 1 0;
+  box-sizing: border-box;
+  justify-content: center;
+}
+
+.search-form input {
+  border: none;
+  outline: none;
+  font-size: 1em;
+  margin-left: 8px;
+  background: transparent;
+  color: #132774;
+}
+
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap:16px;
+  flex: 0 0 auto;
+}
+
+.auth-buttons .btn {
+  background: #132774;
+  color: #fff;
+  border-radius: 20px;
+  padding: 6px 16px;
+  margin-left: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.auth-buttons .btn:hover {
+  background: transparent;
+}
+
+.auth-buttons .material-icons {
+  margin-right: 4px;
+}
+
+.navbar {
+  background: transparent;
+  padding: 0 0;
+}
+
+.navbar ul {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  padding: 12px 24px 0 24px;
+  position: relative;
+}
+
+.navbar li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 18px;
+  height: 60px;
+  width: 1px;
+  background: black;
+}
+
+.navbar a {
+  color: black;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.navbar a:hover {
+  color: #132774;
+}
+
+.nav-icon {
+  font-size: 2.2em;
+  margin-bottom: 4px;
+}
+
+.nav-label {
+  font-size: 1.1em;
+  margin-top: 2px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.navbar .material-icons {
+  margin-right: 6px;
+}
+
+@media (max-width: 900px) {
+  .header-top {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 8px;
+  }
+  .search-form {
+    margin: 8px 0;
+    min-width: 0;
+    width: 100%;
+  }
+  .auth-buttons {
+    justify-content: center;
+    margin-top: 8px;
+  }
+}
+
+.consult-form-section {
+  max-width: 500px;
+  margin: 40px auto;
+  background: rgba(255,255,255,0.9);
+  padding: 32px 24px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.consult-form-section h2 {
+  text-align: center;
+  color: #132774;
+}
+.consult-form-section label {
+  display: block;
+  margin-bottom: 16px;
+  color: #132774;
+}
+.consult-form-section select,
+.consult-form-section textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-top: 4px;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+.consult-form-section button {
+  width: 100%;
+  background: #132774;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 1.1em;
+  cursor: pointer;
+  margin-top: 12px;
+}
+#consultMessage {
+  margin-top: 32px;
+  color: #132774;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1.2em;
+}
+

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>投稿一覧</title>
+  <link rel="stylesheet" href="archive.css">
+</head>
+  <!-- Header -->
+<header class="navbar">
+  <div class="navbar-container">
+    <!-- 左：ロゴ -->
+    <div class="navbar-logo">
+      <a href="index.html">SenpaiNet</a>
+    </div>
+
+    <!-- 右：メニュー -->
+    <nav class="navbar-menu">
+      <a href="post.html">相談する</a>
+      <a href="archive.html">相談を見る</a>
+      <a href="#">実績</a>
+      <a href="#">お問い合わせ</a>
+      <a href="signup.html" class="account-link">👤 アカウント</a>
+    </nav>
+  </div>
+</header>
+
+<body class="list-page">
+
+  <header class="header">
+    <h1>🌐 みんなの相談一覧</h1>
+    <div class="search-bar">
+      <input type="text" id="keywordInput" placeholder="キーワードで検索">
+      <button id="searchBtn">検索</button>
+    </div>
+    <a href="post.html" class="new-post-btn">＋ 新しく投稿</a>
+  </header>
+
+  <main class="post-list" id="postList">
+    <!-- JavaScriptで投稿カードをここに表示 -->
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

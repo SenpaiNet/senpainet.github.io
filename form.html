@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SenpaiNet｜相談フォーム</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="form.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-top">
+      <a href="index.html" class="logo-link">
+        <img src="senpainet logo.png" alt="SenpaiNetロゴ" class="logo-img">
+      </a>  
+      <form class="search-form">
+        <span class="material-icons">search</span>
+        <input type="text" placeholder="相談内容を検索" name="search">
+      </form>
+      <div class="auth-buttons">
+        <a href="#" class="btn login-btn"><span class="material-icons">login</span> ログイン</a>
+        <a href="#" class="btn register-btn"><span class="material-icons">person_add</span> 新規登録</a>
+      </div>
+    </div>
+    <!-- ナビゲーションバー -->
+<nav class="navbar">
+  <ul>
+    <li>
+      <a href="form.html">
+        <span class="material-icons nav-icon">edit_note</span>
+        <span class="nav-label">相談する</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+        <span class="material-icons nav-icon">list_alt</span>
+        <span class="nav-label">相談一覧</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+        <span class="material-icons nav-icon">category</span>
+        <span class="nav-label">カテゴリ</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+        <span class="material-icons nav-icon">info</span>
+        <span class="nav-label">SenpaiNetについて</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+</header>
+
+<section class="consult-form-section" id="consult-form-section">
+  <h2>SenpaiNet相談フォーム</h2>
+  <form id="consultForm">
+    <label>
+      カテゴリ
+      <select name="category" required>
+        <option value="">選択してください</option>
+        <option value="一般入試">一般入試</option>
+        <option value="AO入試">AO入試</option>
+        <option value="DP">DP</option>
+        <option value="その他">その他</option>
+      </select>
+    </label>
+    <label>
+      学年
+      <select name="grade" required>
+        <option value="">選択してください</option>
+        <option value="1年生">1年生</option>
+        <option value="2年生">2年生</option>
+        <option value="3年生">3年生</option>
+        <option value="4年生">4年生</option>
+        <option value="5年生">5年生</option>
+        <option value="6年生">6年生</option>
+      </select>
+    </label>
+    <label>
+      相談内容
+      <textarea name="content" rows="5" required placeholder="相談したい内容を入力してください"></textarea>
+    </label>
+    <button type="submit">送信</button>
+  </form>
+  <div id="consultMessage"></div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // フォームの送信イベントを取得
+  const form = document.getElementById('consultForm');
+  const message = document.getElementById('consultMessage');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // ここで送信処理（fetchなど）を行う
+    // 例：Google Apps Scriptに送信する場合
+    const data = {
+      category: form.category.value,
+      grade: form.grade.value,
+      content: form.content.value
+    };
+
+    fetch('YOUR_SCRIPT_URL', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res.text())
+    .then(res => {
+      // フォームを非表示に
+      form.style.display = "none";
+      // メッセージを中央に表示
+      message.textContent = "相談内容が送信されました。ご相談ありがとうございます！";
+    })
+    .catch(err => {
+      message.textContent = "送信に失敗しました。もう一度お試しください。";
+    });
+  });
+});
+</script>
+
+
+
+</body>
+</html>
