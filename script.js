@@ -69,36 +69,50 @@ function showSuccessAnimation() {
 }
 
 // ===============================
-// 投稿一覧（archive.html）
+// 投稿一覧（archive.html） + 回答件数バッジ
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
-  const listContainer = document.getElementById("postList");
-  if (!listContainer) return; // archive.htmlでのみ実行
+  const postList = document.getElementById("postList");
+  if (!postList) return;
 
   const posts = JSON.parse(localStorage.getItem("posts") || "[]");
-  posts.sort((a, b) => Number(b.id) - Number(a.id));
+  const comments = JSON.parse(localStorage.getItem("comments") || "[]");
 
   if (posts.length === 0) {
-    listContainer.innerHTML = "<p style='text-align:center;color:#64748b;'>まだ投稿がありません。</p>";
+    postList.innerHTML = "<p style='text-align:center;color:#64748b;'>まだ投稿がありません。</p>";
     return;
   }
 
-  posts.forEach(post => {
-    const card = document.createElement("div");
-    card.className = "post-card";
-    card.dataset.id = post.id;  // ← これが detail.html に渡る ID
+  posts.sort((a, b) => Number(b.id) - Number(a.id));
 
-    const tagsHTML = post.tags.map(tag => `<span class="tag">#${tag}</span>`).join(" ");
+  postList.innerHTML = posts.map(post => {
+    // 💬 コメント件数をカウント
+    const count = comments.filter(c => c.postId === post.id).length;
+    const badge = count > 0
+      ? `<span class="comment-badge">💬 ${count}件</span>`
+      : `<span class="comment-badge empty">💬 0件</span>`;
 
-    card.innerHTML = `
-      <h3>${post.title}</h3>
-      <p>${post.content.slice(0, 80)}...</p>
-      <div class="tags">${tagsHTML}</div>
+    return `
+      <div class="post-card" data-id="${post.id}">
+        <h3>${post.title}</h3>
+        <p>${post.content.slice(0, 80)}...</p>
+        <div class="post-meta">
+          <span class="tags">${post.tags.map(t => `#${t}`).join(" ")}</span>
+          ${badge}
+        </div>
+      </div>
     `;
+  }).join("");
 
-    listContainer.appendChild(card);
+  // 投稿クリック → 詳細ページへ
+  postList.addEventListener("click", (e) => {
+    const card = e.target.closest(".post-card");
+    if (!card) return;
+    const id = card.dataset.id;
+    window.location.href = `detail.html?id=${id}`;
   });
 });
+
 
 // ===============================
 // 投稿カード → 詳細ページへ
@@ -193,3 +207,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
