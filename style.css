@@ -75,10 +75,34 @@ body {
 /* Hero */
 .hero {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  padding: 60px 0;
+  justify-content: space-between;
+  padding: 60px 80px;
+  gap: 40px;
 }
+/* 左側(テキスト) */
+.hero-left {
+  flex: 1;
+}
+/* 右側(ロゴ) */
+.hero-right {
+  flex: 1;
+  text-align: center;
+}
+.hero-logo {
+  width: 80%;
+  max-width: 350px;
+  height: auto;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+}
+
+/* ふわっと表示アニメーション */
+@keyframes fadeIn {
+  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(20px); }
+}
+
 .hero-text {
   flex: 1;
   min-width: 280px;
@@ -297,3 +321,4 @@ h2 {
 .logout-btn:hover {
   background: #e2e8f0;
 }
+
