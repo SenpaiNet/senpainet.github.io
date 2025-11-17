@@ -87,20 +87,21 @@ body {
 /* 右側(ロゴ) */
 .hero-right {
   flex: 1;
+  display: flex;
+  justify-content: center;
   text-align: center;
 }
 .hero-logo {
   width: 80%;
   max-width: 350px;
   height: auto;
-  opacity: 0;
   animation: fadeIn 1.2s ease forwards;
 }
 
 /* ふわっと表示アニメーション */
 @keyframes fadeIn {
-  to { opacity: 1; transform: translateY(0); }
   from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .hero-text {
@@ -321,4 +322,5 @@ h2 {
 .logout-btn:hover {
   background: #e2e8f0;
 }
+
 
