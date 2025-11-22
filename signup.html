@@ -13,16 +13,17 @@
 
       <form id="signupForm">
 
-        <!-- ① 在校生 or 卒業生 -->
         <label>あなたは？</label>
         <div class="user-type">
           <label><input type="radio" name="userType" value="在校生" checked> 在校生</label>
           <label><input type="radio" name="userType" value="卒業生"> 卒業生</label>
         </div>
 
-        <!-- ② 基本情報 -->
         <label for="email">メールアドレス</label>
         <input type="email" id="email" placeholder="example@email.com" required>
+
+        <label for="password">パスワード</label>
+        <input type="password" id="password" placeholder="6文字以上で入力" required minlength="6">
 
         <label for="nickname">ニックネーム</label>
         <input type="text" id="nickname" placeholder="個人名はお控えください" required>
@@ -36,7 +37,6 @@
           <option>16回生</option>
         </select>
 
-        <!-- ③ 卒業生タグ選択 -->
         <div id="alumniTags" class="tag-select hidden">
           <label>得意分野（最大3つ）</label>
           <div class="tag-options">
@@ -54,6 +54,6 @@
     </div>
   </div>
 
-  <script src="signup.js"></script>
+  <script type="module" src="signup.js"></script>
 </body>
 </html>
