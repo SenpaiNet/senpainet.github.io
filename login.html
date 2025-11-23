@@ -4,12 +4,48 @@
   <meta charset="UTF-8">
   <title>ログイン | 未来図プラットフォーム</title>
   <link rel="stylesheet" href="signup.css">
+  <style>
+    /* Googleボタン用の追加スタイル */
+    .google-btn {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-weight: bold;
+      color: #555;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.2s;
+    }
+    .google-btn:hover { background-color: #f9f9f9; }
+    .or-divider {
+      text-align: center; margin: 15px 0; color: #aaa; font-size: 0.9rem;
+      position: relative;
+    }
+    .or-divider::before, .or-divider::after {
+      content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: #eee;
+    }
+    .or-divider::before { left: 0; }
+    .or-divider::after { right: 0; }
+  </style>
 </head>
 <body class="signup-page">
 
   <div class="signup-wrapper">
     <div class="signup-card">
       <h2>🔑 ログイン</h2>
+
+      <button id="googleLoginBtn" class="google-btn">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G" width="20">
+        Googleでログイン
+      </button>
+
+      <div class="or-divider">または</div>
 
       <form id="loginForm">
         <label for="email">メールアドレス</label>
