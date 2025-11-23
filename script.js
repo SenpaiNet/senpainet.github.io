@@ -1,210 +1,191 @@
-// ===============================
-// タグ選択（post.html）
-// ===============================
-let selectedTags = [];
+// Firebase SDKのインポート
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  const tagElements = document.querySelectorAll(".tag-option");
-  tagElements.forEach(tag => {
-    tag.addEventListener("click", () => {
-      const tagName = tag.dataset.tag;
-      if (selectedTags.includes(tagName)) {
-        selectedTags = selectedTags.filter(t => t !== tagName);
-        tag.classList.remove("selected");
-      } else {
-        selectedTags.push(tagName);
-        tag.classList.add("selected");
-      }
+// あなたのプロジェクト設定
+const firebaseConfig = {
+  apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
+  authDomain: "senpainet-84a24.firebaseapp.com",
+  projectId: "senpainet-84a24",
+  storageBucket: "senpainet-84a24.firebasestorage.app",
+  messagingSenderId: "1053589632945",
+  appId: "1:1053589632945:web:413919be47760675e4ef90",
+  measurementId: "G-1GPKNSMMFZ"
+};
+
+// 初期化
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let currentUser = null;
+
+// 1. ログイン状態の確認
+onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (!user) {
+    console.log("未ログイン状態です");
+  } else {
+    console.log("ログイン中:", user.email);
+  }
+});
+
+// 2. 投稿一覧を表示する処理
+const postListElement = document.getElementById('postList');
+if (postListElement) {
+  // Firestoreから投稿を取得（新しい順）
+  const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+
+  onSnapshot(q, (snapshot) => {
+    postListElement.innerHTML = ""; // 一旦クリア
+
+    if (snapshot.empty) {
+      postListElement.innerHTML = "<p style='text-align:center'>まだ相談の投稿がありません。</p>";
+      return;
+    }
+
+    snapshot.forEach((doc) => {
+      const post = doc.data();
+      const postId = doc.id;
+      
+      // タグの表示用HTML作成
+      const tagsHtml = post.tags ? post.tags.map(t => `#${t}`).join(" ") : "";
+
+      // カードを作成
+      const card = document.createElement('div');
+      card.className = 'post-card';
+      card.innerHTML = `
+        <div class="post-header">
+          <span class="author">👤 ${escapeHtml(post.nickname || "匿名ユーザー")}</span>
+          <span class="date">${formatDate(post.createdAt)}</span>
+        </div>
+        <h3 class="post-title">${escapeHtml(post.title || "無題")}</h3>
+        <div class="post-content">${escapeHtml(post.content || "")}</div>
+        <div class="post-tags">${escapeHtml(tagsHtml)}</div>
+        
+        <!-- ▼▼▼ ここが回答エリア ▼▼▼ -->
+        <div class="comments-section">
+          <h4>💬 みんなの回答</h4>
+          <div id="comments-${postId}" class="comment-list">
+            <p style="font-size:0.8em; color:#999;">読み込み中...</p>
+          </div>
+          
+          <!-- 回答入力フォーム -->
+          <div class="comment-form">
+            <textarea id="input-${postId}" placeholder="アドバイスを入力..."></textarea>
+            <div class="comment-controls">
+              <label class="anonymous-label">
+                <input type="checkbox" id="anon-${postId}"> 匿名で回答する
+              </label>
+              <button class="submit-comment-btn" data-id="${postId}">送信</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      postListElement.appendChild(card);
+
+      // この投稿に対する回答を読み込む関数を呼ぶ
+      loadComments(postId);
+
+      // 送信ボタンにイベントを追加
+      const submitBtn = card.querySelector(`.submit-comment-btn`);
+      submitBtn.addEventListener('click', () => submitComment(postId));
     });
   });
-});
-
-// ===============================
-// 投稿処理（post.html）
-// ===============================
-document.addEventListener("DOMContentLoaded", () => {
-  const postForm = document.getElementById("postForm");
-  if (!postForm) return;
-
-  postForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const title = document.getElementById("title").value;
-    const content = document.getElementById("content").value;
-
-    const newPost = {
-      id: Date.now().toString(),  // ← 文字列にしておくのが重要！
-      title,
-      content,
-      tags: selectedTags,
-      created_at: new Date().toISOString()
-    };
-
-    const posts = JSON.parse(localStorage.getItem("posts") || "[]");
-    posts.push(newPost);
-    localStorage.setItem("posts", JSON.stringify(posts));
-
-    showSuccessAnimation();
-  });
-});
-
-function showSuccessAnimation() {
-  const overlay = document.createElement("div");
-  overlay.className = "success-overlay";
-  overlay.innerHTML = `
-    <div class="success-card">
-      <div class="checkmark">✅</div>
-      <h3>投稿が完了しました！</h3>
-      <p>あなたの相談が公開されました。</p>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  setTimeout(() => {
-    overlay.classList.add("fade-out");
-  }, 2000);
-  setTimeout(() => {
-    window.location.href = "archive.html"; // ← 一覧ページがarchive.html
-  }, 2700);
 }
 
-// ===============================
-// 投稿一覧（archive.html） + 回答件数バッジ
-// ===============================
-document.addEventListener("DOMContentLoaded", () => {
-  const postList = document.getElementById("postList");
-  if (!postList) return;
+// 3. 回答（コメント）を読み込む関数
+function loadComments(postId) {
+  const commentsRef = collection(db, "posts", postId, "comments");
+  // 古い順（時系列）に表示
+  const qComments = query(commentsRef, orderBy("createdAt", "asc"));
 
-  const posts = JSON.parse(localStorage.getItem("posts") || "[]");
-  const comments = JSON.parse(localStorage.getItem("comments") || "[]");
+  onSnapshot(qComments, (snapshot) => {
+    const listDiv = document.getElementById(`comments-${postId}`);
+    listDiv.innerHTML = ""; // クリア
 
-  if (posts.length === 0) {
-    postList.innerHTML = "<p style='text-align:center;color:#64748b;'>まだ投稿がありません。</p>";
-    return;
-  }
-
-  posts.sort((a, b) => Number(b.id) - Number(a.id));
-
-  postList.innerHTML = posts.map(post => {
-    // 💬 コメント件数をカウント
-    const count = comments.filter(c => c.postId === post.id).length;
-    const badge = count > 0
-      ? `<span class="comment-badge">💬 ${count}件</span>`
-      : `<span class="comment-badge empty">💬 0件</span>`;
-
-    return `
-      <div class="post-card" data-id="${post.id}">
-        <h3>${post.title}</h3>
-        <p>${post.content.slice(0, 80)}...</p>
-        <div class="post-meta">
-          <span class="tags">${post.tags.map(t => `#${t}`).join(" ")}</span>
-          ${badge}
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  // 投稿クリック → 詳細ページへ
-  postList.addEventListener("click", (e) => {
-    const card = e.target.closest(".post-card");
-    if (!card) return;
-    const id = card.dataset.id;
-    window.location.href = `detail.html?id=${id}`;
-  });
-});
-
-
-// ===============================
-// 投稿カード → 詳細ページへ
-// ===============================
-document.addEventListener("DOMContentLoaded", () => {
-  const postList = document.getElementById("postList");
-  if (!postList) return;
-
-  postList.addEventListener("click", (e) => {
-    const card = e.target.closest(".post-card");
-    if (!card) return;
-    const postId = card.dataset.id;
-    window.location.href = `detail.html?id=${postId}`;
-  });
-});
-
-// ===============================
-// 詳細ページ（detail.html）
-// ===============================
-document.addEventListener("DOMContentLoaded", () => {
-  const detailContainer = document.getElementById("postDetail");
-  if (!detailContainer) return;
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const postId = urlParams.get("id");
-
-  const posts = JSON.parse(localStorage.getItem("posts") || "[]");
-  const post = posts.find(p => p.id === postId);
-
-  if (!post) {
-    detailContainer.innerHTML = "<p>投稿が見つかりません。</p>";
-    return;
-  }
-
-  const tagsHTML = post.tags.map(tag => `<span class="tag">#${tag}</span>`).join(" ");
-
-  detailContainer.innerHTML = `
-    <h2>${post.title}</h2>
-    <p>${post.content.replace(/\n/g, "<br>")}</p>
-    <div class="tags">${tagsHTML}</div>
-    <p style="color:#94a3b8;font-size:0.8rem;margin-top:15px;">
-      投稿日: ${new Date(post.created_at).toLocaleString("ja-JP")}
-    </p>
-  `;
-});
-
-// ===============================
-// プロフィールページ (profile.html)
-// ===============================
-document.addEventListener("DOMContentLoaded", () => {
-  const profileInfo = document.getElementById("profileInfo");
-  if (!profileInfo) return;
-
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-
-  // ログインしていない場合
-  if (!user) {
-    profileInfo.innerHTML = `
-      <p>アカウント情報が見つかりません。<br>
-      <a href="signup.html" style="color:#2563eb;">アカウントを作成</a>してください。</p>
-    `;
-    document.getElementById("editBtn").style.display = "none";
-    document.getElementById("logoutBtn").style.display = "none";
-    return;
-  }
-
-  // プロフィール情報を表示
-  const tagsHTML = user.tags?.length
-    ? user.tags.map(tag => `<span class="tag">#${tag}</span>`).join(" ")
-    : "<span style='color:#94a3b8;'>未設定</span>";
-
-  profileInfo.innerHTML = `
-    <div class="profile-info-item"><span>ニックネーム：</span>${user.nickname}</div>
-    <div class="profile-info-item"><span>属性：</span>${user.userType}</div>
-    <div class="profile-info-item"><span>学年：</span>${user.grade}</div>
-    <div class="profile-info-item"><span>メール：</span>${user.email}</div>
-    <div class="profile-info-item"><span>タグ：</span>${tagsHTML}</div>
-  `;
-
-  // 編集ボタン
-  document.getElementById("editBtn").addEventListener("click", () => {
-    window.location.href = "signup.html";
-  });
-
-  // ログアウトボタン
-  document.getElementById("logoutBtn").addEventListener("click", () => {
-    const confirmLogout = confirm("ログアウトしますか？");
-    if (confirmLogout) {
-      localStorage.removeItem("currentUser");
-      alert("ログアウトしました");
-      window.location.href = "archive.html";
+    if (snapshot.empty) {
+      listDiv.innerHTML = "<p style='font-size:0.9em; color:#aaa;'>回答はまだありません。一番乗りで答えよう！</p>";
+      return;
     }
-  });
-});
 
+    snapshot.forEach((doc) => {
+      const comment = doc.data();
+      const div = document.createElement('div');
+      div.className = 'comment-item';
+      
+      // ★匿名ロジック: isAnonymousがtrueなら「匿名先輩」、そうでなければ名前を表示
+      let displayName = comment.authorName || "名無し";
+      if (comment.isAnonymous) {
+        displayName = "匿名先輩";
+      }
+
+      div.innerHTML = `
+        <div class="comment-meta">
+          <strong>${escapeHtml(displayName)}</strong>
+          <span>${formatDate(comment.createdAt)}</span>
+        </div>
+        <div class="comment-body" style="white-space: pre-wrap;">${escapeHtml(comment.text)}</div>
+      `;
+      listDiv.appendChild(div);
+    });
+  });
+}
+
+// 4. 回答を送信する関数
+async function submitComment(postId) {
+  // ログインチェック
+  if (!currentUser) {
+    alert("回答するにはログインが必要です！");
+    window.location.href = "login.html";
+    return;
+  }
+
+  const input = document.getElementById(`input-${postId}`);
+  const anonCheck = document.getElementById(`anon-${postId}`);
+  const text = input.value.trim();
+  const isAnonymous = anonCheck.checked; // チェックボックスの状態を取得
+
+  if (!text) {
+    alert("コメントを入力してください");
+    return;
+  }
+
+  try {
+    // Firestoreのサブコレクション 'comments' に保存
+    const commentsRef = collection(db, "posts", postId, "comments");
+    
+    await addDoc(commentsRef, {
+      text: text,
+      authorId: currentUser.uid,
+      authorName: currentUser.displayName || "先輩ユーザー",
+      isAnonymous: isAnonymous,  // ★ここで「匿名かどうか」を記録します
+      createdAt: serverTimestamp()
+    });
+
+    // 入力欄をクリア
+    input.value = "";
+    // alert("送信しました"); // 邪魔なら消してもOK
+
+  } catch (error) {
+    console.error("送信エラー:", error);
+    alert("送信に失敗しました。");
+  }
+}
+
+// ユーティリティ: HTMLエスケープ（セキュリティ対策）
+function escapeHtml(str) {
+  if (!str) return "";
+  return str.replace(/[&<>"']/g, function(m) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+  });
+}
+
+// ユーティリティ: 日付フォーマット
+function formatDate(timestamp) {
+  if (!timestamp) return "";
+  const d = timestamp.toDate();
+  return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')}`;
+}
