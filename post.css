@@ -1,186 +1,211 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SenpaiNet｜相談を投稿</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; box-sizing: border-box;}
-    .post-wrapper { width: 100%; max-width: 600px; }
-    .post-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-    h2 { text-align: center; font-size: 1.8rem; color: #1f2937; margin-bottom: 5px; font-weight: bold; }
-    .subtitle { text-align: center; color: #6b7280; margin-bottom: 30px; font-size: 0.95rem; }
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #374151; }
-    .form-group input[type="text"], 
-    .form-group textarea { width: 100%; padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s; box-sizing: border-box;}
-    .form-group input:focus, .form-group textarea:focus { border-color: #2563eb; }
-    .tag-select { display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag-option { background: #f3f4f6; color: #4b5563; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; border: 1px solid transparent; transition: all 0.2s; select-none; user-select: none; }
-    .tag-option:hover { background: #e5e7eb; }
-    .tag-option.selected { background: #dbeafe; color: #1e40af; border-color: #2563eb; font-weight: bold; }
-    .submit-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: transform 0.1s, box-shadow 0.2s; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); }
-    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4); }
-    .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
-    .back-link { display: block; text-align: center; margin-top: 20px; color: #6b7280; text-decoration: none; font-size: 0.9rem; }
-    .success-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:9999; }
-    .success-card { background:white; padding:30px; border-radius:10px; text-align:center; animation: popIn 0.5s ease; }
-    .checkmark { font-size: 40px; margin-bottom: 10px; }
-    @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  </style>
-</head>
-<body class="post-page">
+/* === 背景全体 === */
+body.post-page {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #c7d2fe 0%, #e0f2fe 50%, #e0ffe7 100%);
+  font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+}
 
-  <div class="post-wrapper">
-    <div class="post-card">
-      <h2>💬 新しい相談を投稿する</h2>
-      <p class="subtitle">あなたの悩み・質問をシェアしてみよう</p>
+/* === フォームを囲む中央カード === */
+.post-wrapper {
+  width: 100%;
+  max-width: 480px;
+  padding: 20px;
+}
 
-      <form id="postForm">
-        <div class="form-group">
-          <label for="title">タイトル</label>
-          <input type="text" id="title" placeholder="例：AO入試で使える課外活動について" required>
-        </div>
+.post-card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px 35px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  animation: fadeIn 0.6s ease;
+}
 
-        <div class="form-group">
-          <label for="content">内容</label>
-          <textarea id="content" rows="6" placeholder="詳しい相談内容を書いてください…" required></textarea>
-        </div>
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-        <div class="form-group">
-          <label>タグを選択 (制限なし)</label>
-          <div id="tagSelect" class="tag-select">
-            <span class="tag-option" data-tag="一般入試">#一般入試</span>
-            <span class="tag-option" data-tag="AO入試">#AO入試</span>
-            <span class="tag-option" data-tag="DP">#DP</span>
-            <span class="tag-option" data-tag="課外活動">#課外活動</span>
-            <span class="tag-option" data-tag="履修">#履修</span>
-            <span class="tag-option" data-tag="海外大学">#海外大学</span>
-            <span class="tag-option" data-tag="部活">#部活</span>
-            <span class="tag-option" data-tag="英検">#英検</span>
-            <span class="tag-option" data-tag="IELTS">#IELTS</span>
-            <span class="tag-option" data-tag="TOEFL">#TOEFL</span>
-            <span class="tag-option" data-tag="模試">#模試</span>
-          </div>
-        </div>
+/* === タイトル部分 === */
+h2 {
+  color: #1e3a8a;
+  text-align: center;
+  margin-bottom: 5px;
+}
+.subtitle {
+  text-align: center;
+  color: #475569;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
 
-        <button type="submit" class="submit-btn" id="submitBtn">🚀 投稿する</button>
-      </form>
+/* === 各入力欄 === */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 15px;
+}
 
-      <a href="archive.html" class="back-link">← 一覧に戻る</a>
-    </div>
-  </div>
+label {
+  font-weight: 600;
+  color: #1e293b;
+}
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+input, textarea {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  transition: all 0.25s;
+  background-color: #f9fafb;
+}
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
-      authDomain: "senpainet-84a24.firebaseapp.com",
-      projectId: "senpainet-84a24",
-      storageBucket: "senpainet-84a24.firebasestorage.app",
-      messagingSenderId: "1053589632945",
-      appId: "1:1053589632945:web:413919be47760675e4ef90",
-      measurementId: "G-1GPKNSMMFZ"
-    };
+input:focus, textarea:focus {
+  border-color: #3b82f6;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.2);
+  outline: none;
+}
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+/* === 投稿ボタン === */
+.submit-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s, background 0.4s;
+}
 
-    // 1. ログイン監視
-    onAuthStateChanged(auth, (user) => {
-        if(!user) {
-            signInAnonymously(auth);
-        }
-    });
+.submit-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+}
 
-    // ログイン待機関数
-    function ensureLogin() {
-        return new Promise((resolve) => {
-            if (auth.currentUser) {
-                resolve(auth.currentUser);
-                return;
-            }
-            const unsubscribe = onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    unsubscribe();
-                    resolve(user);
-                }
-            });
-        });
-    }
+/* === 戻るリンク === */
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 15px;
+  color: #4338ca;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
 
-    // 2. 投稿ロジック
-    const postForm = document.getElementById("postForm");
-    const submitBtn = document.getElementById("submitBtn");
-    let selectedTags = [];
-    
-    // タグ選択
-    document.querySelectorAll(".tag-option").forEach(tag => {
-        tag.addEventListener("click", () => {
-            const tagName = tag.dataset.tag;
-            if (selectedTags.includes(tagName)) {
-                selectedTags = selectedTags.filter(t => t !== tagName);
-                tag.classList.remove("selected");
-            } else {
-                selectedTags.push(tagName);
-                tag.classList.add("selected");
-            }
-        });
-    });
+.back-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
 
-    // 送信
-    postForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        
-        const title = document.getElementById("title").value;
-        const content = document.getElementById("content").value;
+/* === スマホ対応 === */
+@media (max-width: 600px) {
+  .post-card {
+    padding: 20px;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
+}
 
-        // ボタンを無効化して連打防止＆待機表示
-        submitBtn.disabled = true;
-        submitBtn.textContent = "🚀 準備中...";
+/* === タグ選択エリア === */
+.tag-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px;
+}
 
-        try {
-            // ★ ここでログイン完了を確実に待つ
-            const user = await ensureLogin();
-            submitBtn.textContent = "🚀 送信中...";
+/* === タグの基本デザイン === */
+.tag-option {
+  background: #e0e7ff;
+  color: #1e3a8a;
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+  user-select: none;
+  font-weight: 500;
+}
 
-            await addDoc(collection(db, "posts"), {
-                title: title,
-                content: content,
-                tags: selectedTags,
-                authorId: user.uid,
-                nickname: user.displayName || "匿名ユーザー",
-                createdAt: serverTimestamp()
-            });
+.tag-option:hover {
+  background: #c7d2fe;
+  transform: scale(1.05);
+}
 
-            // 成功アニメーション
-            const overlay = document.createElement("div");
-            overlay.className = "success-overlay";
-            overlay.innerHTML = `
-                <div class="success-card">
-                <div class="checkmark">✅</div>
-                <h3>投稿が完了しました！</h3>
-                <p>あなたの相談が公開されました。</p>
-                </div>
-            `;
-            document.body.appendChild(overlay);
+/* === タグを選択したとき === */
+.tag-option.selected {
+  background: linear-gradient(90deg, #1e40af, #2563eb); /* ←濃い青グラデーション */
+  color: #ffffff;
+  transform: scale(1.08);
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.45);
+}
 
-            setTimeout(() => {
-                window.location.href = "archive.html"; 
-            }, 2000);
+/* === 投稿完了アニメーション === */
+.success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(240, 249, 255, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  animation: fadeIn 0.4s ease;
+}
 
-        } catch (error) {
-            console.error("投稿エラー:", error);
-            alert("投稿に失敗しました。\n" + error.message);
-            submitBtn.disabled = false;
-            submitBtn.textContent = "🚀 投稿する";
-        }
-    });
-  </script>
-</body>
-</html>
+.success-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px 50px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  animation: popIn 0.5s ease-out;
+}
+
+.success-card h3 {
+  color: #1e3a8a;
+  margin-top: 10px;
+}
+
+.success-card p {
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.checkmark {
+  font-size: 3rem;
+  animation: bounce 0.5s ease-out;
+}
+
+/* === アニメーション === */
+@keyframes popIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bounce {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.fade-out {
+  animation: fadeOut 0.5s ease forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
