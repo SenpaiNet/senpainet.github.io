@@ -21,17 +21,127 @@ const auth = getAuth(app);
 
 let currentUser = null;
 
-// 1. ログイン状態の確認
+// ===============================================
+// 1. 共通: ログイン状態の監視
+// ===============================================
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
   if (!user) {
     console.log("未ログイン状態です");
+    // 投稿ページにいる場合のみ、ログイン画面へ飛ばす等の処理が必要ならここに書く
   } else {
     console.log("ログイン中:", user.email);
   }
 });
 
-// 2. 投稿一覧を表示する処理
+// ログアウトボタン（共通）
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    signOut(auth).then(() => {
+      alert("ログアウトしました");
+      window.location.href = "login.html";
+    });
+  });
+}
+
+
+// ===============================================
+// 2. 投稿ページ (post.html) 用の処理
+// ===============================================
+const postForm = document.getElementById("postForm");
+if (postForm) {
+  // ① タグ選択ロジック
+  let selectedTags = [];
+  const tagElements = document.querySelectorAll(".tag-option");
+  
+  tagElements.forEach(tag => {
+    tag.addEventListener("click", () => {
+      const tagName = tag.dataset.tag;
+      if (selectedTags.includes(tagName)) {
+        selectedTags = selectedTags.filter(t => t !== tagName);
+        tag.classList.remove("selected");
+      } else {
+        if (selectedTags.length >= 3) {
+          alert("タグは3つまでです");
+          return;
+        }
+        selectedTags.push(tagName);
+        tag.classList.add("selected");
+      }
+    });
+  });
+
+  // ② 送信処理（Firebaseへ保存）
+  postForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (!currentUser) {
+      alert("投稿するにはログインが必要です！");
+      window.location.href = "login.html";
+      return;
+    }
+
+    const title = document.getElementById("title").value;
+    const content = document.getElementById("content").value;
+
+    try {
+      // Firestoreに保存
+      await addDoc(collection(db, "posts"), {
+        title: title,
+        content: content,
+        tags: selectedTags,
+        authorId: currentUser.uid,
+        nickname: currentUser.displayName || "匿名ユーザー",
+        createdAt: serverTimestamp() // サーバー時間を使う
+      });
+
+      // 成功アニメーション（元のコードを再現）
+      showSuccessAnimation();
+
+    } catch (error) {
+      console.error("投稿エラー:", error);
+      alert("投稿に失敗しました。");
+    }
+  });
+}
+
+// 成功時のアニメーション関数
+function showSuccessAnimation() {
+  const overlay = document.createElement("div");
+  overlay.className = "success-overlay";
+  overlay.innerHTML = `
+    <div class="success-card">
+      <div class="checkmark">✅</div>
+      <h3>投稿が完了しました！</h3>
+      <p>あなたの相談が公開されました。</p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // CSSでアニメーションさせるためのスタイルを動的に追加（post.htmlにCSSがない場合用）
+  if (!document.querySelector('#success-style')) {
+    const style = document.createElement('style');
+    style.id = 'success-style';
+    style.textContent = `
+      .success-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:9999; }
+      .success-card { background:white; padding:30px; border-radius:10px; text-align:center; animation: popIn 0.5s ease; }
+      .checkmark { font-size: 40px; margin-bottom: 10px; }
+      @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    `;
+    document.head.appendChild(style);
+  }
+
+  setTimeout(() => {
+    window.location.href = "archive.html"; // 一覧へ移動
+  }, 2000);
+}
+
+
+// ===============================================
+// 3. 一覧ページ (archive.html) 用の処理
+// ===============================================
 const postListElement = document.getElementById('postList');
 if (postListElement) {
   // Firestoreから投稿を取得（新しい順）
@@ -49,10 +159,8 @@ if (postListElement) {
       const post = doc.data();
       const postId = doc.id;
       
-      // タグの表示用HTML作成
       const tagsHtml = post.tags ? post.tags.map(t => `#${t}`).join(" ") : "";
 
-      // カードを作成
       const card = document.createElement('div');
       card.className = 'post-card';
       card.innerHTML = `
@@ -64,14 +172,13 @@ if (postListElement) {
         <div class="post-content">${escapeHtml(post.content || "")}</div>
         <div class="post-tags">${escapeHtml(tagsHtml)}</div>
         
-        <!-- ▼▼▼ ここが回答エリア ▼▼▼ -->
+        <!-- 回答エリア -->
         <div class="comments-section">
           <h4>💬 みんなの回答</h4>
           <div id="comments-${postId}" class="comment-list">
             <p style="font-size:0.8em; color:#999;">読み込み中...</p>
           </div>
           
-          <!-- 回答入力フォーム -->
           <div class="comment-form">
             <textarea id="input-${postId}" placeholder="アドバイスを入力..."></textarea>
             <div class="comment-controls">
@@ -85,29 +192,25 @@ if (postListElement) {
       `;
       
       postListElement.appendChild(card);
-
-      // この投稿に対する回答を読み込む関数を呼ぶ
       loadComments(postId);
 
-      // 送信ボタンにイベントを追加
       const submitBtn = card.querySelector(`.submit-comment-btn`);
       submitBtn.addEventListener('click', () => submitComment(postId));
     });
   });
 }
 
-// 3. 回答（コメント）を読み込む関数
+// コメント読み込み関数
 function loadComments(postId) {
   const commentsRef = collection(db, "posts", postId, "comments");
-  // 古い順（時系列）に表示
   const qComments = query(commentsRef, orderBy("createdAt", "asc"));
 
   onSnapshot(qComments, (snapshot) => {
     const listDiv = document.getElementById(`comments-${postId}`);
-    listDiv.innerHTML = ""; // クリア
+    listDiv.innerHTML = ""; 
 
     if (snapshot.empty) {
-      listDiv.innerHTML = "<p style='font-size:0.9em; color:#aaa;'>回答はまだありません。一番乗りで答えよう！</p>";
+      listDiv.innerHTML = "<p style='font-size:0.9em; color:#aaa;'>回答はまだありません。</p>";
       return;
     }
 
@@ -116,7 +219,6 @@ function loadComments(postId) {
       const div = document.createElement('div');
       div.className = 'comment-item';
       
-      // ★匿名ロジック: isAnonymousがtrueなら「匿名先輩」、そうでなければ名前を表示
       let displayName = comment.authorName || "名無し";
       if (comment.isAnonymous) {
         displayName = "匿名先輩";
@@ -134,9 +236,8 @@ function loadComments(postId) {
   });
 }
 
-// 4. 回答を送信する関数
+// コメント送信関数
 async function submitComment(postId) {
-  // ログインチェック
   if (!currentUser) {
     alert("回答するにはログインが必要です！");
     window.location.href = "login.html";
@@ -146,7 +247,7 @@ async function submitComment(postId) {
   const input = document.getElementById(`input-${postId}`);
   const anonCheck = document.getElementById(`anon-${postId}`);
   const text = input.value.trim();
-  const isAnonymous = anonCheck.checked; // チェックボックスの状態を取得
+  const isAnonymous = anonCheck.checked;
 
   if (!text) {
     alert("コメントを入力してください");
@@ -154,20 +255,16 @@ async function submitComment(postId) {
   }
 
   try {
-    // Firestoreのサブコレクション 'comments' に保存
     const commentsRef = collection(db, "posts", postId, "comments");
-    
     await addDoc(commentsRef, {
       text: text,
       authorId: currentUser.uid,
       authorName: currentUser.displayName || "先輩ユーザー",
-      isAnonymous: isAnonymous,  // ★ここで「匿名かどうか」を記録します
+      isAnonymous: isAnonymous,
       createdAt: serverTimestamp()
     });
 
-    // 入力欄をクリア
     input.value = "";
-    // alert("送信しました"); // 邪魔なら消してもOK
 
   } catch (error) {
     console.error("送信エラー:", error);
@@ -175,7 +272,7 @@ async function submitComment(postId) {
   }
 }
 
-// ユーティリティ: HTMLエスケープ（セキュリティ対策）
+// ユーティリティ
 function escapeHtml(str) {
   if (!str) return "";
   return str.replace(/[&<>"']/g, function(m) {
@@ -183,7 +280,6 @@ function escapeHtml(str) {
   });
 }
 
-// ユーティリティ: 日付フォーマット
 function formatDate(timestamp) {
   if (!timestamp) return "";
   const d = timestamp.toDate();
