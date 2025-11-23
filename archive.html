@@ -6,27 +6,46 @@
   <link rel="stylesheet" href="archive.css">
 
   <!-- Firebase SDKの読み込み -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    // ★追加: 認証機能をインポート
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-  // あなたのプロジェクト設定（貼り付け）
-const firebaseConfig = {
-  apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
-  authDomain: "senpainet-84a24.firebaseapp.com",
-  projectId: "senpainet-84a24",
-  storageBucket: "senpainet-84a24.firebasestorage.app",
-  messagingSenderId: "1053589632945",
-  appId: "1:1053589632945:web:413919be47760675e4ef90",
-  measurementId: "G-1GPKNSMMFZ"
-};
+    // あなたのプロジェクト設定
+    const firebaseConfig = {
+      apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
+      authDomain: "senpainet-84a24.firebaseapp.com",
+      projectId: "senpainet-84a24",
+      storageBucket: "senpainet-84a24.firebasestorage.app",
+      messagingSenderId: "1053589632945",
+      appId: "1:1053589632945:web:413919be47760675e4ef90",
+      measurementId: "G-1GPKNSMMFZ"
+    };
 
+    // Firebase初期化
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app); // ★追加: Authの初期化
 
-  // Firebase初期化
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  window.db = db; // 他スクリプトでも使えるようにする
-</script>
+    window.db = db; // 他スクリプトでも使えるようにする
+
+    // ★追加: ログアウト処理
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // リンクの移動をキャンセル
+        signOut(auth).then(() => {
+          alert("ログアウトしました 👋");
+          // ログインページへ移動（この後作ります）
+          window.location.href = "login.html";
+        }).catch((error) => {
+          console.error("ログアウトエラー:", error);
+          alert("ログアウトに失敗しました");
+        });
+      });
+    }
+  </script>
 
 </head>
 <body class="list-page">
@@ -45,7 +64,8 @@ const firebaseConfig = {
         <a href="archive.html" class="active">相談を見る</a>
         <a href="#">実績</a>
         <a href="#">お問い合わせ</a>
-        <a href="signup.html" class="account-link">👤 アカウント</a>
+        <!-- ★変更: アカウント登録リンクをログアウトボタンに変更 -->
+        <a href="#" id="logoutBtn" class="account-link" style="color: #ff6b6b;">🚪 ログアウト</a>
       </nav>
     </div>
   </header>
@@ -65,9 +85,7 @@ const firebaseConfig = {
       <!-- JavaScriptで投稿カードをここに表示 -->
     </section>
   </main>
-  
+   
   <script src="script.js"></script>
 </body>
 </html>
-
-
