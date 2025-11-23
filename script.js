@@ -1,4 +1,48 @@
 // script.js
+import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+const auth = getAuth(app);
+
+// ★重要：明示的に「ローカル（ブラウザ）に保存しろ」と命令する（念の為）
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    // 保存設定完了
+  })
+  .catch((error) => {
+    console.error("保存設定エラー:", error);
+  });
+
+
+// ★重要：ページを開いた瞬間にログイン状態を監視する
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // 【ログインしている時】
+    console.log("ログイン中:", user.displayName);
+    
+    // 1. ログアウトボタンを表示するなどのUI操作があればここに書く
+    const logoutBtn = document.getElementById('logoutBtn');
+    if(logoutBtn) logoutBtn.style.display = "block"; // 表示
+
+    // 2. ログインボタンがあれば隠す
+    // const loginBtn = document.getElementById('loginBtn');
+    // if(loginBtn) loginBtn.style.display = "none";
+
+  } else {
+    // 【ログインしていない時】
+    console.log("未ログイン（ゲスト）");
+
+    // 1. ログアウトボタンを隠す
+    const logoutBtn = document.getElementById('logoutBtn');
+    if(logoutBtn) logoutBtn.style.display = "none"; 
+
+    // 2. ログイン必須のページ（post.htmlなど）に居るなら、強制的に追い出す
+    // （index.html や archive.html はゲストでも見ていいなら除外する）
+    if (window.location.pathname.includes('post.html')) {
+        alert("ログインの有効期限が切れています。再度ログインしてください。");
+        window.location.href = "login.html";
+    }
+  }
+});
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
@@ -102,3 +146,4 @@ searchBtn.addEventListener('click', () => {
 // CSS調整用（archive.cssで足りない部分をJSで補完する場合、または既存CSSに合わせる）
 // 既存のarchive.cssに .post-card:hover { transform: translateY(-3px); box-shadow: ... } 
 // などがあると、クリックできる感じが出て良いです。
+
