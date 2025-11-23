@@ -2,74 +2,75 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>投稿一覧 | SenpaiNet</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; color: #333; }
-    .navbar { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
-    .navbar-container { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
-    .navbar-logo a { font-weight: bold; font-size: 1.5rem; color: #2563eb; text-decoration: none; }
-    .navbar-menu a { margin-left: 20px; text-decoration: none; color: #555; font-size: 0.95rem; transition: color 0.2s; }
-    .navbar-menu a:hover, .navbar-menu a.active { color: #2563eb; font-weight: bold; }
-    
-    main { max-width: 800px; margin: 30px auto; padding: 0 20px; }
-    
-    .header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 15px; }
-    .header h1 { font-size: 1.8rem; font-weight: bold; color: #1f2937; margin: 0; }
-    
-    .search-bar { display: flex; gap: 10px; flex-grow: 1; max-width: 400px; }
-    .search-bar input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; }
-    .search-bar button { padding: 10px 20px; background: #4b5563; color: white; border: none; border-radius: 6px; cursor: pointer; }
-    
-    .new-post-btn { display: inline-block; background: #2563eb; color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; transition: background 0.2s; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
-    .new-post-btn:hover { background: #1d4ed8; }
+  <link rel="stylesheet" href="archive.css">
 
-    .post-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; transition: transform 0.1s; }
-    .post-header { display: flex; justify-content: space-between; color: #6b7280; font-size: 0.9rem; margin-bottom: 10px; }
-    .post-title { font-size: 1.4rem; font-weight: bold; margin: 0 0 10px 0; color: #111; }
-    .post-content { font-size: 1rem; line-height: 1.6; color: #374151; margin-bottom: 15px; white-space: pre-wrap; }
-    .post-tags { margin-bottom: 20px; font-size: 0.9rem; }
-    .tag-pill { display: inline-block; background: #e0f2fe; color: #0284c7; padding: 4px 10px; border-radius: 15px; margin-right: 5px; margin-bottom: 5px; }
+  <!-- Firebase SDKの読み込み -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    // ★追加: 認証機能をインポート
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-    .comments-section { background: #f9fafb; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #e5e7eb; }
-    .comments-section h4 { font-size: 1rem; margin: 0 0 15px 0; color: #4b5563; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-    .comment-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #eee; }
-    .comment-item:last-child { border-bottom: none; }
-    .comment-meta { font-size: 0.85rem; color: #6b7280; margin-bottom: 4px; display: flex; justify-content: space-between; }
-    .comment-body { font-size: 0.95rem; color: #333; }
+    // あなたのプロジェクト設定
+    const firebaseConfig = {
+      apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
+      authDomain: "senpainet-84a24.firebaseapp.com",
+      projectId: "senpainet-84a24",
+      storageBucket: "senpainet-84a24.firebasestorage.app",
+      messagingSenderId: "1053589632945",
+      appId: "1:1053589632945:web:413919be47760675e4ef90",
+      measurementId: "G-1GPKNSMMFZ"
+    };
 
-    .comment-form textarea { width: 100%; border: 1px solid #ddd; border-radius: 6px; padding: 10px; font-size: 0.95rem; min-height: 60px; margin-bottom: 10px; resize: vertical; }
-    .comment-controls { display: flex; justify-content: space-between; align-items: center; }
-    .submit-comment-btn { background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
-    .submit-comment-btn:hover { background: #059669; }
-    .anonymous-label { font-size: 0.9rem; color: #555; display: flex; align-items: center; gap: 5px; cursor: pointer; }
-    
-    .loading-state { opacity: 0.5; pointer-events: none; }
+    // Firebase初期化
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app); // ★追加: Authの初期化
 
-    @media (max-width: 600px) {
-      .header { flex-direction: column; align-items: stretch; }
-      .search-bar { max-width: 100%; }
-      .new-post-btn { text-align: center; }
+    window.db = db; // 他スクリプトでも使えるようにする
+
+    // ★追加: ログアウト処理
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // リンクの移動をキャンセル
+        signOut(auth).then(() => {
+          alert("ログアウトしました 👋");
+          // ログインページへ移動（この後作ります）
+          window.location.href = "login.html";
+        }).catch((error) => {
+          console.error("ログアウトエラー:", error);
+          alert("ログアウトに失敗しました");
+        });
+      });
     }
-  </style>
+  </script>
+
 </head>
 <body class="list-page">
 
+  <!-- ナビゲーションバー -->
   <header class="navbar">
     <div class="navbar-container">
+      <!-- 左：ロゴ -->
       <div class="navbar-logo">
-        <a href="archive.html">SenpaiNet</a>
+        <a href="index.html">SenpaiNet</a>
       </div>
+
+      <!-- 右：メニュー -->
       <nav class="navbar-menu">
         <a href="post.html">相談する</a>
         <a href="archive.html" class="active">相談を見る</a>
         <a href="#">実績</a>
-        <a href="signup.html" class="account-link">👤 アカウント</a>
+        <a href="#">お問い合わせ</a>
+        <!-- ★変更: アカウント登録リンクをログアウトボタンに変更 -->
+        <a href="#" id="logoutBtn" class="account-link" style="color: #ff6b6b;">🚪 ログアウト</a>
       </nav>
     </div>
   </header>
 
+  <!-- ページメイン -->
   <main>
     <section class="header">
       <h1>🌐 みんなの相談一覧</h1>
@@ -81,200 +82,10 @@
     </section>
 
     <section class="post-list" id="postList">
-      <div style="text-align:center; padding: 40px; color:#888;">
-        読み込み中...
-      </div>
+      <!-- JavaScriptで投稿カードをここに表示 -->
     </section>
   </main>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
-      authDomain: "senpainet-84a24.firebaseapp.com",
-      projectId: "senpainet-84a24",
-      storageBucket: "senpainet-84a24.firebasestorage.app",
-      messagingSenderId: "1053589632945",
-      appId: "1:1053589632945:web:413919be47760675e4ef90",
-      measurementId: "G-1GPKNSMMFZ"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    let currentUser = null;
-
-    // 1. 確実なログイン監視
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        currentUser = user;
-      } else {
-        signInAnonymously(auth);
-      }
-    });
-
-    // ログインを待機する関数 (ここが修正ポイント)
-    function ensureLogin() {
-        return new Promise((resolve) => {
-            // すでにログイン済みなら即完了
-            if (auth.currentUser) {
-                resolve(auth.currentUser);
-                return;
-            }
-            // まだならログイン完了まで待つ
-            const unsubscribe = onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    unsubscribe();
-                    currentUser = user;
-                    resolve(user);
-                }
-            });
-        });
-    }
-
-    // 2. 投稿一覧ロジック
-    const postListElement = document.getElementById('postList');
-    const postsRef = collection(db, "posts");
-    const q = query(postsRef, orderBy("createdAt", "desc"));
-
-    onSnapshot(q, (snapshot) => {
-        postListElement.innerHTML = "";
-        if (snapshot.empty) {
-            postListElement.innerHTML = "<p style='text-align:center; padding:40px; color:#666;'>まだ相談の投稿がありません。</p>";
-            return;
-        }
-
-        snapshot.forEach((doc) => {
-            const post = doc.data();
-            const postId = doc.id;
-            const tagsHtml = post.tags ? post.tags.map(t => `<span class="tag-pill">#${t}</span>`).join("") : "";
-
-            const card = document.createElement('div');
-            card.className = 'post-card';
-            card.innerHTML = `
-                <div class="post-header">
-                <span class="author">👤 ${escapeHtml(post.nickname || "匿名ユーザー")}</span>
-                <span class="date">${formatDate(post.createdAt)}</span>
-                </div>
-                <h3 class="post-title">${escapeHtml(post.title || "無題")}</h3>
-                <div class="post-content">${escapeHtml(post.content || "")}</div>
-                <div class="post-tags">${tagsHtml}</div>
-                
-                <div class="comments-section">
-                <h4>💬 みんなの回答</h4>
-                <div id="comments-${postId}" class="comment-list">
-                    <p style="font-size:0.8em; color:#999;">読み込み中...</p>
-                </div>
-                
-                <div class="comment-form">
-                    <textarea id="input-${postId}" placeholder="この相談にアドバイスする..."></textarea>
-                    <div class="comment-controls">
-                    <label class="anonymous-label">
-                        <input type="checkbox" id="anon-${postId}"> 匿名で回答
-                    </label>
-                    <button class="submit-comment-btn" id="btn-${postId}">送信</button>
-                    </div>
-                </div>
-                </div>
-            `;
-            postListElement.appendChild(card);
-            
-            loadComments(postId);
-
-            const submitBtn = card.querySelector(`#btn-${postId}`);
-            submitBtn.addEventListener('click', () => submitComment(postId, submitBtn));
-        });
-    });
-
-    function loadComments(postId) {
-        const commentsRef = collection(db, "posts", postId, "comments");
-        const qComments = query(commentsRef, orderBy("createdAt", "asc"));
-
-        onSnapshot(qComments, (snapshot) => {
-            const listDiv = document.getElementById(`comments-${postId}`);
-            listDiv.innerHTML = "";
-
-            if (snapshot.empty) {
-                listDiv.innerHTML = "<p style='font-size:0.9em; color:#aaa; font-style:italic;'>回答はまだありません。</p>";
-                return;
-            }
-
-            snapshot.forEach((doc) => {
-                const comment = doc.data();
-                const div = document.createElement('div');
-                div.className = 'comment-item';
-                
-                let displayName = comment.authorName || "名無し";
-                if (comment.isAnonymous) displayName = "匿名先輩";
-
-                div.innerHTML = `
-                    <div class="comment-meta">
-                    <strong>${escapeHtml(displayName)}</strong>
-                    <span>${formatDate(comment.createdAt)}</span>
-                    </div>
-                    <div class="comment-body" style="white-space: pre-wrap;">${escapeHtml(comment.text)}</div>
-                `;
-                listDiv.appendChild(div);
-            });
-        });
-    }
-
-    // 3. 送信ロジック（修正：ログイン待機機能を追加）
-    window.submitComment = async (postId, btnElement) => {
-        const input = document.getElementById(`input-${postId}`);
-        const text = input.value.trim();
-        if (!text) {
-            alert("コメントを入力してください");
-            return;
-        }
-
-        // ボタンを一時的に無効化
-        btnElement.textContent = "送信中...";
-        btnElement.disabled = true;
-
-        try {
-            // ★ ここでログイン完了を待つ
-            const user = await ensureLogin();
-
-            const anonCheck = document.getElementById(`anon-${postId}`);
-            const isAnonymous = anonCheck.checked;
-
-            const commentsRef = collection(db, "posts", postId, "comments");
-            await addDoc(commentsRef, {
-                text: text,
-                authorId: user.uid,
-                authorName: user.displayName || "先輩ユーザー",
-                isAnonymous: isAnonymous,
-                createdAt: serverTimestamp()
-            });
-            input.value = ""; 
-
-        } catch (error) {
-            console.error("送信エラー:", error);
-            alert("送信に失敗しました。");
-        } finally {
-            // ボタンを元に戻す
-            btnElement.textContent = "送信";
-            btnElement.disabled = false;
-        }
-    };
-
-    function escapeHtml(str) {
-        if (!str) return "";
-        return str.replace(/[&<>"']/g, function(m) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-        });
-    }
-
-    function formatDate(timestamp) {
-        if (!timestamp) return "";
-        const d = timestamp.toDate();
-        return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')}`;
-    }
-  </script>
+   
+  <script src="script.js"></script>
 </body>
 </html>
