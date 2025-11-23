@@ -1,6 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-// setPersistence も追加して念押しで保存設定をする
 import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -17,44 +16,65 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// ★ローディング要素を取得
+// ---------------------------------------------------
+// 1. 画面の制御（ローディングとフォーム）
+// ---------------------------------------------------
 const loader = document.getElementById('global-loader');
+const postWrapper = document.querySelector('.post-wrapper'); // 投稿フォーム全体
 
-// 0. ログイン永続化の設定（念の為）
+// 念の為の保存設定
 setPersistence(auth, browserLocalPersistence).catch(console.error);
 
-// ---------------------------------------------------
-// 1. ログイン状態の監視（ここが心臓部）
-// ---------------------------------------------------
 let currentUser = null;
 
+// ★★★ ここが修正ポイント ★★★
+// 「勝手に飛ばさない」。ダメなら「ダメです」と表示するだけにする。
 onAuthStateChanged(auth, (user) => {
-  // ここに来た時点で「確認完了」
-  
+  // まずローディングを消す
+  if(loader) {
+      loader.style.opacity = '0';
+      setTimeout(() => loader.style.display = 'none', 500);
+  }
+
   if (user) {
-    // 【ログイン成功】
+    // 【ログインOK】
     currentUser = user;
     console.log("ログイン確認OK:", user.displayName);
-    
-    // ローディング画面を消す
-    if(loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => loader.style.display = 'none', 500);
-    }
+    // フォームを表示する
+    if(postWrapper) postWrapper.style.display = 'block';
     
   } else {
     // 【未ログイン】
     console.log("未ログインです");
     
-    // post.html はログイン必須なので、ここで初めて追い出す
-    alert("ログインが必要です。ログインページへ移動します。");
-    window.location.href = "login.html"; // ←ログインページがある場合
-    // もしなければ index.html へ
+    // 1. フォームを隠す（投稿させない）
+    if(postWrapper) postWrapper.style.display = 'none';
+
+    // 2. 「ログインしてください」というメッセージを画面に出す
+    // alert() や location.href で飛ばすとループするので、画面にボタンを出すのが正解
+    const loginMsg = document.createElement('div');
+    loginMsg.innerHTML = `
+      <div style="
+          position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+          text-align: center; width: 90%; max-width: 400px;
+      ">
+        <h2 style="color:#333; margin-bottom:1rem;">🔒 ログインが必要です</h2>
+        <p style="color:#666; margin-bottom:2rem;">相談を投稿するにはログインしてください。</p>
+        <a href="login.html" style="
+            background: #ff6b6b; color: white; padding: 12px 30px; 
+            border-radius: 25px; text-decoration: none; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+        ">ログインページへ</a>
+        <br><br>
+        <a href="archive.html" style="color:#888; font-size:0.9rem;">相談一覧に戻る</a>
+      </div>
+    `;
+    document.body.appendChild(loginMsg);
   }
 });
 
 // ---------------------------------------------------
-// 2. タグ選択機能（変更なし）
+// 2. タグ選択機能
 // ---------------------------------------------------
 const tagOptions = document.querySelectorAll('.tag-option');
 let selectedTags = [];
@@ -85,8 +105,9 @@ if (postForm) {
   postForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // 念の為のチェック
     if (!currentUser) {
-      alert("ログイン状態を確認できませんでした。ページを更新してください。");
+      alert("ログイン状態が確認できませんでした。");
       return;
     }
 
