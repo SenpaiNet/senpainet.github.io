@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-// ★ onAuthStateChanged を確実にインポート
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+// setPersistence も追加して念押しで保存設定をする
+import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
@@ -17,28 +17,44 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// ★ローディング要素を取得
+const loader = document.getElementById('global-loader');
+
+// 0. ログイン永続化の設定（念の為）
+setPersistence(auth, browserLocalPersistence).catch(console.error);
+
 // ---------------------------------------------------
-// 0. ログイン状態を常に監視する（これが重要！）
+// 1. ログイン状態の監視（ここが心臓部）
 // ---------------------------------------------------
-let currentUser = null; // ここにユーザー情報を保存する
+let currentUser = null;
 
 onAuthStateChanged(auth, (user) => {
+  // ここに来た時点で「確認完了」
+  
   if (user) {
-    // ログイン情報が復元されたらここに来る
+    // 【ログイン成功】
     currentUser = user;
-    console.log("ログイン確認済み:", user.displayName);
-    // ユーザーに安心させるため、どこかに名前を出してもOK（今回はアラートなしにするだけ）
+    console.log("ログイン確認OK:", user.displayName);
+    
+    // ローディング画面を消す
+    if(loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.style.display = 'none', 500);
+    }
+    
   } else {
-    // 本当にログアウトしている場合
-    currentUser = null;
-    console.log("未ログイン状態です");
-    // 必要ならログインページへ飛ばす処理をここに書いてもよい
-    // window.location.href = "login.html"; 
+    // 【未ログイン】
+    console.log("未ログインです");
+    
+    // post.html はログイン必須なので、ここで初めて追い出す
+    alert("ログインが必要です。ログインページへ移動します。");
+    window.location.href = "login.html"; // ←ログインページがある場合
+    // もしなければ index.html へ
   }
 });
 
 // ---------------------------------------------------
-// 1. タグ選択機能
+// 2. タグ選択機能（変更なし）
 // ---------------------------------------------------
 const tagOptions = document.querySelectorAll('.tag-option');
 let selectedTags = [];
@@ -61,7 +77,7 @@ tagOptions.forEach(tag => {
 });
 
 // ---------------------------------------------------
-// 2. 投稿ボタンの処理
+// 3. 投稿ボタンの処理
 // ---------------------------------------------------
 const postForm = document.getElementById('postForm');
 
@@ -69,12 +85,8 @@ if (postForm) {
   postForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // ★修正ポイント：auth.currentUser を直接見ずに、監視済みの変数を見る
-    // ただし念の為 auth.currentUser も確認（ロード完了後なら入っているはず）
-    const user = currentUser || auth.currentUser;
-
-    if (!user) {
-      alert("ログイン情報の確認ができませんでした。\n少し待ってからもう一度押すか、ログインし直してください。");
+    if (!currentUser) {
+      alert("ログイン状態を確認できませんでした。ページを更新してください。");
       return;
     }
 
@@ -91,8 +103,8 @@ if (postForm) {
         title: titleVal,
         content: contentVal,
         tags: selectedTags,
-        authorName: user.displayName || "名無しユーザー",
-        authorId: user.uid,
+        authorName: currentUser.displayName || "名無しユーザー",
+        authorId: currentUser.uid,
         createdAt: serverTimestamp()
       });
       
