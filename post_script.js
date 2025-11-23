@@ -18,42 +18,72 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// 投稿ボタンのイベント処理
-const postForm = document.querySelector('form'); // または id="postForm" などに合わせてください
+// ---------------------------------------------------
+// 1. タグ選択機能（クリックで色が変わるようにする）
+// ---------------------------------------------------
+const tagOptions = document.querySelectorAll('.tag-option');
+let selectedTags = [];
+
+tagOptions.forEach(tag => {
+    tag.addEventListener('click', () => {
+        const tagName = tag.getAttribute('data-tag');
+        
+        // クラスの切り替え（CSSで .selected { background: ... } を作ると色がつく）
+        tag.classList.toggle('selected');
+        
+        // 配列への追加・削除
+        if (selectedTags.includes(tagName)) {
+            selectedTags = selectedTags.filter(t => t !== tagName);
+            tag.style.background = ""; // 選択解除時の色（CSSがあれば不要）
+            tag.style.color = "";
+        } else {
+            selectedTags.push(tagName);
+            tag.style.background = "#4ecdc4"; // 選択時の色（仮）
+            tag.style.color = "white";
+        }
+    });
+});
+
+// ---------------------------------------------------
+// 2. 投稿ボタンの処理
+// ---------------------------------------------------
+const postForm = document.getElementById('postForm');
 
 if (postForm) {
   postForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // ★ここが重要：画面のリロードを防ぐ
+    e.preventDefault(); // ★ここで画面リロードを阻止！
 
     const user = auth.currentUser;
     if (!user) {
-      alert("投稿するにはログインが必要です");
+      alert("投稿するにはログインが必要です 🙇‍♂️");
       return;
     }
 
-    // 入力欄のIDを確認してください。ここでは titleInput, contentInput と仮定します
-    const title = document.getElementById('titleInput')?.value;
-    const content = document.getElementById('contentInput')?.value; // または textarea
+    // HTMLのIDに合わせて取得
+    const titleVal = document.getElementById('title').value;
+    const contentVal = document.getElementById('content').value;
 
-    if (!title || !content) {
+    if (!titleVal || !contentVal) {
         alert("タイトルと内容を入力してください");
         return;
     }
 
     try {
+      // Firebaseに保存
       await addDoc(collection(db, "posts"), {
-        title: title,
-        content: content,
+        title: titleVal,
+        content: contentVal,
+        tags: selectedTags, // 選択したタグも保存
         authorName: user.displayName || "名無しユーザー",
         authorId: user.uid,
         createdAt: serverTimestamp()
       });
       
-      alert("投稿しました！");
-      window.location.href = "archive.html"; // 投稿後に一覧へ移動
+      alert("投稿しました！🎉");
+      window.location.href = "archive.html"; // 一覧ページへ移動
     } catch (error) {
       console.error("投稿エラー:", error);
-      alert("投稿に失敗しました");
+      alert("エラーが発生しました: " + error.message);
     }
   });
 }
