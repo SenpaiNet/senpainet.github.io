@@ -28,7 +28,6 @@ onAuthStateChanged(auth, (user) => {
   currentUser = user;
   if (!user) {
     console.log("未ログイン状態です");
-    // 投稿ページにいる場合のみ、ログイン画面へ飛ばす等の処理が必要ならここに書く
   } else {
     console.log("ログイン中:", user.email);
   }
@@ -59,10 +58,14 @@ if (postForm) {
   tagElements.forEach(tag => {
     tag.addEventListener("click", () => {
       const tagName = tag.dataset.tag;
+      
+      // 既に選ばれている場合は解除
       if (selectedTags.includes(tagName)) {
         selectedTags = selectedTags.filter(t => t !== tagName);
         tag.classList.remove("selected");
-      } else {
+      } 
+      // 選ばれていない場合
+      else {
         if (selectedTags.length >= 3) {
           alert("タグは3つまでです");
           return;
@@ -91,13 +94,13 @@ if (postForm) {
       await addDoc(collection(db, "posts"), {
         title: title,
         content: content,
-        tags: selectedTags,
+        tags: selectedTags, // 選択されたタグの配列
         authorId: currentUser.uid,
         nickname: currentUser.displayName || "匿名ユーザー",
         createdAt: serverTimestamp() // サーバー時間を使う
       });
 
-      // 成功アニメーション（元のコードを再現）
+      // 成功アニメーション
       showSuccessAnimation();
 
     } catch (error) {
@@ -120,7 +123,7 @@ function showSuccessAnimation() {
   `;
   document.body.appendChild(overlay);
 
-  // CSSでアニメーションさせるためのスタイルを動的に追加（post.htmlにCSSがない場合用）
+  // CSSでアニメーションさせるためのスタイルを動的に追加
   if (!document.querySelector('#success-style')) {
     const style = document.createElement('style');
     style.id = 'success-style';
@@ -170,7 +173,7 @@ if (postListElement) {
         </div>
         <h3 class="post-title">${escapeHtml(post.title || "無題")}</h3>
         <div class="post-content">${escapeHtml(post.content || "")}</div>
-        <div class="post-tags">${escapeHtml(tagsHtml)}</div>
+        <div class="post-tags" style="color:#2563eb; margin-bottom:10px;">${escapeHtml(tagsHtml)}</div>
         
         <!-- 回答エリア -->
         <div class="comments-section">
