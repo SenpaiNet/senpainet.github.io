@@ -1,43 +1,79 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  signInWithPopup, 
+  GoogleAuthProvider,
+  browserLocalPersistence, 
+  setPersistence 
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-// ↓↓↓ あなたの設定 ↓↓↓
+// Firebase設定
 const firebaseConfig = {
-  apiKey: "AIzaSyDuDU6ujKlBcxP05XOUwPsGqpxQVqeHgvs",
-  authDomain: "senpainet-auth.firebaseapp.com",
-  projectId: "senpainet-auth",
-  storageBucket: "senpainet-auth.firebasestorage.app",
-  messagingSenderId: "694282767766",
-  appId: "1:694282767766:web:3e0dd18f697aafb60e61b7",
-  measurementId: "G-977F3HXN1F"
+  apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
+  authDomain: "senpainet-84a24.firebaseapp.com",
+  projectId: "senpainet-84a24",
+  storageBucket: "senpainet-84a24.firebasestorage.app",
+  messagingSenderId: "1053589632945",
+  appId: "1:1053589632945:web:413919be47760675e4ef90",
+  measurementId: "G-1GPKNSMMFZ"
 };
-// ↑↑↑ ここまで ↑↑↑
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
-document.getElementById('loginForm').addEventListener('submit', (e) => {
-  e.preventDefault();
+// ------------------------------------------
+// 1. Googleログインの処理（一番おすすめ）
+// ------------------------------------------
+const googleLoginBtn = document.getElementById('googleLoginBtn');
 
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-
-  signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      // ログイン成功！
-      const user = userCredential.user;
-      alert("おかえりなさい！ " + (user.displayName || "ゲスト") + " さん");
+if (googleLoginBtn) {
+  googleLoginBtn.addEventListener('click', async () => {
+    try {
+      // ログイン状態を「ローカル」に保存する（ブラウザ閉じても維持）
+      await setPersistence(auth, browserLocalPersistence);
       
-      // メインページへ移動
-      window.location.href = "archive.html";
-    })
-    .catch((error) => {
-      // エラー処理
-      console.error(error);
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      
+      alert(`ようこそ、${user.displayName}さん！\nログインに成功しました。`);
+      window.location.href = "archive.html"; // 一覧ページへ移動
+      
+    } catch (error) {
+      console.error("Googleログインエラー:", error);
+      alert("ログインに失敗しました: " + error.message);
+    }
+  });
+}
+
+// ------------------------------------------
+// 2. メール・パスワードログインの処理
+// ------------------------------------------
+const loginForm = document.getElementById('loginForm');
+
+if (loginForm) {
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      await setPersistence(auth, browserLocalPersistence);
+      
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      alert("ログインしました！");
+      window.location.href = "archive.html"; // 一覧ページへ移動
+
+    } catch (error) {
+      console.error("ログインエラー:", error);
       let msg = "ログインに失敗しました。";
-      if (error.code === "auth/invalid-credential") {
-        msg = "メールアドレスかパスワードが間違っています。";
-      }
+      if (error.code === 'auth/wrong-password') msg = "パスワードが間違っています。";
+      if (error.code === 'auth/user-not-found') msg = "登録されていないメールアドレスです。";
       alert(msg);
-    });
-});
+    }
+  });
+}
