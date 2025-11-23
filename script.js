@@ -27,20 +27,21 @@ onAuthStateChanged(auth, (user) => {
     console.log("ログイン中:", user.displayName);
     if(logoutBtn) {
         logoutBtn.innerHTML = "🚪 ログアウト";
-        logoutBtn.href = "#"; 
+        logoutBtn.href = "#"; // リンク無効化（JSで処理するため）
     }
   } else {
     // 【未ログイン】
     console.log("ゲスト閲覧中");
-    // 何もしない（alertもlocation.hrefも書かない！）
     
-    // ログアウトボタンをログインボタンに変える処理だけ残す
-    const logoutBtn = document.getElementById('logoutBtn');
+    // ★★★ ここが一番重要！ ★★★
+    // ここに alert() や window.location.href を「絶対に書かない」こと！
+    // これを書くと無限ループになります。
+    
     if(logoutBtn) {
         logoutBtn.innerHTML = "🔑 ログイン";
-        logoutBtn.href = "login.html"; 
+        logoutBtn.href = "login.html"; // ボタンを押したらログイン画面へ
     }
-}
+  }
 });
 
 // ---------------------------------------------------
@@ -49,6 +50,7 @@ onAuthStateChanged(auth, (user) => {
 const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
   logoutBtn.addEventListener('click', (e) => {
+    // ログイン中の場合のみ、ログアウト処理を実行
     if (auth.currentUser) {
         e.preventDefault();
         signOut(auth).then(() => {
@@ -58,6 +60,7 @@ if (logoutBtn) {
           console.error("ログアウトエラー:", error);
         });
     }
+    // 未ログイン（「ログイン」ボタンになっている）ときは、そのままhref="login.html"に飛ぶので何もしない
   });
 }
 
@@ -96,7 +99,45 @@ function renderPosts(posts) {
     const dateStr = post.createdAt ? post.createdAt.toDate().toLocaleDateString() : "日付不明";
     const snippet = post.content.length > 60 ? post.content.substring(0, 60) + "..." : post.content;
     
-    // タグ表示用
     let tagsHtml = "";
-    if (post.tags && Array.isArray(post
+    if (post.tags && Array.isArray(post.tags)) {
+        tagsHtml = post.tags.map(tag => `<span style="font-size:0.8em; background:#eee; padding:2px 5px; margin-right:5px; border-radius:4px;">#${tag}</span>`).join("");
+    }
 
+    // detail2.html へ飛ばすリンク
+    const html = `
+      <article class="post-card" onclick="location.href='detail2.html?id=${post.id}'" style="cursor: pointer;">
+        <div class="post-header">
+            <h3 class="post-title">${post.title}</h3>
+            <span class="post-date">${dateStr}</span>
+        </div>
+        <div class="post-meta">
+            <span class="author-name">👤 ${post.authorName || "匿名"}</span>
+            <div style="margin-top:5px;">${tagsHtml}</div>
+        </div>
+        <p class="post-content">${snippet}</p>
+        <div class="card-footer">
+            <span class="read-more">回答を見る・相談に乗る &rarr;</span>
+        </div>
+      </article>
+    `;
+
+    postList.insertAdjacentHTML('beforeend', html);
+  });
+}
+
+// 検索ボタン
+if(searchBtn) {
+    searchBtn.addEventListener('click', () => {
+      const keyword = keywordInput.value.toLowerCase();
+      if (!keyword) {
+        renderPosts(allPosts);
+        return;
+      }
+      const filtered = allPosts.filter(post => 
+        (post.title && post.title.toLowerCase().includes(keyword)) || 
+        (post.content && post.content.toLowerCase().includes(keyword))
+      );
+      renderPosts(filtered);
+    });
+}
