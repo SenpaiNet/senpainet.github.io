@@ -4,32 +4,27 @@
   <meta charset="UTF-8">
   <title>SenpaiNet｜相談を投稿</title>
   <link rel="stylesheet" href="post.css">
+  </head>
 
-  <!-- Firebase SDKの読み込み -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
-  // あなたのプロジェクト設定（貼り付け）
-const firebaseConfig = {
-  apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
-  authDomain: "senpainet-84a24.firebaseapp.com",
-  projectId: "senpainet-84a24",
-  storageBucket: "senpainet-84a24.firebasestorage.app",
-  messagingSenderId: "1053589632945",
-  appId: "1:1053589632945:web:413919be47760675e4ef90",
-  measurementId: "G-1GPKNSMMFZ"
-};
-
-  // Firebase初期化
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  window.db = db; // 他スクリプトでも使えるようにする
-</script>
-
-</head>
 <body class="post-page">
 
+  <div id="global-loader" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: white;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      transition: opacity 0.5s ease;
+  ">
+      <div style="font-size: 2rem; margin-bottom: 10px;">⏳</div>
+      <p style="color: #666; font-family: sans-serif;">認証情報を確認中...</p>
+  </div>
   <div class="post-wrapper">
     <div class="post-card">
       <h2>💬 新しい相談を投稿する</h2>
@@ -69,29 +64,7 @@ const firebaseConfig = {
       <a href="index.html" class="back-link">← ホームに戻る</a>
     </div>
   </div>
-
   <script type="module" src="post_script.js"></script>
+
 </body>
-  <body class="post-page">
-
-  <div id="global-loader" style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: white;
-      z-index: 9999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      transition: opacity 0.5s ease;
-  ">
-      <div style="font-size: 2rem; margin-bottom: 10px;">⏳</div>
-      <p style="color: #666; font-family: sans-serif;">認証情報を確認中...</p>
-  </div>
-  <div class="post-wrapper">
 </html>
-
-
