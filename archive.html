@@ -4,10 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>投稿一覧 | SenpaiNet</title>
-  <!-- デザイン用のCSSライブラリ (Tailwind CSS) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 以前のデザインを再現・調整したCSS */
     body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; color: #333; }
     .navbar { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
     .navbar-container { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
@@ -46,6 +44,8 @@
     .submit-comment-btn { background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
     .submit-comment-btn:hover { background: #059669; }
     .anonymous-label { font-size: 0.9rem; color: #555; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+    
+    .loading-state { opacity: 0.5; pointer-events: none; }
 
     @media (max-width: 600px) {
       .header { flex-direction: column; align-items: stretch; }
@@ -56,7 +56,6 @@
 </head>
 <body class="list-page">
 
-  <!-- ナビゲーションバー -->
   <header class="navbar">
     <div class="navbar-container">
       <div class="navbar-logo">
@@ -66,13 +65,11 @@
         <a href="post.html">相談する</a>
         <a href="archive.html" class="active">相談を見る</a>
         <a href="#">実績</a>
-        <a href="#">お問い合わせ</a>
         <a href="signup.html" class="account-link">👤 アカウント</a>
       </nav>
     </div>
   </header>
 
-  <!-- ページメイン -->
   <main>
     <section class="header">
       <h1>🌐 みんなの相談一覧</h1>
@@ -90,13 +87,11 @@
     </section>
   </main>
 
-  <!-- ロジック部分 (JavaScript) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-    // プロジェクト設定
     const firebaseConfig = {
       apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
       authDomain: "senpainet-84a24.firebaseapp.com",
@@ -113,20 +108,35 @@
 
     let currentUser = null;
 
-    // 1. 自動ログイン処理 (未ログインでも投稿・閲覧できるように匿名ログインを試みる)
+    // 1. 確実なログイン監視
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUser = user;
-        console.log("ログイン中:", user.uid);
       } else {
-        // 未ログインなら匿名ログインさせる
-        signInAnonymously(auth).catch((error) => {
-            console.error("ログインエラー", error);
-        });
+        signInAnonymously(auth);
       }
     });
 
-    // 2. 投稿一覧の表示
+    // ログインを待機する関数 (ここが修正ポイント)
+    function ensureLogin() {
+        return new Promise((resolve) => {
+            // すでにログイン済みなら即完了
+            if (auth.currentUser) {
+                resolve(auth.currentUser);
+                return;
+            }
+            // まだならログイン完了まで待つ
+            const unsubscribe = onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    unsubscribe();
+                    currentUser = user;
+                    resolve(user);
+                }
+            });
+        });
+    }
+
+    // 2. 投稿一覧ロジック
     const postListElement = document.getElementById('postList');
     const postsRef = collection(db, "posts");
     const q = query(postsRef, orderBy("createdAt", "desc"));
@@ -154,7 +164,6 @@
                 <div class="post-content">${escapeHtml(post.content || "")}</div>
                 <div class="post-tags">${tagsHtml}</div>
                 
-                <!-- 回答エリア -->
                 <div class="comments-section">
                 <h4>💬 みんなの回答</h4>
                 <div id="comments-${postId}" class="comment-list">
@@ -174,16 +183,13 @@
             `;
             postListElement.appendChild(card);
             
-            // コメント読み込み
             loadComments(postId);
 
-            // 送信ボタン設定
             const submitBtn = card.querySelector(`#btn-${postId}`);
-            submitBtn.addEventListener('click', () => submitComment(postId));
+            submitBtn.addEventListener('click', () => submitComment(postId, submitBtn));
         });
     });
 
-    // 3. コメント読み込み
     function loadComments(postId) {
         const commentsRef = collection(db, "posts", postId, "comments");
         const qComments = query(commentsRef, orderBy("createdAt", "asc"));
@@ -217,40 +223,46 @@
         });
     }
 
-    // 4. コメント送信
-    window.submitComment = async (postId) => {
-        if (!currentUser) {
-            alert("ログイン処理中です。少し待ってください。");
-            return;
-        }
-
+    // 3. 送信ロジック（修正：ログイン待機機能を追加）
+    window.submitComment = async (postId, btnElement) => {
         const input = document.getElementById(`input-${postId}`);
-        const anonCheck = document.getElementById(`anon-${postId}`);
         const text = input.value.trim();
-        const isAnonymous = anonCheck.checked;
-
         if (!text) {
             alert("コメントを入力してください");
             return;
         }
 
+        // ボタンを一時的に無効化
+        btnElement.textContent = "送信中...";
+        btnElement.disabled = true;
+
         try {
+            // ★ ここでログイン完了を待つ
+            const user = await ensureLogin();
+
+            const anonCheck = document.getElementById(`anon-${postId}`);
+            const isAnonymous = anonCheck.checked;
+
             const commentsRef = collection(db, "posts", postId, "comments");
             await addDoc(commentsRef, {
                 text: text,
-                authorId: currentUser.uid,
-                authorName: currentUser.displayName || "先輩ユーザー",
+                authorId: user.uid,
+                authorName: user.displayName || "先輩ユーザー",
                 isAnonymous: isAnonymous,
                 createdAt: serverTimestamp()
             });
             input.value = ""; 
+
         } catch (error) {
             console.error("送信エラー:", error);
             alert("送信に失敗しました。");
+        } finally {
+            // ボタンを元に戻す
+            btnElement.textContent = "送信";
+            btnElement.disabled = false;
         }
     };
 
-    // ユーティリティ
     function escapeHtml(str) {
         if (!str) return "";
         return str.replace(/[&<>"']/g, function(m) {
