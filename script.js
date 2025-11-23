@@ -1,304 +1,209 @@
-// ===============================================
-// script.js (クリック選択式・タグ無制限版)
-// ===============================================
+// ===============================
+// タグ選択（post.html）
+// ===============================
+let selectedTags = [];
 
-// Firebase SDKのインポート
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
-// プロジェクト設定
-const firebaseConfig = {
-  apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
-  authDomain: "senpainet-84a24.firebaseapp.com",
-  projectId: "senpainet-84a24",
-  storageBucket: "senpainet-84a24.firebasestorage.app",
-  messagingSenderId: "1053589632945",
-  appId: "1:1053589632945:web:413919be47760675e4ef90",
-  measurementId: "G-1GPKNSMMFZ"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-let currentUser = null;
-
-// ===============================================
-// 1. 共通: ログイン状態の監視（修正版）
-// ===============================================
-
-// 投稿ボタンをあらかじめ取得（投稿ページにいる場合のみ）
-const submitBtn = document.querySelector('#postForm button[type="submit"]');
-
-// 最初はボタンを「確認中」にして押せないようにする
-if (submitBtn) {
-    submitBtn.disabled = true;
-    submitBtn.innerText = "ログイン確認中...";
-}
-
-onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-        console.log("ログイン済み:", user.email);
-        
-        // ログイン確認ができたらボタンを復活させる
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerText = "相談を投稿する";
-            submitBtn.style.backgroundColor = ""; // 元の色に戻す
-            submitBtn.style.cursor = "pointer";
-        }
-    } else {
-        console.log("未ログイン状態です");
-        
-        // 未ログインならボタンを無効のままにし、メッセージを変える
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerText = "ログインが必要です";
-            submitBtn.style.backgroundColor = "#ccc"; // グレーアウト
-            submitBtn.style.cursor = "not-allowed";
-        }
-    }
-});
-
-// ログアウト処理
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) {
-  logoutBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    signOut(auth).then(() => {
-      alert("ログアウトしました");
-      window.location.href = "login.html";
-    });
-  });
-}
-
-// ===============================================
-// 2. 投稿ページ (post.html) 用の処理
-//    ★ここを「クリック方式・制限なし」に修正しました
-// ===============================================
-const postForm = document.getElementById("postForm");
-
-if (postForm) {
-  let selectedTags = [];
-  
-  // HTML内の class="tag-option" を持つ要素をすべて取得
+document.addEventListener("DOMContentLoaded", () => {
   const tagElements = document.querySelectorAll(".tag-option");
-  
   tagElements.forEach(tag => {
     tag.addEventListener("click", () => {
-      const tagName = tag.dataset.tag; // data-tag="タグ名" を取得
-      
-      // すでに選ばれている場合 → 解除
+      const tagName = tag.dataset.tag;
       if (selectedTags.includes(tagName)) {
         selectedTags = selectedTags.filter(t => t !== tagName);
         tag.classList.remove("selected");
-      } 
-      // 選ばれていない場合 → 追加（★個数制限のif文を削除しました）
-      else {
+      } else {
         selectedTags.push(tagName);
         tag.classList.add("selected");
       }
     });
   });
+});
 
-  // 送信処理
-  postForm.addEventListener("submit", async (e) => {
+// ===============================
+// 投稿処理（post.html）
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+  const postForm = document.getElementById("postForm");
+  if (!postForm) return;
+
+  postForm.addEventListener("submit", (e) => {
     e.preventDefault();
-
-    if (!currentUser) {
-      alert("投稿するにはログインが必要です！");
-      return;
-    }
 
     const title = document.getElementById("title").value;
     const content = document.getElementById("content").value;
 
-    if (!title || !content) {
-        alert("タイトルと内容は必須です");
-        return;
-    }
+    const newPost = {
+      id: Date.now().toString(),  // ← 文字列にしておくのが重要！
+      title,
+      content,
+      tags: selectedTags,
+      created_at: new Date().toISOString()
+    };
 
-    try {
-      await addDoc(collection(db, "posts"), {
-        title: title,
-        content: content,
-        tags: selectedTags, // 選択されたタグ配列
-        authorId: currentUser.uid,
-        nickname: currentUser.displayName || "匿名ユーザー",
-        createdAt: serverTimestamp()
-      });
+    const posts = JSON.parse(localStorage.getItem("posts") || "[]");
+    posts.push(newPost);
+    localStorage.setItem("posts", JSON.stringify(posts));
 
-      // 成功時アニメーション表示
-      showSuccessAnimation();
-
-    } catch (error) {
-      console.error("投稿エラー:", error);
-      alert("投稿に失敗しました: " + error.message);
-    }
+    showSuccessAnimation();
   });
-}
+});
 
-// 成功アニメーション
 function showSuccessAnimation() {
-  if (document.querySelector('.success-overlay')) return;
   const overlay = document.createElement("div");
   overlay.className = "success-overlay";
   overlay.innerHTML = `
     <div class="success-card">
       <div class="checkmark">✅</div>
-      <h3>投稿完了！</h3>
-      <p>相談が公開されました。</p>
+      <h3>投稿が完了しました！</h3>
+      <p>あなたの相談が公開されました。</p>
     </div>
   `;
   document.body.appendChild(overlay);
 
-  if (!document.getElementById('success-style')) {
-    const style = document.createElement('style');
-    style.id = 'success-style';
-    style.textContent = `
-      .success-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:9999; }
-      .success-card { background:white; padding:30px; border-radius:10px; text-align:center; animation: popIn 0.5s ease; }
-      .checkmark { font-size: 40px; margin-bottom: 10px; }
-      @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    `;
-    document.head.appendChild(style);
-  }
-
   setTimeout(() => {
-    window.location.href = "archive.html"; 
+    overlay.classList.add("fade-out");
   }, 2000);
+  setTimeout(() => {
+    window.location.href = "archive.html"; // ← 一覧ページがarchive.html
+  }, 2700);
 }
 
+// ===============================
+// 投稿一覧（archive.html） + 回答件数バッジ
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+  const postList = document.getElementById("postList");
+  if (!postList) return;
 
-// ===============================================
-// 3. 一覧ページ (archive.html) 用の処理
-//    （ここは前回と同じでOKです）
-// ===============================================
-const postListElement = document.getElementById('postList');
+  const posts = JSON.parse(localStorage.getItem("posts") || "[]");
+  const comments = JSON.parse(localStorage.getItem("comments") || "[]");
 
-if (postListElement) {
-  const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-
-  onSnapshot(q, (snapshot) => {
-    postListElement.innerHTML = ""; 
-
-    if (snapshot.empty) {
-      postListElement.innerHTML = "<p style='text-align:center; padding:20px;'>まだ相談の投稿がありません。</p>";
-      return;
-    }
-
-    snapshot.forEach((docSnap) => {
-      const post = docSnap.data();
-      const postId = docSnap.id;
-      const tagsHtml = post.tags ? post.tags.map(t => `<span style="color:#2563eb; margin-right:5px;">#${t}</span>`).join("") : "";
-
-      const card = document.createElement('div');
-      card.className = 'post-card'; 
-      card.innerHTML = `
-        <div class="post-header">
-          <span class="author">👤 ${escapeHtml(post.nickname || "匿名ユーザー")}</span>
-          <span class="date">${formatDate(post.createdAt)}</span>
-        </div>
-        <h3 class="post-title">${escapeHtml(post.title || "無題")}</h3>
-        <div class="post-tags">${tagsHtml}</div>
-        <div class="post-content">${escapeHtml(post.content || "")}</div>
-        
-        <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
-        
-        <div class="comments-section">
-          <h4>💬 先輩たちからの回答</h4>
-          <div id="comments-${postId}" class="comment-list" style="margin-bottom:10px;"></div>
-          <div class="comment-form-area" style="display:flex; gap:5px; flex-wrap:wrap;">
-             <input type="text" id="input-${postId}" placeholder="回答を入力..." style="flex:1; padding:5px;">
-             <label><input type="checkbox" id="anon-${postId}"> 匿名</label>
-             <button class="submit-comment-btn" data-id="${postId}" style="cursor:pointer;">送信</button>
-          </div>
-        </div>
-      `;
-      
-      postListElement.appendChild(card);
-      loadComments(postId);
-      
-      const submitBtn = card.querySelector(`.submit-comment-btn`);
-      submitBtn.addEventListener('click', () => submitComment(postId));
-    });
-  });
-}
-
-function loadComments(postId) {
-  const commentsRef = collection(db, "posts", postId, "comments");
-  const qComments = query(commentsRef, orderBy("createdAt", "asc"));
-
-  onSnapshot(qComments, (snapshot) => {
-    const listDiv = document.getElementById(`comments-${postId}`);
-    if(!listDiv) return;
-    listDiv.innerHTML = ""; 
-
-    if (snapshot.empty) {
-      listDiv.innerHTML = "<p style='font-size:0.8em; color:#aaa;'>まだ回答はありません。</p>";
-      return;
-    }
-
-    snapshot.forEach((docSnap) => {
-      const comment = docSnap.data();
-      const div = document.createElement('div');
-      div.className = 'comment-item';
-      div.style.cssText = "background:#f9f9f9; padding:8px; margin-bottom:5px; border-radius:4px;";
-      
-      let displayName = comment.authorName || "名無し";
-      if (comment.isAnonymous) displayName = "匿名先輩";
-
-      div.innerHTML = `
-        <div style="font-size:0.8em; color:#666;">
-          <strong>${escapeHtml(displayName)}</strong> 
-          <span>${formatDate(comment.createdAt)}</span>
-        </div>
-        <div style="margin-top:2px;">${escapeHtml(comment.text)}</div>
-      `;
-      listDiv.appendChild(div);
-    });
-  });
-}
-
-async function submitComment(postId) {
-  if (!currentUser) {
-    alert("回答するにはログインが必要です！");
+  if (posts.length === 0) {
+    postList.innerHTML = "<p style='text-align:center;color:#64748b;'>まだ投稿がありません。</p>";
     return;
   }
-  const input = document.getElementById(`input-${postId}`);
-  const anonCheck = document.getElementById(`anon-${postId}`);
-  const text = input.value.trim();
-  const isAnonymous = anonCheck ? anonCheck.checked : false;
 
-  if (!text) return;
+  posts.sort((a, b) => Number(b.id) - Number(a.id));
 
-  try {
-    await addDoc(collection(db, "posts", postId, "comments"), {
-      text: text,
-      authorId: currentUser.uid,
-      authorName: currentUser.displayName || "先輩ユーザー",
-      isAnonymous: isAnonymous,
-      createdAt: serverTimestamp()
-    });
-    input.value = ""; 
-  } catch (error) {
-    console.error("送信エラー:", error);
-    alert("送信に失敗しました。");
-  }
-}
+  postList.innerHTML = posts.map(post => {
+    // 💬 コメント件数をカウント
+    const count = comments.filter(c => c.postId === post.id).length;
+    const badge = count > 0
+      ? `<span class="comment-badge">💬 ${count}件</span>`
+      : `<span class="comment-badge empty">💬 0件</span>`;
 
-function escapeHtml(str) {
-  if (!str) return "";
-  return str.replace(/[&<>"']/g, function(m) {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+    return `
+      <div class="post-card" data-id="${post.id}">
+        <h3>${post.title}</h3>
+        <p>${post.content.slice(0, 80)}...</p>
+        <div class="post-meta">
+          <span class="tags">${post.tags.map(t => `#${t}`).join(" ")}</span>
+          ${badge}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // 投稿クリック → 詳細ページへ
+  postList.addEventListener("click", (e) => {
+    const card = e.target.closest(".post-card");
+    if (!card) return;
+    const id = card.dataset.id;
+    window.location.href = `detail.html?id=${id}`;
   });
-}
+});
 
-function formatDate(timestamp) {
-  if (!timestamp) return "";
-  const d = timestamp.toDate();
-  return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')}`;
-}
 
+// ===============================
+// 投稿カード → 詳細ページへ
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+  const postList = document.getElementById("postList");
+  if (!postList) return;
+
+  postList.addEventListener("click", (e) => {
+    const card = e.target.closest(".post-card");
+    if (!card) return;
+    const postId = card.dataset.id;
+    window.location.href = `detail.html?id=${postId}`;
+  });
+});
+
+// ===============================
+// 詳細ページ（detail.html）
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+  const detailContainer = document.getElementById("postDetail");
+  if (!detailContainer) return;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const postId = urlParams.get("id");
+
+  const posts = JSON.parse(localStorage.getItem("posts") || "[]");
+  const post = posts.find(p => p.id === postId);
+
+  if (!post) {
+    detailContainer.innerHTML = "<p>投稿が見つかりません。</p>";
+    return;
+  }
+
+  const tagsHTML = post.tags.map(tag => `<span class="tag">#${tag}</span>`).join(" ");
+
+  detailContainer.innerHTML = `
+    <h2>${post.title}</h2>
+    <p>${post.content.replace(/\n/g, "<br>")}</p>
+    <div class="tags">${tagsHTML}</div>
+    <p style="color:#94a3b8;font-size:0.8rem;margin-top:15px;">
+      投稿日: ${new Date(post.created_at).toLocaleString("ja-JP")}
+    </p>
+  `;
+});
+
+// ===============================
+// プロフィールページ (profile.html)
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+  const profileInfo = document.getElementById("profileInfo");
+  if (!profileInfo) return;
+
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+
+  // ログインしていない場合
+  if (!user) {
+    profileInfo.innerHTML = `
+      <p>アカウント情報が見つかりません。<br>
+      <a href="signup.html" style="color:#2563eb;">アカウントを作成</a>してください。</p>
+    `;
+    document.getElementById("editBtn").style.display = "none";
+    document.getElementById("logoutBtn").style.display = "none";
+    return;
+  }
+
+  // プロフィール情報を表示
+  const tagsHTML = user.tags?.length
+    ? user.tags.map(tag => `<span class="tag">#${tag}</span>`).join(" ")
+    : "<span style='color:#94a3b8;'>未設定</span>";
+
+  profileInfo.innerHTML = `
+    <div class="profile-info-item"><span>ニックネーム：</span>${user.nickname}</div>
+    <div class="profile-info-item"><span>属性：</span>${user.userType}</div>
+    <div class="profile-info-item"><span>学年：</span>${user.grade}</div>
+    <div class="profile-info-item"><span>メール：</span>${user.email}</div>
+    <div class="profile-info-item"><span>タグ：</span>${tagsHTML}</div>
+  `;
+
+  // 編集ボタン
+  document.getElementById("editBtn").addEventListener("click", () => {
+    window.location.href = "signup.html";
+  });
+
+  // ログアウトボタン
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    const confirmLogout = confirm("ログアウトしますか？");
+    if (confirmLogout) {
+      localStorage.removeItem("currentUser");
+      alert("ログアウトしました");
+      window.location.href = "archive.html";
+    }
+  });
+});
