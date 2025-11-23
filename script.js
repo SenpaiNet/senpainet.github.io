@@ -30,15 +30,17 @@ onAuthStateChanged(auth, (user) => {
         logoutBtn.href = "#"; 
     }
   } else {
-    // 【未ログイン（ゲスト）】
+    // 【未ログイン】
     console.log("ゲスト閲覧中");
-    // ※ 無限ループ防止のため、ここで強制移動（window.location.href）はさせない
+    // 何もしない（alertもlocation.hrefも書かない！）
     
+    // ログアウトボタンをログインボタンに変える処理だけ残す
+    const logoutBtn = document.getElementById('logoutBtn');
     if(logoutBtn) {
         logoutBtn.innerHTML = "🔑 ログイン";
         logoutBtn.href = "login.html"; 
     }
-  }
+}
 });
 
 // ---------------------------------------------------
@@ -97,3 +99,4 @@ function renderPosts(posts) {
     // タグ表示用
     let tagsHtml = "";
     if (post.tags && Array.isArray(post
+
