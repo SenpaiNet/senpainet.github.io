@@ -24,14 +24,42 @@ const auth = getAuth(app);
 
 let currentUser = null;
 
-// 1. ログイン監視
+// ===============================================
+// 1. 共通: ログイン状態の監視（修正版）
+// ===============================================
+
+// 投稿ボタンをあらかじめ取得（投稿ページにいる場合のみ）
+const submitBtn = document.querySelector('#postForm button[type="submit"]');
+
+// 最初はボタンを「確認中」にして押せないようにする
+if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerText = "ログイン確認中...";
+}
+
 onAuthStateChanged(auth, (user) => {
-  currentUser = user;
-  if (user) {
-    console.log("Login:", user.email);
-  } else {
-    console.log("No User");
-  }
+    currentUser = user;
+    if (user) {
+        console.log("ログイン済み:", user.email);
+        
+        // ログイン確認ができたらボタンを復活させる
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "相談を投稿する";
+            submitBtn.style.backgroundColor = ""; // 元の色に戻す
+            submitBtn.style.cursor = "pointer";
+        }
+    } else {
+        console.log("未ログイン状態です");
+        
+        // 未ログインならボタンを無効のままにし、メッセージを変える
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "ログインが必要です";
+            submitBtn.style.backgroundColor = "#ccc"; // グレーアウト
+            submitBtn.style.cursor = "not-allowed";
+        }
+    }
 });
 
 // ログアウト処理
@@ -273,3 +301,4 @@ function formatDate(timestamp) {
   const d = timestamp.toDate();
   return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')}`;
 }
+
