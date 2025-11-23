@@ -3,30 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <title>SenpaiNet｜相談を投稿</title>
+  <!-- もともとのCSS -->
   <link rel="stylesheet" href="post.css">
+  
+  <!-- ★追加: タグを選択したときの色変化などのスタイル -->
+  <style>
+    /* タグの基本スタイル（post.cssになければ適用されます） */
+    .tag-option {
+      display: inline-block;
+      padding: 8px 16px;
+      margin: 4px;
+      background-color: #f0f0f0;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      user-select: none;
+    }
+    .tag-option:hover {
+      background-color: #e0e0e0;
+    }
+    
+    /* ★重要: JSで選択されたときにつくクラス */
+    .tag-option.selected {
+      background-color: #e6f3ff; /* 薄い青背景 */
+      color: #0066cc;           /* 青文字 */
+      border-color: #0066cc;    /* 青枠線 */
+      font-weight: bold;
+    }
 
-  <!-- Firebase SDKの読み込み -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
-  // あなたのプロジェクト設定（貼り付け）
-const firebaseConfig = {
-  apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
-  authDomain: "senpainet-84a24.firebaseapp.com",
-  projectId: "senpainet-84a24",
-  storageBucket: "senpainet-84a24.firebasestorage.app",
-  messagingSenderId: "1053589632945",
-  appId: "1:1053589632945:web:413919be47760675e4ef90",
-  measurementId: "G-1GPKNSMMFZ"
-};
-
-  // Firebase初期化
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  window.db = db; // 他スクリプトでも使えるようにする
-</script>
-
+    /* フォーム周りの余白調整 */
+    .form-group { margin-bottom: 20px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+    input[type="text"] { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+  </style>
 </head>
 <body class="post-page">
 
@@ -47,7 +58,7 @@ const firebaseConfig = {
         </div>
 
         <div class="form-group">
-          <label>タグを選択</label>
+          <label>タグを選択（3つまで）</label>
           <div id="tagSelect" class="tag-select">
             <span class="tag-option" data-tag="一般入試">#一般入試</span>
             <span class="tag-option" data-tag="AO入試">#AO入試</span>
@@ -66,12 +77,11 @@ const firebaseConfig = {
         <button type="submit" class="submit-btn">🚀 投稿する</button>
       </form>
 
-      <a href="index.html" class="back-link">← ホームに戻る</a>
+      <a href="archive.html" class="back-link">← 一覧に戻る</a>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- ★重要: type="module" をつけて読み込み -->
+  <script type="module" src="script.js"></script>
 </body>
-
 </html>
-
