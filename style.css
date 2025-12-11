@@ -1,326 +1,253 @@
-body {
-  font-family: "Noto Sans JP", sans-serif;
-  margin: 0;
-  background: #f9fafb;
-  color: #333;
+/* ベース */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-/* Container */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+  background: #ffffff;
+  color: #1a202c;
+  line-height: 1.7;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .container {
-  width: 90%;
-  max-width: 1100px;
+  width: min(1100px, 100% - 32px);
   margin: 0 auto;
 }
 
-/* Header */
-/* === ナビゲーションバー === */
+/* -------------------
+   ナビゲーション
+------------------- */
 .navbar {
-  background: white;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  padding: 12px 40px;
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 100;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 
-.navbar-container {
+.nav-inner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 14px 0;
 }
 
-.navbar-logo a {
-  font-size: 1.4rem;
+.brand {
   font-weight: 700;
-  color: #2563eb;
-  text-decoration: none;
-  letter-spacing: 0.5px;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
 }
 
-.navbar-menu {
+.nav-links {
   display: flex;
-  gap: 25px;
-  align-items: center;
+  gap: 1.4rem;
+  font-size: 0.92rem;
 }
 
-.navbar-menu a {
-  color: #334155;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.25s ease;
+.nav-links a {
+  color: #4b5563;
+  position: relative;
 }
 
-.navbar-menu a:hover {
-  color: #2563eb;
+.nav-links a:hover {
+  color: #0ea5e9;
 }
 
-/* アカウントボタン */
-.account-link {
-  background: linear-gradient(90deg, #2563eb, #1e40af);
-  color: white !important;
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+  width: 0;
+  bottom: -4px;
+  left: 0;
+  transition: 0.25s ease;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* ログインボタン */
+.nav-login {
   padding: 6px 14px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.25s ease;
+  border-radius: 999px;
+  background: #e0f7ff;
+  border: 1px solid #b3ecff;
+  color: #0369a1;
+  font-weight: 500;
 }
 
-.account-link:hover {
-  background: linear-gradient(90deg, #1e40af, #1d4ed8);
-  transform: translateY(-1px);
-}
-
-
-/* Hero */
+/* -------------------
+   Hero
+------------------- */
 .hero {
+  padding: 80px 0 70px;
+}
+
+.hero-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 60px 80px;
-  gap: 40px;
-}
-/* 左側(テキスト) */
-.hero-left {
-  flex: 1;
-}
-/* 右側(ロゴ) */
-.hero-right {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  text-align: center;
-}
-.hero-logo {
-  width: 80%;
-  max-width: 350px;
-  height: auto;
-  animation: fadeIn 1.2s ease forwards;
-}
-
-/* ふわっと表示アニメーション */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  gap: 60px;
 }
 
 .hero-text {
-  flex: 1;
-  min-width: 280px;
-}
-.hero-img img {
-  width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-.hero-buttons {
-  margin: 20px 0;
-}
-.btn {
-  display: inline-block;
-  padding: 10px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-}
-.btn-main {
-  background: #10b981;
-  color: white;
-}
-.btn-outline {
-  border: 1px solid #ccc;
-  color: #333;
+  flex: 1.4;
 }
 
-/* Sections */
-.section {
-  padding: 60px 0;
+.hero-eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #38bdf8;
 }
-h2 {
-  font-size: 1.6rem;
+
+.hero-text h1 {
+  margin: 8px 0 16px;
+  font-size: 2.4rem;
+  line-height: 1.3;
+}
+
+.hero-lead {
   margin-bottom: 20px;
+  color: #4b5563;
 }
 
-/* Stats */
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 10px;
-}
-.stat {
-  background: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  text-align: center;
-  border: 1px solid #eee;
-}
-.stat span {
-  display: block;
-  font-size: 0.9rem;
-  color: #777;
+/* ボタン類 */
+.btn,
+.post-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.25s ease;
 }
 
-/* Cards */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+/* ★可愛い水色グラデのボタン★ */
+.btn-main {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: #ffffff;
+  box-shadow: 0 14px 30px rgba(56, 189, 248, 0.35);
 }
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  border: 1px solid #eee;
+.btn-main:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 38px rgba(56, 189, 248, 0.4);
 }
 
-/* Works */
-.works {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+.btn-outline {
+  background: #ffffff;
+  border: 1px solid #9ca3af;
+  color: #1f2937;
 }
-.work img {
+.btn-outline:hover {
+  border-color: #0ea5e9;
+  background: #e0f7ff;
+  color: #0ea5e9;
+}
+
+/* ロゴカード */
+.hero-logo-card {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 26px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-logo-card img {
   width: 100%;
-  border-radius: 8px;
-}
-.work h4 {
-  margin-top: 10px;
+  max-width: 260px;
+  height: auto;
 }
 
-/* Contact */
+/* -------------------
+   セクション
+------------------- */
+.section {
+  padding: 70px 0;
+}
+
+.section-light {
+  background: #f7fafc;
+}
+
+.section-lead {
+  color: #4b5563;
+  max-width: 650px;
+}
+
+/* -------------------
+   Quick actions
+------------------- */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+.qa-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px 18px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+}
+
+.qa-card p {
+  color: #4b5563;
+}
+
+/* -------------------
+   Contact form
+------------------- */
 .contact-form {
   display: grid;
-  gap: 10px;
-}
-.contact-form input, .contact-form textarea {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-family: inherit;
-}
-.form-msg {
-  color: #10b981;
-  margin-top: 10px;
+  gap: 12px;
+  max-width: 520px;
 }
 
-/* Footer */
+.contact-form input,
+.contact-form textarea {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.15);
+  font: inherit;
+}
+
+.contact-form textarea {
+  min-height: 140px;
+}
+
+/* -------------------
+   Footer
+------------------- */
 .footer {
-  background: #111;
-  color: #ccc;
+  padding: 20px;
+  background: #f9fafb;
+  border-top: 1px solid rgba(0,0,0,0.08);
   text-align: center;
-  padding: 20px 0;
 }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .nav-links {
-    display: none;
-  }
-  .mobile-btn {
-    display: block;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-  }
-}
-
-
-.post-btn {
-  display: inline-block;
-  padding: 10px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-  background: #2563eb;
-  color: white;
-  padding: 8px 14px;
-  border-radius: 8px;
-  text-decoration: none;
-}
-
-.post-btn:hover {
-  background: #1e40af;
-}
-
-.post {
-  background: white;
-  border-radius: 10px;
-  padding: 15px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.tag {
-  background: #e0e7ff;
-  color: #3730a3;
-  padding: 2px 8px;
-  border-radius: 6px;
-  margin-right: 4px;
-  font-size: 0.9rem;
-}
-
-/* === プロフィールページ === */
-.profile-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 60px 20px;
-  background: linear-gradient(135deg, #e0f2fe, #e0ffe7);
-  min-height: 100vh;
-}
-
-.profile-card {
-  background: white;
-  padding: 40px 50px;
-  border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-  max-width: 480px;
-  width: 100%;
-}
-
-.profile-card h2 {
-  color: #1e3a8a;
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-.profile-info-item {
-  margin-bottom: 15px;
-  font-size: 1rem;
-  color: #334155;
-}
-
-.profile-info-item span {
-  font-weight: bold;
-  color: #1e3a8a;
-}
-
-.edit-btn, .logout-btn {
-  width: 100%;
-  border: none;
-  border-radius: 10px;
-  padding: 12px 0;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 12px;
-  transition: all 0.3s ease;
-}
-
-.edit-btn {
-  background: #3b82f6;
-  color: white;
-}
-
-.edit-btn:hover {
-  background: #2563eb;
-}
-
-.logout-btn {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.logout-btn:hover {
-  background: #e2e8f0;
-}
-
-
