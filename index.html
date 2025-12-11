@@ -1,17 +1,12 @@
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SenpaiNet｜相談プラットフォーム</title>
-
-  <!-- ここを必ず追加！ -->
-  <link rel="stylesheet" href="style.css" />
-</head>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SenpaiNet｜相談プラットフォーム</title>
+
+  <!-- ★CSSの読み込み（絶対必要） -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
@@ -34,6 +29,7 @@
     <!-- Hero -->
     <section class="hero">
       <div class="container hero-inner">
+
         <div class="hero-text">
           <p class="hero-eyebrow">ISS 在校生 × 卒業生コミュニティ</p>
           <h1>その悩み、『先輩』に相談してみない？</h1>
@@ -51,10 +47,11 @@
           <p class="hero-mail">メール: issjukensoudandokoro@gmail.com</p>
         </div>
 
-        <!-- ★ロゴを埋め込んだカード -->
+        <!-- ★ロゴカード -->
         <div class="hero-logo-card">
-          <img src="senpainet-logo.png" alt="SenpaiNet ロゴ">
+          <img src="senpainet-logo.png" alt="SenpaiNet ロゴ" />
         </div>
+
       </div>
     </section>
 
@@ -62,6 +59,7 @@
     <section class="section section-light">
       <div class="container">
         <div class="quick-actions">
+
           <div class="qa-card">
             <h3>相談を投稿する</h3>
             <p>受験・勉強・進路のモヤモヤを、匿名で投稿できます。</p>
@@ -73,6 +71,7 @@
             <p>他の在校生の相談を読むことで、「一人じゃない」と感じられます。</p>
             <a href="archive.html" class="btn btn-outline">投稿一覧を開く</a>
           </div>
+
         </div>
       </div>
     </section>
@@ -81,10 +80,9 @@
     <section id="about" class="section">
       <div class="container">
         <h2>SenpaiNetとは？</h2>
-
         <p class="section-lead">
-          SenpaiNetは、ISSを卒業した先輩が在校生の受験・勉強・進路の悩みに寄り添うオンライン相談プラットフォームです。
-          「ちょっと聞いてみたい」「身近なロールモデルがほしい」という声から生まれたサービスです。
+          SenpaiNetは、ISSを卒業した先輩が在校生の受験・勉強・進路の悩みに寄り添う
+          オンライン相談プラットフォームです。「ちょっと聞きたい」を気軽に言える場所を目指しています。
         </p>
       </div>
     </section>
@@ -94,7 +92,7 @@
       <div class="container">
         <h2>お問い合わせ</h2>
 
-        <p class="section-lead">質問やご相談、コラボ依頼などお気軽にどうぞ。</p>
+        <p class="section-lead">ご質問やコラボ依頼などお気軽にどうぞ。</p>
 
         <form class="contact-form">
           <input type="text" name="name" placeholder="お名前" required>
@@ -102,8 +100,10 @@
           <textarea name="message" placeholder="ご相談内容・メッセージ" required></textarea>
           <button type="submit" class="btn btn-main">送信する</button>
         </form>
+
       </div>
     </section>
+
   </main>
 
   <footer class="footer">
@@ -114,4 +114,3 @@
 
 </body>
 </html>
-
