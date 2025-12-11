@@ -4,132 +4,99 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SenpaiNet｜相談プラットフォーム</title>
-  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<header class="navbar">
-  <div class="navbar-container">
-    <!-- 左：ロゴ -->
-    <div class="navbar-logo">
-      <a href="archive.html">SenpaiNet</a>
-    </div>
 
-    <!-- 右：メニュー -->
-    <nav class="navbar-menu">
-      <a href="post.html">相談する</a>
-      <a href="archive.html">相談を見る</a>
-      <a href="#">実績</a>
-      <a href="#">お問い合わせ</a>
-      <!-- ★ここを変更: リンク先を login.html に、文字を「ログイン」に変更 -->
-      <a href="login.html" class="account-link">🔑 ログイン</a>
-    </nav>
-  </div>
-</header>
+  <!-- ナビゲーション -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="archive.html" class="brand">SenpaiNet</a>
 
+      <nav class="nav-links">
+        <a href="post.html">相談する</a>
+        <a href="archive.html">相談を見る</a>
+        <a href="#about">サービス概要</a>
+        <a href="#contact">お問い合わせ</a>
+        <a href="login.html" class="nav-login">🔑 ログイン</a>
+      </nav>
+    </div>
+  </header>
 
-  <!-- Hero -->
-  <section class="hero container">
-    <div class="hero-text">
-      <h1>その悩み、『先輩』に相談してみない？</h1>
-      <p>ISSの在校生が卒業生に気軽に相談できるプラットフォームを目指します</p>
-      <div class="hero-buttons">
-        <a href="#contact" class="btn btn-main">無料相談を申し込む</a>
-        <a href="#about" class="btn btn-outline">詳しく見る</a>
-      </div>
-      <p class="contact-info">メール: issjukensoudandokoro@gmail.com</p>
-    </div>
-    <div class="hero-right">
-      <img src="senpainet logo.png" alt="SenpaiNet ロゴ" class="hero-logo">
-    </div>
-  </section>
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-text">
+          <p class="hero-eyebrow">ISS 在校生 × 卒業生コミュニティ</p>
+          <h1>その悩み、『先輩』に相談してみない？</h1>
 
-<!--相談セクション-->
-  <section class="hero container">
-    <div class="hero-text">
-      <h1>相談を開始する</h1>
-      <p>相談内容を匿名で投稿できます！</p>
-      <div class="hero-buttons">
-        <a href="post.html" class="post-btn">＋ 新しい相談を投稿</a>
-      </div>
-    </div>
-    <div class="senpainet logo.png">
-    </div>
-  </section>
+          <p class="hero-lead">
+            ISSの在校生が卒業生に気軽に相談できるオンラインプラットフォームです。<br>
+            受験・勉強・進路の不安を、少しだけ言葉にしてみませんか。
+          </p>
 
-<!--相談閲覧-->
-  <section class="hero container">
-    <div class="hero-text">
-      <h1>投稿を見る</h1>
-      <p>既に投稿されている相談を見ることができます！</p>
-      <div class="hero-buttons">
-        <a href="archive.html" class="post-btn">投稿を見る</a>
-      </div>
-    </div>
-    <div class="senpainet logo.png">
-    </div>
-  </section>
+          <div class="hero-buttons">
+            <a href="post.html" class="btn btn-main">無料相談を申し込む</a>
+            <a href="#about" class="btn btn-outline">詳しく見る</a>
+          </div>
 
-  <!-- About -->
-  <section id="about" class="section container">
-    <h2>私たちについて</h2>
-    <p>SenpaiNetはISSを卒業した先輩が在校生の受験や勉強で悩みに寄り添うコミュニティを目指します</p>
-    <div class="stats">
-      <div class="stat"><span>設立</span>2025年</div>
-      <div class="stat"><span>登録卒業生数</span>--</div>
-      <div class="stat"><span>相談投稿数</span>--</div>
-      <div class="stat"><span>運営スタッフ</span>8名</div>
-    </div>
-  </section>
+          <p class="hero-mail">メール: issjukensoudandokoro@gmail.com</p>
+        </div>
 
-  <!-- Services -->
-  <section id="services" class="section container">
-    <h2>SenpaiNetでできること</h2>
-    <div class="cards">
-      <div class="card">
-        <h3>Senpaiへの相談</h3>
-        <p>相談内容を投稿することで悩みを共有し、卒業生と一緒に解決</p>
+        <!-- ★ロゴを埋め込んだカード -->
+        <div class="hero-logo-card">
+          <img src="senpainet-logo.png" alt="SenpaiNet ロゴ">
+        </div>
       </div>
-      <div class="card">
-        <h3>過去の相談内容の閲覧</h3>
-        <p>過去の相談内容もウェブサイト上で閲覧できます</p>
-      </div>
-      <div class="card">
-        <h3>DX導入支援</h3>
-        <p>業務改善ツール導入、データ利活用、ワークショップ。</p>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Works -->
-  <section id="works" class="section container">
-    <h2>実績</h2>
-    <div class="works">
-      <div class="work">
-        <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=800&q=60" alt="">
-        <h4>地域おこしワークショップ</h4>
-      </div>
-      <div class="work">
-        <img src="https://images.unsplash.com/photo-1581094288330-44e6b9b3d5b9?auto=format&fit=crop&w=800&q=60" alt="">
-        <h4>小中学生向けプログラミング教室</h4>
-      </div>
-      <div class="work">
-        <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981d?auto=format&fit=crop&w=800&q=60" alt="">
-        <h4>行政のデジタル化支援</h4>
-      </div>
-    </div>
-  </section>
+    <!-- すぐできること -->
+    <section class="section section-light">
+      <div class="container">
+        <div class="quick-actions">
+          <div class="qa-card">
+            <h3>相談を投稿する</h3>
+            <p>受験・勉強・進路のモヤモヤを、匿名で投稿できます。</p>
+            <a href="post.html" class="btn btn-main">＋ 新しい相談を投稿</a>
+          </div>
 
-  <!-- Contact -->
-  <section id="contact" class="section container">
-    <h2>お問い合わせ</h2>
-    <form id="contact-form" class="contact-form">
-      <input type="text" name="name" placeholder="お名前" required>
-      <input type="email" name="email" placeholder="メールアドレス" required>
-      <textarea name="message" placeholder="ご相談内容" required></textarea>
-      <button type="submit" class="btn btn-main">送信する</button>
-    </form>
-    <p id="form-msg" class="form-msg"></p>
-  </section>
+          <div class="qa-card">
+            <h3>他の相談を見る</h3>
+            <p>他の在校生の相談を読むことで、「一人じゃない」と感じられます。</p>
+            <a href="archive.html" class="btn btn-outline">投稿一覧を開く</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="section">
+      <div class="container">
+        <h2>SenpaiNetとは？</h2>
+
+        <p class="section-lead">
+          SenpaiNetは、ISSを卒業した先輩が在校生の受験・勉強・進路の悩みに寄り添うオンライン相談プラットフォームです。
+          「ちょっと聞いてみたい」「身近なロールモデルがほしい」という声から生まれたサービスです。
+        </p>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="section section-light">
+      <div class="container">
+        <h2>お問い合わせ</h2>
+
+        <p class="section-lead">質問やご相談、コラボ依頼などお気軽にどうぞ。</p>
+
+        <form class="contact-form">
+          <input type="text" name="name" placeholder="お名前" required>
+          <input type="email" name="email" placeholder="メールアドレス" required>
+          <textarea name="message" placeholder="ご相談内容・メッセージ" required></textarea>
+          <button type="submit" class="btn btn-main">送信する</button>
+        </form>
+      </div>
+    </section>
+  </main>
 
   <footer class="footer">
     <div class="container">
@@ -137,6 +104,5 @@
     </div>
   </footer>
 
-  <script src="script.js"></script>
 </body>
 </html>
