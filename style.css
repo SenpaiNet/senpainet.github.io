@@ -27,9 +27,9 @@ a {
   margin: 0 auto;
 }
 
-/* -------------------
+/* ======================
    ナビゲーション
-------------------- */
+====================== */
 .navbar {
   position: sticky;
   top: 0;
@@ -92,9 +92,9 @@ a {
   font-weight: 500;
 }
 
-/* -------------------
+/* ======================
    Hero
-------------------- */
+====================== */
 .hero {
   padding: 80px 0 70px;
 }
@@ -128,7 +128,9 @@ a {
   color: #4b5563;
 }
 
-/* ボタン類 */
+/* ======================
+   ボタン
+====================== */
 .btn,
 .post-btn {
   display: inline-flex;
@@ -142,29 +144,34 @@ a {
   transition: 0.25s ease;
 }
 
-/* ★可愛い水色グラデのボタン★ */
+/* 水色グラデボタン */
 .btn-main {
   background: linear-gradient(135deg, #38bdf8, #0ea5e9);
   color: #ffffff;
   box-shadow: 0 14px 30px rgba(56, 189, 248, 0.35);
 }
+
 .btn-main:hover {
   transform: translateY(-2px);
   box-shadow: 0 18px 38px rgba(56, 189, 248, 0.4);
 }
 
+/* アウトライン */
 .btn-outline {
   background: #ffffff;
   border: 1px solid #9ca3af;
   color: #1f2937;
 }
+
 .btn-outline:hover {
   border-color: #0ea5e9;
   background: #e0f7ff;
   color: #0ea5e9;
 }
 
-/* ロゴカード */
+/* ======================
+   ロゴカード
+====================== */
 .hero-logo-card {
   flex: 1;
   background: #ffffff;
@@ -183,9 +190,9 @@ a {
   height: auto;
 }
 
-/* -------------------
-   セクション
-------------------- */
+/* ======================
+   Section
+====================== */
 .section {
   padding: 70px 0;
 }
@@ -199,9 +206,9 @@ a {
   max-width: 650px;
 }
 
-/* -------------------
-   Quick actions
-------------------- */
+/* ======================
+   Quick Actions
+====================== */
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -220,9 +227,9 @@ a {
   color: #4b5563;
 }
 
-/* -------------------
-   Contact form
-------------------- */
+/* ======================
+   Contact
+====================== */
 .contact-form {
   display: grid;
   gap: 12px;
@@ -242,9 +249,9 @@ a {
   min-height: 140px;
 }
 
-/* -------------------
+/* ======================
    Footer
-------------------- */
+====================== */
 .footer {
   padding: 20px;
   background: #f9fafb;
