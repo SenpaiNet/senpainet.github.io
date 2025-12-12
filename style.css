@@ -173,5 +173,85 @@ footer {
   color: #666;
 }
 
+/* ▼ About セクション */
+.about {
+  padding: 100px 80px;
+  text-align: center;
+}
+
+.about h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.about-text {
+  max-width: 760px;
+  margin: 0 auto;
+  font-size: 18px;
+  line-height: 1.8;
+  color: #555;
+}
+
+/* ▼ Contact セクション */
+.contact {
+  padding: 100px 80px;
+  text-align: center;
+  background: #f1f8ff; /* やわらかい水色背景 */
+}
+
+.contact h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.contact-text {
+  max-width: 760px;
+  margin: 0 auto 30px;
+  font-size: 18px;
+  color: #555;
+}
+
+.contact-box {
+  background: white;
+  padding: 24px 32px;
+  display: inline-block;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.contact-mail {
+  font-size: 20px;
+  margin-bottom: 14px;
+  color: #333;
+}
+
+.contact-btn {
+  display: inline-block;
+  background: #4da6ff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.contact-btn:hover {
+  background: #3a8de0;
+}
+
+/* ▼ フェードイン アニメーション */
+.fade-up {
+  opacity: 0;
+  animation: fadeUp 1s ease forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 
 
