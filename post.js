@@ -1,30 +1,31 @@
 import { db } from "./firebase.js";
-import { collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// フォーム送信イベント
 document.getElementById("postForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const title = document.getElementById("title").value;
   const content = document.getElementById("content").value;
 
-  const tagElems = document.querySelectorAll(".tag-option.selected");
-  const tags = [...tagElems].map(t => t.dataset.tag);
+  // タグ選択（あなたのUIに合う形で）
+  const tags = [...document.querySelectorAll(".tag-option.selected")]
+    .map(el => el.dataset.tag);
 
   try {
     await addDoc(collection(db, "posts"), {
       title,
       content,
       tags,
-      createdAt: Timestamp.now(),
+      createdAt: serverTimestamp(),
       replies: 0
     });
 
-    alert("投稿が完了しました！");
+    alert("投稿が保存されました！");
     window.location.href = "archive.html";
 
-  } catch (error) {
-    console.error("Error:", error);
-    alert("投稿に失敗しました…");
+  } catch (err) {
+    console.error(err);
+    alert("投稿に失敗しました");
   }
 });
-
