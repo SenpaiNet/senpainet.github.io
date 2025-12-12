@@ -1,5 +1,5 @@
 import { db } from "./firebase.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 const id = new URL(location.href).searchParams.get("id");
 
