@@ -1,117 +1,57 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SenpaiNet｜相談プラットフォーム</title>
-
-  <!-- ★CSSの読み込み（絶対必要） -->
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>SenpaiNet | 先輩に相談できるプラットフォーム</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-  <!-- ナビゲーション -->
-  <header class="navbar">
-    <div class="container nav-inner">
-      <a href="archive.html" class="brand">SenpaiNet</a>
-
-      <nav class="nav-links">
+  <!-- ヘッダー -->
+  <header class="navbar fade-down">
+    <div class="navbar-container">
+      <div class="logo">SenpaiNet</div>
+      <nav class="menu">
         <a href="post.html">相談する</a>
         <a href="archive.html">相談を見る</a>
-        <a href="#about">サービス概要</a>
-        <a href="#contact">お問い合わせ</a>
-        <a href="login.html" class="nav-login">🔑 ログイン</a>
+        <a href="#">実績</a>
+        <a href="#">お問い合わせ</a>
+        <a href="signup.html" class="account-btn">👤 アカウント</a>
       </nav>
     </div>
   </header>
 
-  <main>
-    <!-- Hero -->
-    <section class="hero">
-      <div class="container hero-inner">
+  <!-- メインビジュアル -->
+  <section class="hero">
+    <div class="hero-content slide-left">
+      <h1>その悩み、<br><span class="highlight">「先輩」</span>に相談してみない？</h1>
 
-        <div class="hero-text">
-          <p class="hero-eyebrow">ISS 在校生 × 卒業生コミュニティ</p>
-          <h1>その悩み、『先輩』に相談してみない？</h1>
+      <p class="subtitle">
+        ISSの在校生が卒業生に気軽に相談できるプラットフォームを目指します。
+      </p>
 
-          <p class="hero-lead">
-            ISSの在校生が卒業生に気軽に相談できるオンラインプラットフォームです。<br>
-            受験・勉強・進路の不安を、少しだけ言葉にしてみませんか。
-          </p>
-
-          <div class="hero-buttons">
-            <a href="post.html" class="btn btn-main">無料相談を申し込む</a>
-            <a href="#about" class="btn btn-outline">詳しく見る</a>
-          </div>
-
-          <p class="hero-mail">メール: issjukensoudandokoro@gmail.com</p>
-        </div>
-
-        <!-- ★ロゴカード -->
-        <div class="hero-logo-card">
-          <img src="senpainet logo.png" alt="SenpaiNet ロゴ" />
-        </div>
-
+      <div class="buttons">
+        <a href="post.html" class="btn primary">無料相談を申し込む</a>
+        <a href="archive.html" class="btn secondary">詳しく見る</a>
       </div>
-    </section>
 
-    <!-- すぐできること -->
-    <section class="section section-light">
-      <div class="container">
-        <div class="quick-actions">
-
-          <div class="qa-card">
-            <h3>相談を投稿する</h3>
-            <p>受験・勉強・進路のモヤモヤを、匿名で投稿できます。</p>
-            <a href="post.html" class="btn btn-main">＋ 新しい相談を投稿</a>
-          </div>
-
-          <div class="qa-card">
-            <h3>他の相談を見る</h3>
-            <p>他の在校生の相談を読むことで、「一人じゃない」と感じられます。</p>
-            <a href="archive.html" class="btn btn-outline">投稿一覧を開く</a>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- About -->
-    <section id="about" class="section">
-      <div class="container">
-        <h2>SenpaiNetとは？</h2>
-        <p class="section-lead">
-          SenpaiNetは、ISSを卒業した先輩が在校生の受験・勉強・進路の悩みに寄り添う
-          オンライン相談プラットフォームです。「ちょっと聞きたい」を気軽に言える場所を目指しています。
-        </p>
-      </div>
-    </section>
-
-    <!-- Contact -->
-    <section id="contact" class="section section-light">
-      <div class="container">
-        <h2>お問い合わせ</h2>
-
-        <p class="section-lead">ご質問やコラボ依頼などお気軽にどうぞ。</p>
-
-        <form class="contact-form">
-          <input type="text" name="name" placeholder="お名前" required>
-          <input type="email" name="email" placeholder="メールアドレス" required>
-          <textarea name="message" placeholder="ご相談内容・メッセージ" required></textarea>
-          <button type="submit" class="btn btn-main">送信する</button>
-        </form>
-
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="footer">
-    <div class="container">
-      <p>© SenpaiNet 2025</p>
+      <p class="email">メール: issjukensoudandokoro@gmail.com</p>
     </div>
+
+    <div class="hero-image slide-right">
+      <img src="logo.png" alt="SenpaiNet Logo">
+    </div>
+  </section>
+
+  <!-- フッター -->
+  <footer>
+    © 2025 SenpaiNet | All Rights Reserved.
   </footer>
 
 </body>
 </html>
+
 
