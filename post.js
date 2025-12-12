@@ -1,14 +1,12 @@
 import { db } from "./firebase.js";
-import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-// フォーム送信イベント
 document.getElementById("postForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const title = document.getElementById("title").value;
   const content = document.getElementById("content").value;
 
-  // タグ選択（あなたのUIに合う形で）
   const tags = [...document.querySelectorAll(".tag-option.selected")]
     .map(el => el.dataset.tag);
 
@@ -21,7 +19,7 @@ document.getElementById("postForm").addEventListener("submit", async (e) => {
       replies: 0
     });
 
-    alert("投稿が保存されました！");
+    alert("投稿が完了しました！");
     window.location.href = "archive.html";
 
   } catch (err) {
@@ -29,3 +27,4 @@ document.getElementById("postForm").addEventListener("submit", async (e) => {
     alert("投稿に失敗しました");
   }
 });
+
