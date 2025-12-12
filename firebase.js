@@ -1,6 +1,6 @@
 // Firebase SDK
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA6poRy4I0DY9xGK3099GqRvyKSR-kUubA",
@@ -12,6 +12,6 @@ const firebaseConfig = {
   measurementId: "G-53L04J0GHB"
 };
 
-// Initialize Firebase
+// Firebase 初期化
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
