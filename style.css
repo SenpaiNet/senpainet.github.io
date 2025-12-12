@@ -64,6 +64,11 @@ body {
   margin-left: 40px; /* ← ロゴ全体を左へ移動 */
 }
 
+.hero-right img {
+  width: 360px;
+  margin-left: -40px;  /* ← 画像をさらに左に動かす */
+}
+
 .hero-left {
   max-width: 45%;
 }
@@ -172,4 +177,5 @@ footer {
   margin: 80px 0 40px;
   color: #666;
 }
+
 
