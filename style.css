@@ -157,7 +157,7 @@ body {
 }
 
 /* その他 */
-.hero-right img { width: 500px; animation: float 4s ease-in-out infinite; }
+.hero-right img { width: 400px; animation: float 4s ease-in-out infinite; }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 .slide-left { opacity: 0; animation: slideLeft .9s ease forwards; }
 .slide-right { opacity: 0; animation: slideRight .9s ease forwards; }
@@ -287,6 +287,7 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   color: #666;
   margin-top: 20px;
 }
+
 
 
 
