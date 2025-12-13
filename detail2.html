@@ -5,74 +5,28 @@
   <title>相談詳細 | SenpaiNet</title>
   <link rel="stylesheet" href="archive.css">
   <style>
-    /* 詳細ページ専用の追加スタイル */
-    .detail-container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-    .question-section {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      margin-bottom: 2rem;
-    }
+    /* 詳細ページ専用スタイル */
+    .detail-container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    .question-section { background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 2rem; }
     .question-title { font-size: 1.5rem; margin-bottom: 1rem; color: #333; }
     .question-meta { font-size: 0.9rem; color: #888; margin-bottom: 1.5rem; display: flex; gap: 10px; align-items: center;}
     .question-body { font-size: 1.1rem; line-height: 1.6; white-space: pre-wrap; }
 
     /* 回答エリア */
     .answers-section h3 { margin-bottom: 1rem; border-left: 5px solid #4da6ff; padding-left: 10px; }
-    .answer-card {
-      background: #f9f9f9;
-      border: 1px solid #eee;
-      padding: 1.5rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-    .answer-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-      gap: 10px;
-    }
-    .answer-author-info {
-        display: flex;
-        flex-direction: column;
-    }
+    .answer-card { background: #f9f9f9; border: 1px solid #eee; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; }
+    .answer-header { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
+    .answer-author-info { display: flex; flex-direction: column; }
     .answer-name { font-weight: bold; color: #333; font-size: 0.95rem; }
     .answer-tags { display: flex; gap: 5px; margin-top: 2px; }
-    .user-tag {
-        font-size: 0.7rem;
-        background: #e0f2fe;
-        color: #0369a1;
-        padding: 2px 6px;
-        border-radius: 4px;
-        border: 1px solid #bae6fd;
-    }
+    .user-tag { font-size: 0.7rem; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; border: 1px solid #bae6fd; }
     .answer-date { color: #aaa; font-size: 0.8rem; margin-left: auto;}
     .answer-body { color: #444; line-height: 1.5; }
 
     /* 入力フォーム */
-    .answer-form-area {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 12px;
-      margin-top: 3rem;
-      border-top: 4px solid #f0f0f0;
-    }
-    textarea {
-      width: 100%; height: 120px; padding: 10px;
-      border: 1px solid #ddd; border-radius: 6px;
-      margin-bottom: 1rem; font-size: 1rem; resize: vertical;
-      font-family: inherit;
-    }
-    .submit-btn {
-      background: #4da6ff; color: white; border: none;
-      padding: 10px 24px; border-radius: 24px; font-weight: bold;
-      cursor: pointer; transition: background 0.3s;
-    }
+    .answer-form-area { background: #fff; padding: 2rem; border-radius: 12px; margin-top: 3rem; border-top: 4px solid #f0f0f0; }
+    textarea { width: 100%; height: 120px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 1rem; font-size: 1rem; resize: vertical; font-family: inherit; }
+    .submit-btn { background: #4da6ff; color: white; border: none; padding: 10px 24px; border-radius: 24px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
     .submit-btn:hover { background: #3b82f6; }
   </style>
 </head>
@@ -125,7 +79,6 @@
     const postId = urlParams.get('id');
 
     if (!postId) {
-        alert("投稿が見つかりません");
         window.location.href = "archive.html";
     }
 
@@ -148,18 +101,17 @@
                 <span style="margin-left:10px; font-size:0.8em;">${dateStr}</span>
             `;
 
-            // タグ表示
             if(data.tags && data.tags.length > 0) {
                 document.getElementById('qTags').innerHTML = data.tags.map(t => 
                     `<span style="background:#eee; padding:3px 8px; border-radius:4px; font-size:0.8rem; margin-right:5px; color:#555;">#${t}</span>`
                 ).join("");
             }
         } else {
-            document.querySelector('.detail-container').innerHTML = "<p>投稿が削除されたか、存在しません。</p>";
+            document.querySelector('.detail-container').innerHTML = "<p>投稿が見つかりません。</p>";
         }
     }
 
-    // 2. 回答一覧をリアルタイム表示
+    // 2. 回答一覧を表示
     function loadAnswers() {
         const answersRef = collection(db, "posts", postId, "answers");
         const q = query(answersRef, orderBy("createdAt", "asc"));
@@ -169,7 +121,7 @@
             container.innerHTML = "";
 
             if(snapshot.empty) {
-                container.innerHTML = "<p style='color:#888;'>まだ回答はありません。最初のアドバイスを送りましょう！</p>";
+                container.innerHTML = "<p style='color:#888;'>まだ回答はありません。</p>";
                 return;
             }
 
@@ -178,7 +130,6 @@
                 const dateStr = ans.createdAt ? ans.createdAt.toDate().toLocaleString() : "たった今";
                 const icon = ans.authorIcon || "https://placehold.co/30";
 
-                // 返信者のタグを表示
                 let tagsHtml = "";
                 if (ans.userTags && ans.userTags.length > 0) {
                     tagsHtml = ans.userTags.map(tag => `<span class="user-tag">#${tag}</span>`).join("");
@@ -219,7 +170,6 @@
         if (!content.trim()) return;
 
         try {
-            // ★ Firestoreの users コレクションから、今のユーザーの詳細情報（タグなど）を取得
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
             
@@ -232,33 +182,30 @@
                 userType = userData.userType || "在校生";
             }
 
-            // 回答を保存
             await addDoc(collection(db, "posts", postId, "answers"), {
                 content: content,
                 authorId: user.uid,
                 authorName: user.displayName || "名無し",
                 authorIcon: user.photoURL,
-                userTags: userTags, // ★タグ情報も一緒に保存
+                userTags: userTags,
                 userType: userType,
                 createdAt: serverTimestamp()
             });
 
-            // 投稿の返信数カウントを増やす
             const postRef = doc(db, "posts", postId);
             await updateDoc(postRef, {
                 replies: increment(1)
             });
 
             document.getElementById('answerInput').value = ""; // フォームクリア
-            alert("回答を投稿しました！");
+            // アラート削除: 何も出さない（自分の投稿が下に即座に追加されるため分かる）
             
         } catch (error) {
             console.error("Error:", error);
-            alert("投稿に失敗しました: " + error.message);
+            alert("投稿失敗: " + error.message);
         }
     });
 
-    // 初期実行
     loadQuestion();
     loadAnswers();
   </script>
