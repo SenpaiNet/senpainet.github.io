@@ -2,7 +2,6 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// アイコン生成
 function createColorIcon(color) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="${color}"/></svg>`;
   return `data:image/svg+xml;base64,${btoa(svg)}`;
@@ -16,7 +15,7 @@ let currentUserData = {};
 let selectedIconUrl = null;
 let selectedTags = [];
 let cropper = null; 
-let currentFileType = "image/png"; // デフォルトはPNG
+let currentFileType = "image/png";
 
 document.addEventListener("DOMContentLoaded", () => {
   onAuthStateChanged(auth, async (user) => {
@@ -54,6 +53,7 @@ async function loadUserProfile(user) {
     }
 
     const finalName = currentUserData.nickname || user.displayName || "ゲスト";
+    // Firestoreのアイコンを優先
     const finalIcon = currentUserData.iconUrl || user.photoURL || fallbackIcon;
     
     updateDisplay(finalName, finalIcon, user.email);
@@ -135,20 +135,13 @@ function setupEventListeners() {
         fileInput.addEventListener("change", (e) => {
             const file = e.target.files[0];
             if (file) {
-                // ファイルタイプを保存 (JPEGならJPEGで、PNGならPNGで保存するため)
                 currentFileType = file.type || "image/png";
-
                 const reader = new FileReader();
                 reader.onload = (evt) => {
                     cropperImage.src = evt.target.result;
                     cropperModal.style.display = "flex";
-                    
                     if (cropper) cropper.destroy();
-                    cropper = new Cropper(cropperImage, {
-                        aspectRatio: 1, 
-                        viewMode: 1,
-                        background: false // 透明背景を見やすくする(市松模様になる)
-                    });
+                    cropper = new Cropper(cropperImage, { aspectRatio: 1, viewMode: 1, background: false });
                 };
                 reader.readAsDataURL(file);
             }
@@ -162,15 +155,7 @@ function setupEventListeners() {
 
         cropperConfirm.addEventListener("click", () => {
             if(!cropper) return;
-            const canvas = cropper.getCroppedCanvas({
-                width: 300,
-                height: 300,
-                // 透明背景を維持するためにfillColorは指定しない
-            });
-            
-            // ★重要: 元のファイル形式を尊重するか、PNG(透明維持)にする
-            // ここでは容量と画質のバランスで基本PNG推奨だが、元がJPEGならJPEGでも良い
-            // 今回は「どんな画像でも対応」なので安全策でPNGにする
+            const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
             selectedIconUrl = canvas.toDataURL("image/png");
             
             document.getElementById("dispIcon").src = selectedIconUrl;
@@ -186,16 +171,20 @@ function setupEventListeners() {
             document.getElementById("dispIcon").src = selectedIconUrl; 
         });
 
+        // ★修正: 保存処理
         document.getElementById("iconSaveBtn").addEventListener("click", async () => {
             try {
-                await updateProfile(currentUser, { photoURL: selectedIconUrl });
+                // AuthのphotoURL更新は容量制限があるためスキップし、Firestoreのみ更新する
                 await setDoc(doc(db, "users", currentUser.uid), { iconUrl: selectedIconUrl }, { merge: true });
                 
                 document.getElementById("dispIcon").src = selectedIconUrl;
                 iconArea.classList.remove("active");
                 iconTrigger.style.display = "flex";
                 alert("アイコンを更新しました！");
-            } catch (e) { console.error(e); alert("更新失敗: " + e.message); }
+            } catch (e) { 
+                console.error(e); 
+                alert("更新失敗: " + e.message); 
+            }
         });
     }
 
@@ -224,6 +213,7 @@ function setupEventListeners() {
             const newType = document.getElementById("editUserType").value;
             const newGrade = document.getElementById("editGrade").value;
             try {
+                // 名前はAuthも更新
                 if(newName !== currentUser.displayName) {
                     await updateProfile(currentUser, { displayName: newName });
                 }
