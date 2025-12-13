@@ -1,8 +1,9 @@
+// Firebase SDK (バージョン 11.0.1 で統一)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-// ★★★ ここを senpainet-auth に統一（正） ★★★
+// 設定 (senpainet-auth プロジェクト)
 const firebaseConfig = {
   apiKey: "AIzaSyDuDU6ujKlBcxP05XOUwPsGqpxQVqeHgvs",
   authDomain: "senpainet-auth.firebaseapp.com",
@@ -13,9 +14,7 @@ const firebaseConfig = {
   measurementId: "G-977F3HXN1F"
 };
 
-// アプリを開始（initializeAppはここで一回だけ！）
+// 初期化（ここで一度だけ実行し、中身をexportする）
 const app = initializeApp(firebaseConfig);
-
-// 他のファイルで使えるように export する
 export const db = getFirestore(app);
 export const auth = getAuth(app);
