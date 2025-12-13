@@ -17,6 +17,24 @@ let selectedTags = [];
 let cropper = null; 
 let currentFileType = "image/png";
 
+// ★円形に切り抜くためのヘルパー関数
+function getRoundedCanvas(sourceCanvas) {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  const width = sourceCanvas.width;
+  const height = sourceCanvas.height;
+
+  canvas.width = width;
+  canvas.height = height;
+  context.imageSmoothingEnabled = true;
+  context.drawImage(sourceCanvas, 0, 0, width, height);
+  context.globalCompositeOperation = 'destination-in';
+  context.beginPath();
+  context.arc(width / 2, height / 2, Math.min(width, height) / 2, 0, 2 * Math.PI, true);
+  context.fill();
+  return canvas;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -53,7 +71,6 @@ async function loadUserProfile(user) {
     }
 
     const finalName = currentUserData.nickname || user.displayName || "ゲスト";
-    // Firestoreのアイコンを優先
     const finalIcon = currentUserData.iconUrl || user.photoURL || fallbackIcon;
     
     updateDisplay(finalName, finalIcon, user.email);
@@ -99,7 +116,6 @@ function renderTags(tags) {
 }
 
 function setupEventListeners() {
-    // === A. アイコン編集 ===
     const iconTrigger = document.getElementById("iconEditTrigger");
     const iconArea = document.getElementById("iconEditArea");
     const iconContainer = document.getElementById("iconSelectionContainer");
@@ -131,7 +147,6 @@ function setupEventListeners() {
             }
         });
 
-        // ファイル選択
         fileInput.addEventListener("change", (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -155,8 +170,12 @@ function setupEventListeners() {
 
         cropperConfirm.addEventListener("click", () => {
             if(!cropper) return;
-            const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
-            selectedIconUrl = canvas.toDataURL("image/png");
+            // 1. まず普通にクロップ
+            const croppedCanvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+            // 2. それを円形に加工
+            const roundedCanvas = getRoundedCanvas(croppedCanvas);
+            
+            selectedIconUrl = roundedCanvas.toDataURL("image/png");
             
             document.getElementById("dispIcon").src = selectedIconUrl;
             cropperModal.style.display = "none";
@@ -171,16 +190,14 @@ function setupEventListeners() {
             document.getElementById("dispIcon").src = selectedIconUrl; 
         });
 
-        // ★修正: 保存処理
         document.getElementById("iconSaveBtn").addEventListener("click", async () => {
             try {
-                // AuthのphotoURL更新は容量制限があるためスキップし、Firestoreのみ更新する
                 await setDoc(doc(db, "users", currentUser.uid), { iconUrl: selectedIconUrl }, { merge: true });
                 
                 document.getElementById("dispIcon").src = selectedIconUrl;
                 iconArea.classList.remove("active");
                 iconTrigger.style.display = "flex";
-                alert("アイコンを更新しました！");
+                // ★アラート削除: 何も表示せず閉じるだけ
             } catch (e) { 
                 console.error(e); 
                 alert("更新失敗: " + e.message); 
@@ -188,7 +205,6 @@ function setupEventListeners() {
         });
     }
 
-    // === B. 基本情報編集 ===
     const basicEditBtn = document.getElementById("basicInfoEditBtn");
     const basicView = document.getElementById("basicInfoViewMode");
     const basicEditArea = document.getElementById("basicInfoEditArea");
@@ -213,7 +229,6 @@ function setupEventListeners() {
             const newType = document.getElementById("editUserType").value;
             const newGrade = document.getElementById("editGrade").value;
             try {
-                // 名前はAuthも更新
                 if(newName !== currentUser.displayName) {
                     await updateProfile(currentUser, { displayName: newName });
                 }
@@ -225,7 +240,6 @@ function setupEventListeners() {
         });
     }
     
-    // === C. タグ編集 ===
     const tagsEditBtn = document.getElementById("tagsEditBtn");
     const tagsView = document.getElementById("tagsViewMode");
     const tagsEditArea = document.getElementById("tagsEditArea");
