@@ -1,5 +1,6 @@
-import { auth } from "./firebase.js"; // 設定済みの auth をインポート
+import { auth, db } from "./firebase.js"; // dbを追加
 import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js"; // Firestore書き込み用
 
 // アイコン生成関数
 function createColorIcon(color) {
@@ -71,10 +72,27 @@ document.addEventListener("DOMContentLoaded", () => {
       const password = document.getElementById("password").value;
       const nickname = document.getElementById("nickname").value;
       const iconUrl = document.getElementById("selectedIconUrl") ? document.getElementById("selectedIconUrl").value : defaultIcons[0];
+      const userType = document.querySelector('input[name="userType"]:checked').value;
+      const grade = document.getElementById("grade").value;
 
+      // Authでユーザー作成
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-          return updateProfile(userCredential.user, { displayName: nickname, photoURL: iconUrl });
+          const user = userCredential.user;
+          // プロフィール更新
+          return updateProfile(user, { displayName: nickname, photoURL: iconUrl })
+            .then(() => {
+              // ★重要: ユーザー情報をFirestoreにも保存（タグ情報などを記録するため）
+              return setDoc(doc(db, "users", user.uid), {
+                nickname: nickname,
+                email: email,
+                userType: userType,
+                grade: grade,
+                tags: selectedTags, // ここで選んだタグを保存
+                iconUrl: iconUrl,
+                createdAt: new Date()
+              });
+            });
         })
         .then(() => {
           localStorage.setItem("senpaiNet_hasAccount", "true");
