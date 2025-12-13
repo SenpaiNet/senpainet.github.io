@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebas
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E", // あなたのAPIキー
+  apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
   authDomain: "senpainet-84a24.firebaseapp.com",
   projectId: "senpainet-84a24",
   storageBucket: "senpainet-84a24.firebasestorage.app",
@@ -14,14 +14,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// 5つのデフォルトアイコン（DiceBear APIを使用）
-const defaultIcons = [
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Felix",
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Aneka",
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Shadow",
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Molly",
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Spooky"
-];
+// フォールバック用のグレーの丸アイコン（ユーザー設定がない場合用）
+const defaultFallbackIcon = `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#cccccc"/></svg>')}`;
 
 document.addEventListener("DOMContentLoaded", () => {
   onAuthStateChanged(auth, (user) => {
@@ -30,47 +24,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (user) {
       // === ログイン中 ===
-      // ローカルストレージにアカウント所持フラグを保存
+      // アカウント作成済みフラグを念のため更新
       localStorage.setItem("senpaiNet_hasAccount", "true");
 
       authBtns.forEach(btn => {
-        // アイコンと名前を表示
-        const iconUrl = user.photoURL || defaultIcons[0];
-        // 既存のデザインを崩さないよう、インラインスタイルで微調整
+        // 保存された色アイコン(photoURL) または グレーの丸
+        const iconUrl = user.photoURL || defaultFallbackIcon;
+        
+        // アイコン画像と名前を表示するHTMLに書き換え
+        // CSSクラスは既存のものを維持
         btn.innerHTML = `
-          <img src="${iconUrl}" style="width:24px; height:24px; border-radius:50%; vertical-align:middle; margin-right:8px; border:1px solid rgba(255,255,255,0.5);">
+          <img src="${iconUrl}" style="width:24px; height:24px; border-radius:50%; vertical-align:middle; margin-right:8px; border:1px solid rgba(255,255,255,0.8);">
           <span style="vertical-align:middle;">${user.displayName || "ユーザー"}</span>
         `;
-        btn.href = "profile.html"; // プロフィールへ
+        btn.href = "profile.html"; // プロフィール画面へリンク
         
-        // ログアウトボタンの場合は処理を変える（archive.htmlなど）
-        if (btn.id === 'logoutBtn') {
-           // 既存のログアウト処理があるため、ここはテキスト変更のみにとどめる場合もあるが
-           // 仕様通り「アイコン+名前」にする
-        }
+        // ※ログアウトボタン(ID="logoutBtn")に関しては、ここでの書き換え対象外とするか、
+        // 既存のscript.js等が別途制御している可能性があるため、ここでは主に「ヘッダーのアカウントボタン」を想定しています。
       });
 
     } else {
       // === 未ログイン ===
-      const hasAccount = localStorage.getItem("senpaiNet_hasAccount");
+      // 常に「ログイン」ボタンを表示する（新規作成はログイン画面の下部から）
       
       authBtns.forEach(btn => {
-        // ログアウトボタン(ID付き)は "ログイン" 表記に戻す
+        // ログアウトボタン(ID="logoutBtn")だった場合も「ログイン」に戻す
         if (btn.id === 'logoutBtn') {
              btn.innerHTML = "🔑 ログイン";
              btn.href = "login.html";
              return;
         }
 
-        if (hasAccount) {
-          // アカウント作成済みユーザー → ログインボタン
-          btn.textContent = "ログイン";
-          btn.href = "login.html"; // 押すとログインページへ（自動ログインはFirebaseがブラウザ保存機能で実施）
-        } else {
-          // 新規ユーザー → アカウント作成ボタン
-          btn.textContent = "アカウント作成";
-          btn.href = "signup.html";
-        }
+        // 通常のアカウントボタン
+        btn.textContent = "ログイン";
+        btn.href = "login.html";
       });
     }
   });
