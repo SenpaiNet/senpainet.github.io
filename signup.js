@@ -1,8 +1,7 @@
-import { auth, db } from "./firebase.js"; // dbを追加
+import { auth, db } from "./firebase.js";
 import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js"; // Firestore書き込み用
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// アイコン生成関数
 function createColorIcon(color) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="${color}"/></svg>`;
   return `data:image/svg+xml;base64,${btoa(svg)}`;
@@ -15,7 +14,6 @@ const defaultIcons = [
 document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signupForm");
   
-  // 1. アイコン選択
   const iconContainer = document.getElementById("iconSelection");
   const iconInput = document.getElementById("selectedIconUrl");
   if (iconContainer && iconInput) {
@@ -36,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 2. 卒業生タグ
   const alumniTags = document.getElementById("alumniTags");
   const tagOptions = document.querySelectorAll("#alumniTags .tag-option");
   let selectedTags = [];
@@ -64,7 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 3. 送信処理
   if (signupForm) {
     signupForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -75,20 +71,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const userType = document.querySelector('input[name="userType"]:checked').value;
       const grade = document.getElementById("grade").value;
 
-      // Authでユーザー作成
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user;
-          // プロフィール更新
           return updateProfile(user, { displayName: nickname, photoURL: iconUrl })
             .then(() => {
-              // ★重要: ユーザー情報をFirestoreにも保存（タグ情報などを記録するため）
               return setDoc(doc(db, "users", user.uid), {
                 nickname: nickname,
                 email: email,
                 userType: userType,
                 grade: grade,
-                tags: selectedTags, // ここで選んだタグを保存
+                tags: selectedTags,
                 iconUrl: iconUrl,
                 createdAt: new Date()
               });
@@ -96,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then(() => {
           localStorage.setItem("senpaiNet_hasAccount", "true");
-          alert(`✅ ${nickname} さんのアカウントを作成しました！`);
+          // アラート削除: そのまま遷移
           window.location.href = "archive.html";
         })
         .catch((error) => {
