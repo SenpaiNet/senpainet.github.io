@@ -2,7 +2,7 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// アイコン生成用
+// アイコン生成
 function createColorIcon(color) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="${color}"/></svg>`;
   return `data:image/svg+xml;base64,${btoa(svg)}`;
@@ -15,7 +15,8 @@ let currentUser = null;
 let currentUserData = {};
 let selectedIconUrl = null;
 let selectedTags = [];
-let cropper = null; // Cropperインスタンス用
+let cropper = null; 
+let currentFileType = "image/png"; // デフォルトはPNG
 
 document.addEventListener("DOMContentLoaded", () => {
   onAuthStateChanged(auth, async (user) => {
@@ -98,25 +99,22 @@ function renderTags(tags) {
 }
 
 function setupEventListeners() {
-    // === A. アイコン編集 (ファイルアップロード & トリミング) ===
+    // === A. アイコン編集 ===
     const iconTrigger = document.getElementById("iconEditTrigger");
     const iconArea = document.getElementById("iconEditArea");
     const iconContainer = document.getElementById("iconSelectionContainer");
     const fileInput = document.getElementById("iconFileInput");
     
-    // モーダル要素
     const cropperModal = document.getElementById("cropperModal");
     const cropperImage = document.getElementById("cropperImage");
     const cropperCancel = document.getElementById("cropperCancelBtn");
     const cropperConfirm = document.getElementById("cropperConfirmBtn");
 
     if(iconTrigger && iconArea) {
-        // 編集エリア開閉
         iconTrigger.addEventListener("click", () => {
             iconArea.classList.add("active");
             iconTrigger.style.display = "none";
             
-            // 色アイコン候補生成 (初回のみ)
             if(iconContainer && iconContainer.children.length === 0) {
                 defaultIcons.forEach(url => {
                     const img = document.createElement("img");
@@ -133,69 +131,63 @@ function setupEventListeners() {
             }
         });
 
-        // ファイル選択時 -> トリミング画面へ
+        // ファイル選択
         fileInput.addEventListener("change", (e) => {
             const file = e.target.files[0];
             if (file) {
+                // ファイルタイプを保存 (JPEGならJPEGで、PNGならPNGで保存するため)
+                currentFileType = file.type || "image/png";
+
                 const reader = new FileReader();
                 reader.onload = (evt) => {
-                    // 画像をセットしてモーダル表示
                     cropperImage.src = evt.target.result;
                     cropperModal.style.display = "flex";
                     
-                    // Cropper起動 (既存があれば破棄)
                     if (cropper) cropper.destroy();
                     cropper = new Cropper(cropperImage, {
-                        aspectRatio: 1, // 正方形に固定
-                        viewMode: 1,    // 枠内に収める
+                        aspectRatio: 1, 
+                        viewMode: 1,
+                        background: false // 透明背景を見やすくする(市松模様になる)
                     });
                 };
                 reader.readAsDataURL(file);
             }
-            // 同じファイルを再度選べるようにリセット
             fileInput.value = "";
         });
 
-        // トリミングキャンセル
         cropperCancel.addEventListener("click", () => {
             cropperModal.style.display = "none";
             if(cropper) cropper.destroy();
         });
 
-        // トリミング確定
         cropperConfirm.addEventListener("click", () => {
             if(!cropper) return;
-            // 切り抜いた画像を取得 (サイズを少し小さくして容量節約)
             const canvas = cropper.getCroppedCanvas({
                 width: 300,
                 height: 300,
+                // 透明背景を維持するためにfillColorは指定しない
             });
-            // DataURL(文字列)に変換
-            selectedIconUrl = canvas.toDataURL("image/jpeg", 0.8);
             
-            // プレビュー更新 (まだ保存はしない)
+            // ★重要: 元のファイル形式を尊重するか、PNG(透明維持)にする
+            // ここでは容量と画質のバランスで基本PNG推奨だが、元がJPEGならJPEGでも良い
+            // 今回は「どんな画像でも対応」なので安全策でPNGにする
+            selectedIconUrl = canvas.toDataURL("image/png");
+            
             document.getElementById("dispIcon").src = selectedIconUrl;
-            
-            // モーダル閉じる
             cropperModal.style.display = "none";
             if(cropper) cropper.destroy();
-            
-            // 色選択の選択状態を外す
             document.querySelectorAll(".icon-option").forEach(el => el.classList.remove("selected"));
         });
 
-        // アイコン編集キャンセル
         document.getElementById("iconCancelBtn").addEventListener("click", () => {
             iconArea.classList.remove("active");
             iconTrigger.style.display = "flex";
             selectedIconUrl = currentUserData.iconUrl || currentUser.photoURL; 
-            document.getElementById("dispIcon").src = selectedIconUrl; // 元に戻す
+            document.getElementById("dispIcon").src = selectedIconUrl; 
         });
 
-        // アイコン保存 (サーバーへ送信)
         document.getElementById("iconSaveBtn").addEventListener("click", async () => {
             try {
-                // AuthとFirestore両方更新
                 await updateProfile(currentUser, { photoURL: selectedIconUrl });
                 await setDoc(doc(db, "users", currentUser.uid), { iconUrl: selectedIconUrl }, { merge: true });
                 
