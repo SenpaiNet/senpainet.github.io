@@ -193,3 +193,25 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   color: #4b5563;
 }
 
+
+/* ★可愛い水色グラデのボタン★ */
+.btn-main {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: #ffffff;
+  box-shadow: 0 14px 30px rgba(56, 189, 248, 0.35);
+}
+.btn-main:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 38px rgba(56, 189, 248, 0.4);
+}
+
+.btn-outline {
+  background: #ffffff;
+  border: 1px solid #9ca3af;
+  color: #1f2937;
+}
+.btn-outline:hover {
+  border-color: #0ea5e9;
+  background: #e0f7ff;
+  color: #0ea5e9;
+}
