@@ -6,263 +6,108 @@
   <title>マイページ | SenpaiNet</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* === プロフィールページ専用スタイル === */
-    body {
-      background-color: #f8fafd; /* 全体の背景色を少し明るく */
-    }
+    /* === スタイル定義 === */
+    body { background-color: #f8fafd; }
+    .profile-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
 
-    /* メインコンテナ */
-    .profile-container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-
-    /* === プロフィールヘッダー (index.html風のヒーローセクション) === */
+    /* ヘッダーカード */
     .profile-header-card {
       background: linear-gradient(135deg, #e0f2fe 0%, #4da6ff 100%);
-      border-radius: 20px;
-      padding: 40px;
-      text-align: center;
-      color: white;
-      box-shadow: 0 10px 25px rgba(77, 166, 255, 0.3);
-      margin-bottom: 30px;
-      position: relative;
-      overflow: hidden;
+      border-radius: 20px; padding: 40px; text-align: center; color: white;
+      box-shadow: 0 10px 25px rgba(77, 166, 255, 0.3); margin-bottom: 30px;
+      position: relative; overflow: hidden;
     }
-
-    /* 背景の装飾円 */
     .profile-header-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      transform: scale(1.5);
+      content: ''; position: absolute; top: -50%; left: -50%; width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.1); border-radius: 50%; transform: scale(1.5);
     }
-
-    .profile-header-content {
-      position: relative;
-      z-index: 1;
-    }
-
+    .profile-header-content { position: relative; z-index: 1; }
     .profile-icon-large {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      border: 5px solid rgba(255, 255, 255, 0.8);
-      object-fit: cover;
-      margin-bottom: 20px;
-      background: white;
-      cursor: pointer;
-      transition: transform 0.3s;
+      width: 120px; height: 120px; border-radius: 50%; border: 5px solid rgba(255, 255, 255, 0.8);
+      object-fit: cover; margin-bottom: 20px; background: white; cursor: pointer; transition: transform 0.3s;
     }
     .profile-icon-large:hover { transform: scale(1.05); }
-
-    .profile-name {
-      font-size: 2rem;
-      font-weight: bold;
-      margin-bottom: 10px;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .profile-email {
-      font-size: 1rem;
-      opacity: 0.9;
-    }
-
-    /* アイコン編集ボタン（アイコンの右下に配置） */
+    .profile-name { font-size: 2rem; font-weight: bold; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .profile-email { font-size: 1rem; opacity: 0.9; }
+    
     .icon-edit-badge {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      background: #ffbe0b;
-      color: white;
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem;
-      border: 3px solid white;
-      cursor: pointer;
+      position: absolute; bottom: 0; right: 0; background: #ffbe0b; color: white;
+      width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; border: 3px solid white; cursor: pointer;
     }
 
-    /* === コンテンツカード (共通スタイル) === */
+    /* コンテンツカード */
     .content-card {
-      background: white;
-      border-radius: 16px;
-      padding: 30px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      margin-bottom: 30px;
+      background: white; border-radius: 16px; padding: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px;
     }
-
     .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-      border-bottom: 2px solid #f0f2f5;
-      padding-bottom: 15px;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 25px; border-bottom: 2px solid #f0f2f5; padding-bottom: 15px;
     }
-
-    .card-title {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #1e3a8a;
-      display: flex;
-      align-items: center;
-    }
+    .card-title { font-size: 1.4rem; font-weight: bold; color: #1e3a8a; display: flex; align-items: center; }
     .card-title span { margin-right: 10px; }
 
-    /* 編集ボタン */
     .edit-btn {
-      background: transparent;
-      border: 2px solid #4da6ff;
-      color: #4da6ff;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-size: 0.9rem;
+      background: transparent; border: 2px solid #4da6ff; color: #4da6ff;
+      padding: 6px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 0.9rem;
     }
-    .edit-btn:hover {
-      background: #4da6ff;
-      color: white;
-    }
-    .edit-btn.editing {
-      background: #e0f2fe;
-      color: #999;
-      border-color: #ccc;
-      cursor: not-allowed;
-    }
+    .edit-btn:hover { background: #4da6ff; color: white; }
+    .edit-btn.editing { background: #e0f2fe; color: #999; border-color: #ccc; cursor: not-allowed; }
 
-    /* === 情報リストスタイル === */
-    .info-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
+    /* リスト */
+    .info-list { list-style: none; padding: 0; margin: 0; }
+    .info-item { display: flex; margin-bottom: 20px; align-items: center; }
+    .info-label { width: 120px; font-weight: bold; color: #64748b; flex-shrink: 0; }
+    .info-value { font-size: 1.1rem; color: #333; flex-grow: 1; }
 
-    .info-item {
-      display: flex;
-      margin-bottom: 20px;
-      align-items: center;
-    }
-
-    .info-label {
-      width: 120px;
-      font-weight: bold;
-      color: #64748b;
-      flex-shrink: 0;
-    }
-
-    .info-value {
-      font-size: 1.1rem;
-      color: #333;
-      flex-grow: 1;
-    }
-
-    /* === タグ表示スタイル === */
-    .current-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+    .current-tags { display: flex; flex-wrap: wrap; gap: 10px; }
     .tag-badge {
-      background: #e0f2fe;
-      color: #0284c7;
-      padding: 8px 16px;
-      border-radius: 24px;
-      font-size: 1rem;
-      border: 1px solid #bae6fd;
+      background: #e0f2fe; color: #0284c7; padding: 8px 16px; border-radius: 24px; font-size: 1rem; border: 1px solid #bae6fd;
     }
 
-    /* === 編集モード用のスタイル (初期は非表示) === */
+    /* 編集エリア */
     .edit-mode-area {
-      display: none; /* 初期非表示 */
-      margin-top: 20px;
-      background: #f8fafc;
-      padding: 20px;
-      border-radius: 12px;
-      border: 2px solid #e2e8f0;
+      display: none; margin-top: 20px; background: #f8fafc; padding: 20px;
+      border-radius: 12px; border: 2px solid #e2e8f0;
     }
-    .edit-mode-area.active {
-      display: block; /* アクティブ時に表示 */
-      animation: fadeIn 0.3s ease-in;
-    }
+    .edit-mode-area.active { display: block; animation: fadeIn 0.3s ease-in; }
 
-    /* フォーム要素 */
     .form-group { margin-bottom: 20px; }
     .form-label { display: block; margin-bottom: 8px; font-weight: bold; color: #475569; }
     .form-input, .form-select {
-      width: 100%; padding: 12px;
-      border: 2px solid #e2e8f0; border-radius: 8px;
-      font-size: 1rem; transition: border-color 0.3s;
-      box-sizing: border-box;
+      width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;
+      font-size: 1rem; transition: border-color 0.3s; box-sizing: border-box;
     }
     .form-input:focus, .form-select:focus { border-color: #4da6ff; outline: none; }
 
-    /* 保存・キャンセルボタン */
-    .action-buttons {
-      display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px;
-    }
+    .action-buttons { display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px; }
     .save-btn {
-      background: #4da6ff; color: white; border: none;
-      padding: 10px 24px; border-radius: 8px; font-weight: bold;
+      background: #4da6ff; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: bold;
       cursor: pointer; transition: background 0.3s;
     }
     .save-btn:hover { background: #2563eb; }
     .cancel-btn {
-      background: #e2e8f0; color: #64748b; border: none;
-      padding: 10px 24px; border-radius: 8px; font-weight: bold;
+      background: #e2e8f0; color: #64748b; border: none; padding: 10px 24px; border-radius: 8px; font-weight: bold;
       cursor: pointer; transition: background 0.3s;
     }
     .cancel-btn:hover { background: #cbd5e1; }
 
-    /* === アイコン・タグ選択UI (signup.jsと同じスタイルを再現) === */
+    /* 選択UI */
     .selection-container { display: flex; flex-wrap: wrap; gap: 15px; }
-    .selection-option {
-      cursor: pointer; transition: all 0.2s;
-      border: 2px solid transparent; box-sizing: border-box;
-    }
+    .selection-option { cursor: pointer; transition: all 0.2s; border: 2px solid transparent; box-sizing: border-box; }
     .selection-option:hover { transform: scale(1.1); }
-    .selection-option.selected {
-      border-color: #4da6ff; box-shadow: 0 0 0 4px rgba(77, 166, 255, 0.3);
-    }
-    /* アイコン用 */
+    .selection-option.selected { border-color: #4da6ff; box-shadow: 0 0 0 4px rgba(77, 166, 255, 0.3); }
     .icon-option { width: 60px; height: 60px; border-radius: 50%; padding: 4px; background: white; border: 2px solid #eee; }
-    /* タグ用 */
     .tag-option-btn {
-      background: white; color: #64748b; border: 2px solid #e2e8f0;
-      padding: 8px 16px; border-radius: 24px; font-weight: bold;
+      background: white; color: #64748b; border: 2px solid #e2e8f0; padding: 8px 16px; border-radius: 24px; font-weight: bold;
     }
-    .tag-option-btn.selected {
-        background: #4da6ff; color: white; border-color: #4da6ff;
-    }
+    .tag-option-btn.selected { background: #4da6ff; color: white; border-color: #4da6ff; }
 
-    /* アニメーション */
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* ローディング表示 */
-    #loadingOverlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(255,255,255,0.9); z-index: 9999;
-        display: flex; justify-content: center; align-items: center;
-        flex-direction: column;
-    }
-    .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4da6ff; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px;}
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
-
-  <div id="loadingOverlay">
-      <div class="loader"></div>
-      <p>プロフィールを読み込み中...</p>
-  </div>
 
   <header class="navbar">
     <div class="navbar-container">
@@ -289,3 +134,87 @@
 
       <div class="edit-mode-area" id="iconEditArea" style="background: rgba(255,255,255,0.1); border:none; color:white;">
           <h3 style="margin-bottom:15px;">新しいアイコンを選択</h3>
+          <div class="selection-container" id="iconSelectionContainer" style="justify-content: center; margin-bottom: 20px;"></div>
+          <div class="action-buttons" style="justify-content: center;">
+              <button class="cancel-btn" id="iconCancelBtn" style="background:rgba(255,255,255,0.2); color:white;">キャンセル</button>
+              <button class="save-btn" id="iconSaveBtn">アイコンを保存</button>
+          </div>
+      </div>
+    </section>
+
+    <section class="content-card">
+      <div class="card-header">
+        <div class="card-title"><span>📋</span>基本データ</div>
+        <button id="basicInfoEditBtn" class="edit-btn">編集する</button>
+      </div>
+
+      <div id="basicInfoViewMode">
+        <ul class="info-list">
+          <li class="info-item"><span class="info-label">ニックネーム:</span><span class="info-value" id="infoNickname">-</span></li>
+          <li class="info-item"><span class="info-label">あなたは？:</span><span class="info-value" id="infoUserType">-</span></li>
+          <li class="info-item"><span class="info-label">学年:</span><span class="info-value" id="infoGrade">-</span></li>
+        </ul>
+      </div>
+
+      <div class="edit-mode-area" id="basicInfoEditArea">
+          <div class="form-group">
+              <label class="form-label">ニックネーム</label>
+              <input type="text" id="editNickname" class="form-input">
+          </div>
+          <div class="form-group">
+              <label class="form-label">あなたは？</label>
+              <select id="editUserType" class="form-select">
+                  <option value="在校生">在校生</option>
+                  <option value="卒業生">卒業生</option>
+              </select>
+          </div>
+          <div class="form-group">
+              <label class="form-label">学年</label>
+              <select id="editGrade" class="form-select">
+                  <option value="">未設定</option>
+                  <option>13回生</option>
+                  <option>14回生</option>
+                  <option>15回生</option>
+                  <option>16回生</option>
+                  <option value="卒業生">卒業生</option>
+              </select>
+          </div>
+          <div class="action-buttons">
+              <button class="cancel-btn" id="basicInfoCancelBtn">キャンセル</button>
+              <button class="save-btn" id="basicInfoSaveBtn">基本情報を保存</button>
+          </div>
+      </div>
+    </section>
+
+    <section class="content-card" id="tagsCard" style="display:none;">
+      <div class="card-header">
+        <div class="card-title"><span>🏷️</span>得意分野タグ</div>
+        <button id="tagsEditBtn" class="edit-btn">タグを編集</button>
+      </div>
+      <div id="tagsViewMode">
+          <div class="current-tags" id="dispTags"></div>
+      </div>
+      <div class="edit-mode-area" id="tagsEditArea">
+          <p style="margin-bottom:15px; color:#666;">最大3つまで選択できます。</p>
+          <div class="selection-container" id="tagSelectionContainer">
+            <span class="tag-option-btn" data-tag="教育">#教育</span>
+            <span class="tag-option-btn" data-tag="キャリア">#キャリア</span>
+            <span class="tag-option-btn" data-tag="AI">#AI</span>
+            <span class="tag-option-btn" data-tag="海外">#海外</span>
+            <span class="tag-option-btn" data-tag="テクノロジー">#テクノロジー</span>
+            <span class="tag-option-btn" data-tag="ボランティア">#ボランティア</span>
+            <span class="tag-option-btn" data-tag="理系">#理系</span>
+            <span class="tag-option-btn" data-tag="文系">#文系</span>
+          </div>
+          <div class="action-buttons">
+              <button class="cancel-btn" id="tagsCancelBtn">キャンセル</button>
+              <button class="save-btn" id="tagsSaveBtn">タグを保存</button>
+          </div>
+      </div>
+    </section>
+
+  </main>
+  
+  <script type="module" src="profile.js"></script>
+</body>
+</html>
