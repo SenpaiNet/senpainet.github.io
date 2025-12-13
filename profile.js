@@ -1,8 +1,9 @@
+// 1. 統一した firebase.js から auth と db を読み込む (これで競合を防ぐ)
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// アイコン設定
+// アイコン生成用データ
 function createColorIcon(color) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="${color}"/></svg>`;
   return `data:image/svg+xml;base64,${btoa(svg)}`;
@@ -11,122 +12,128 @@ const iconColors = ["#4da6ff", "#ff6b6b", "#4ecdc4", "#ffbe0b", "#9b5de5"];
 const defaultIcons = iconColors.map(createColorIcon);
 const fallbackIcon = `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#cccccc"/></svg>')}`;
 
+// 状態管理変数
 let currentUser = null;
-let currentUserData = {};
+let currentUserData = {}; // Firestoreのデータを格納
 let selectedIconUrl = null;
 let selectedTags = [];
 
+// === メイン処理開始 ===
 document.addEventListener("DOMContentLoaded", () => {
-  const loadingOverlay = document.getElementById("loadingOverlay");
-
-  // ★安全装置: 3秒経っても消えなければ強制的に消す
-  setTimeout(() => {
-    if (loadingOverlay && loadingOverlay.style.display !== "none") {
-      console.warn("ロードが遅いため強制表示します");
-      loadingOverlay.style.display = "none";
-    }
-  }, 3000);
-
-  // 1. ログイン状態監視
+  
+  // 認証状態の監視
   onAuthStateChanged(auth, async (user) => {
     if (user) {
+      // ログイン中
+      console.log("ログイン確認:", user.uid);
       currentUser = user;
-      try {
-        await loadUserProfile(user.uid);
-      } catch (err) {
-        console.error("プロフィール読み込みエラー:", err);
-      } finally {
-        // 成功しても失敗しても必ずロード画面を消す
-        if(loadingOverlay) loadingOverlay.style.display = "none";
-        setupEventListeners();
-      }
+      
+      // プロフィール読み込み実行
+      await loadUserProfile(user);
+      
+      // イベントリスナー（編集ボタン等）のセットアップ
+      setupEventListeners();
+      
     } else {
+      // 未ログイン -> ログイン画面へ
       window.location.href = "login.html";
     }
   });
 
-  // ログアウト処理
+  // ログアウトボタン
   const logoutBtn = document.getElementById("logoutBtn");
   if(logoutBtn) {
-      logoutBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          signOut(auth).then(() => {
-              localStorage.removeItem("senpaiNet_hasAccount");
-              alert("ログアウトしました。");
-              window.location.href = "index.html";
-          });
+    logoutBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      signOut(auth).then(() => {
+        localStorage.removeItem("senpaiNet_hasAccount");
+        window.location.href = "index.html";
       });
+    });
   }
 });
 
-// === プロフィール読み込み関数 ===
-async function loadUserProfile(uid) {
-  // 要素があるかチェック
-  const nameEl = document.getElementById("dispName");
-  const iconEl = document.getElementById("dispIcon");
-  const emailEl = document.getElementById("dispEmail");
-  
-  if (!nameEl || !iconEl) return; // HTML要素がない場合は終了
-
+// === データ読み込み関数 (ここを頑丈にしました) ===
+async function loadUserProfile(user) {
   try {
-    const docRef = doc(db, "users", uid);
+    // 1. まずAuth情報で最低限の表示をする (これで真っ白は防げる)
+    updateDisplay(user.displayName, user.photoURL, user.email);
+
+    // 2. Firestoreから詳細データを取得
+    const docRef = doc(db, "users", user.uid);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
       currentUserData = docSnap.data();
+      console.log("Firestoreデータ取得成功:", currentUserData);
     } else {
-      console.log("Firestoreにユーザーデータがありません (古いアカウントの可能性)");
-      currentUserData = {}; // 空オブジェクトで続行
+      console.warn("Firestoreにデータがありません。新規作成扱いで進めます。");
+      currentUserData = {}; 
     }
 
-    // 表示の更新 (データがない場合はAuth情報やデフォルト値を使う)
-    const iconUrl = currentUserData.iconUrl || currentUser.photoURL || fallbackIcon;
-    const nickName = currentUserData.nickname || currentUser.displayName || "ゲストユーザー";
+    // 3. Firestoreのデータがあれば上書き表示
+    const finalName = currentUserData.nickname || user.displayName || "ゲスト";
+    const finalIcon = currentUserData.iconUrl || user.photoURL || fallbackIcon;
     
-    iconEl.src = iconUrl;
-    nameEl.textContent = nickName;
-    if(emailEl) emailEl.textContent = currentUser.email;
-    
-    selectedIconUrl = iconUrl; 
+    updateDisplay(finalName, finalIcon, user.email);
 
-    // 基本情報エリア
-    setText("infoNickname", nickName);
+    // 詳細項目の表示
+    setText("infoNickname", finalName);
     setText("infoUserType", currentUserData.userType || "-");
     setText("infoGrade", currentUserData.grade || "-");
 
-    // タグエリア (卒業生のみ)
+    // 編集用の一時変数にもセット
+    selectedIconUrl = finalIcon;
+    selectedTags = currentUserData.tags || [];
+
+    // 卒業生タグエリアの表示制御
     const tagsCard = document.getElementById("tagsCard");
     if (currentUserData.userType === "卒業生") {
       if(tagsCard) tagsCard.style.display = "block";
-      const dispTags = document.getElementById("dispTags");
-      selectedTags = currentUserData.tags || [];
-      
-      if (dispTags) {
-          if (selectedTags.length > 0) {
-              dispTags.innerHTML = selectedTags.map(tag => `<span class="tag-badge">#${tag}</span>`).join("");
-          } else {
-              dispTags.innerHTML = "<span style='color:#999;'>タグは設定されていません</span>";
-          }
-      }
+      renderTags(selectedTags);
     } else {
       if(tagsCard) tagsCard.style.display = "none";
     }
 
   } catch (error) {
-    console.error("データ取得詳細エラー:", error);
-    throw error; // 上のcatchに投げる
+    console.error("読み込みエラー:", error);
+    alert("データの読み込みに失敗しました: " + error.message);
   }
 }
 
-// ヘルパー関数: 要素があればテキストセット
+// 画面表示更新ヘルパー
+function updateDisplay(name, icon, email) {
+  const nameEl = document.getElementById("dispName");
+  const iconEl = document.getElementById("dispIcon");
+  const emailEl = document.getElementById("dispEmail");
+  
+  if(nameEl) nameEl.textContent = name || "読み込み中...";
+  if(iconEl) iconEl.src = icon || fallbackIcon;
+  if(emailEl) emailEl.textContent = email || "";
+}
+
 function setText(id, text) {
-    const el = document.getElementById(id);
-    if(el) el.textContent = text;
+  const el = document.getElementById(id);
+  if(el) el.textContent = text;
+}
+
+function renderTags(tags) {
+  const dispTags = document.getElementById("dispTags");
+  if(!dispTags) return;
+  
+  if (tags && tags.length > 0) {
+    dispTags.innerHTML = tags.map(tag => `<span class="tag-badge">#${tag}</span>`).join("");
+  } else {
+    dispTags.innerHTML = "<span style='color:#999;'>タグは設定されていません</span>";
+  }
 }
 
 // === イベントリスナー設定 ===
 function setupEventListeners() {
-    // --- A. アイコン編集 ---
+    
+    // -------------------------
+    // A. アイコン編集
+    // -------------------------
     const iconTrigger = document.getElementById("iconEditTrigger");
     const iconArea = document.getElementById("iconEditArea");
     const iconContainer = document.getElementById("iconSelectionContainer");
@@ -136,12 +143,14 @@ function setupEventListeners() {
             iconArea.classList.add("active");
             iconTrigger.style.display = "none";
             
+            // アイコン候補生成 (初回のみ)
             if(iconContainer && iconContainer.children.length === 0) {
                 defaultIcons.forEach(url => {
                     const img = document.createElement("img");
                     img.src = url;
                     img.className = "selection-option icon-option";
                     if(url === selectedIconUrl) img.classList.add("selected");
+                    
                     img.addEventListener("click", () => {
                         document.querySelectorAll(".icon-option").forEach(el => el.classList.remove("selected"));
                         img.classList.add("selected");
@@ -160,19 +169,20 @@ function setupEventListeners() {
 
         document.getElementById("iconSaveBtn").addEventListener("click", async () => {
             try {
+                // AuthとFirestore両方更新
                 await updateProfile(currentUser, { photoURL: selectedIconUrl });
-                await updateDoc(doc(db, "users", currentUser.uid), { iconUrl: selectedIconUrl }, { merge: true })
-                      .catch(() => setDoc(doc(db, "users", currentUser.uid), { iconUrl: selectedIconUrl }, { merge: true })); // ドキュメントがない場合は作成
+                await setDoc(doc(db, "users", currentUser.uid), { iconUrl: selectedIconUrl }, { merge: true });
                 
                 document.getElementById("dispIcon").src = selectedIconUrl;
                 iconArea.classList.remove("active");
                 iconTrigger.style.display = "flex";
-                alert("アイコンを更新しました！");
             } catch (e) { console.error(e); alert("更新失敗: " + e.message); }
         });
     }
 
-    // --- B. 基本情報編集 ---
+    // -------------------------
+    // B. 基本情報編集
+    // -------------------------
     const basicEditBtn = document.getElementById("basicInfoEditBtn");
     const basicView = document.getElementById("basicInfoViewMode");
     const basicEditArea = document.getElementById("basicInfoEditArea");
@@ -184,6 +194,7 @@ function setupEventListeners() {
             basicEditBtn.classList.add("editing");
             basicEditBtn.disabled = true;
 
+            // フォームに現在の値をセット
             document.getElementById("editNickname").value = document.getElementById("infoNickname").textContent;
             document.getElementById("editUserType").value = currentUserData.userType || "在校生";
             document.getElementById("editGrade").value = currentUserData.grade || "";
@@ -207,18 +218,20 @@ function setupEventListeners() {
                 }
                 
                 const updateData = { nickname: newName, userType: newType, grade: newGrade };
+                // 在校生になったらタグを消す
                 if(newType === "在校生") updateData.tags = [];
 
-                // updateDocはドキュメントが存在しないとエラーになるため、存在確認が必要だが、setDoc(..., {merge:true})なら安全
-                const { setDoc } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js");
                 await setDoc(doc(db, "users", currentUser.uid), updateData, { merge: true });
-
-                window.location.reload(); // 簡単のためリロードして反映
+                
+                // リロードして反映 (一番確実)
+                window.location.reload(); 
             } catch (e) { console.error(e); alert("更新失敗: " + e.message); }
         });
     }
     
-    // --- C. タグ編集 ---
+    // -------------------------
+    // C. タグ編集
+    // -------------------------
     const tagsEditBtn = document.getElementById("tagsEditBtn");
     const tagsView = document.getElementById("tagsViewMode");
     const tagsEditArea = document.getElementById("tagsEditArea");
@@ -230,6 +243,7 @@ function setupEventListeners() {
             tagsEditBtn.classList.add("editing");
             tagsEditBtn.disabled = true;
             
+            // 既存タグを選択状態にする
             document.querySelectorAll(".tag-option-btn").forEach(btn => {
                 btn.classList.toggle("selected", selectedTags.includes(btn.dataset.tag));
             });
@@ -257,12 +271,12 @@ function setupEventListeners() {
             tagsEditArea.classList.remove("active");
             tagsEditBtn.classList.remove("editing");
             tagsEditBtn.disabled = false;
+            // リセット
             selectedTags = currentUserData.tags || [];
         });
 
         document.getElementById("tagsSaveBtn").addEventListener("click", async () => {
             try {
-                const { setDoc } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js");
                 await setDoc(doc(db, "users", currentUser.uid), { tags: selectedTags }, { merge: true });
                 window.location.reload();
             } catch (e) { console.error(e); alert("更新失敗: " + e.message); }
