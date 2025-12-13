@@ -5,39 +5,97 @@
   <title>相談詳細 | SenpaiNet</title>
   <link rel="stylesheet" href="archive.css">
   <style>
-    /* 詳細ページ専用スタイル */
-    .detail-container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-    .question-section { background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 2rem; }
-    .question-title { font-size: 1.5rem; margin-bottom: 1rem; color: #333; }
-    .question-meta { font-size: 0.9rem; color: #888; margin-bottom: 1.5rem; display: flex; gap: 10px; align-items: center;}
-    .question-body { font-size: 1.1rem; line-height: 1.6; white-space: pre-wrap; }
+    /* 詳細ページ専用の上書きスタイル */
+    .detail-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    
+    /* 質問部分 */
+    .question-section {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      margin-bottom: 40px;
+      border: 1px solid #f1f5f9;
+    }
+    .question-title { font-size: 1.8rem; margin-bottom: 15px; color: #1e3a8a; font-weight: 800; }
+    .question-meta {
+      display: flex; align-items: center; gap: 15px; color: #64748b; font-size: 0.9rem; margin-bottom: 25px;
+      padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;
+    }
+    .question-body { font-size: 1.1rem; line-height: 1.8; color: #334155; white-space: pre-wrap; }
 
     /* 回答エリア */
-    .answers-section h3 { margin-bottom: 1rem; border-left: 5px solid #4da6ff; padding-left: 10px; }
-    .answer-card { background: #f9f9f9; border: 1px solid #eee; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; }
-    .answer-header { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
-    .answer-author-info { display: flex; flex-direction: column; }
-    .answer-name { font-weight: bold; color: #333; font-size: 0.95rem; }
-    .answer-tags { display: flex; gap: 5px; margin-top: 2px; }
-    .user-tag { font-size: 0.7rem; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; border: 1px solid #bae6fd; }
-    .answer-date { color: #aaa; font-size: 0.8rem; margin-left: auto;}
-    .answer-body { color: #444; line-height: 1.5; }
+    .answers-section h3 {
+      font-size: 1.4rem; color: #1e293b; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .answers-section h3::before {
+      content: ''; display: block; width: 6px; height: 24px;
+      background: #4da6ff; border-radius: 10px;
+    }
+    
+    .answer-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      padding: 25px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+    .answer-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 15px;
+    }
+    .answer-author { display: flex; align-items: center; gap: 10px; font-weight: 700; color: #334155; }
+    .author-icon { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #eee; }
+    
+    .answer-date { font-size: 0.85rem; color: #94a3b8; }
+    .answer-body { color: #475569; line-height: 1.6; font-size: 1rem; }
 
-    /* 入力フォーム */
-    .answer-form-area { background: #fff; padding: 2rem; border-radius: 12px; margin-top: 3rem; border-top: 4px solid #f0f0f0; }
-    textarea { width: 100%; height: 120px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 1rem; font-size: 1rem; resize: vertical; font-family: inherit; }
-    .submit-btn { background: #4da6ff; color: white; border: none; padding: 10px 24px; border-radius: 24px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
-    .submit-btn:hover { background: #3b82f6; }
+    /* フォームエリア */
+    .answer-form-area {
+      background: white; padding: 30px; border-radius: 20px;
+      border: 2px solid #e2e8f0; margin-top: 50px;
+    }
+    textarea {
+      width: 100%; height: 140px; padding: 15px;
+      border: 2px solid #e2e8f0; border-radius: 12px;
+      margin-bottom: 20px; font-size: 1rem; box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: #3b82f6; outline: none; }
+    
+    .form-controls {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .anon-check { display: flex; align-items: center; cursor: pointer; color: #64748b; font-weight: 600; }
+    
+    .submit-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white; border: none; padding: 12px 30px;
+      border-radius: 50px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+      transition: transform 0.2s;
+    }
+    .submit-btn:hover { transform: translateY(-2px); }
   </style>
 </head>
 <body class="list-page">
 
   <header class="navbar">
     <div class="navbar-container">
-      <div class="navbar-logo"><a href="index.html">SenpaiNet</a></div>
+      <div class="navbar-logo">
+        <a href="index.html">SenpaiNet</a>
+      </div>
       <nav class="navbar-menu">
         <a href="post.html">相談する</a>
         <a href="archive.html" class="active">相談を見る</a>
+        <a href="#">実績</a>
+        <a href="#">お問い合わせ</a>
         <a href="#" class="account-btn">ログイン</a>
       </nav>
     </div>
@@ -48,8 +106,7 @@
         <section class="question-section">
             <h1 id="qTitle" class="question-title">読み込み中...</h1>
             <div id="qMeta" class="question-meta"></div>
-            <div id="qTags" style="margin-bottom:15px;"></div>
-            <hr style="border:0; border-top:1px solid #eee; margin: 1rem 0;">
+            <div id="qTags" style="margin-bottom:20px; display:flex; gap:8px;"></div>
             <div id="qBody" class="question-body"></div>
         </section>
 
@@ -59,40 +116,44 @@
         </section>
 
         <section class="answer-form-area">
-            <h3>回答する</h3>
+            <h3 style="margin-top:0;">回答する</h3>
             <form id="answerForm">
-                <textarea id="answerInput" placeholder="アドバイスや回答を入力してください..." required></textarea>
-                <div style="text-align: right;">
-                    <button type="submit" class="submit-btn">投稿する</button>
+                <textarea id="answerInput" placeholder="先輩としてアドバイスを送ろう..." required></textarea>
+                <div class="form-controls">
+                    <label class="anon-check">
+                        <input type="checkbox" id="anonCheck">
+                        <span style="margin-left: 8px;">匿名で投稿</span>
+                    </label>
+                    <button type="submit" class="submit-btn">回答を送信</button>
                 </div>
             </form>
         </section>
     </div>
   </main>
 
-  <script type="module" src="auth_header.js"></script>
-  <script type="module">
-    import { auth, db } from "./firebase.js";
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="auth_header.js"></script> <script type="module">
+    import { db, auth } from "./firebase.js"; // firebase.jsから読み込む
     import { doc, getDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('id');
-    let postAuthorId = null; // ★通知用に質問者のIDを保存する変数
-    let postTitle = "";      // ★通知用にタイトルを保存
+    let postAuthorId = null;
+    let postTitle = "";
 
     if (!postId) {
         window.location.href = "archive.html";
     }
 
-    // 1. 質問データを表示
+    // 1. 質問表示
     async function loadQuestion() {
         const docRef = doc(db, "posts", postId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
             const data = docSnap.data();
-            postAuthorId = data.authorId; // ★ここでIDを保存
-            postTitle = data.title;       // ★タイトルを保存
+            postAuthorId = data.authorId;
+            postTitle = data.title;
 
             document.getElementById('qTitle').textContent = data.title;
             document.getElementById('qBody').textContent = data.content;
@@ -101,14 +162,15 @@
             const icon = data.authorIcon || "https://placehold.co/30";
             
             document.getElementById('qMeta').innerHTML = `
-                <img src="${icon}" style="width:30px; height:30px; border-radius:50%; vertical-align:middle;">
+                <img src="${icon}" style="width:30px; height:30px; border-radius:50%; margin-right:10px; object-fit:cover;">
                 <span>${data.authorName || '匿名'}</span>
-                <span style="margin-left:10px; font-size:0.8em;">${dateStr}</span>
+                <span style="margin: 0 10px;">|</span>
+                <span>📅 ${dateStr}</span>
             `;
 
             if(data.tags && data.tags.length > 0) {
                 document.getElementById('qTags').innerHTML = data.tags.map(t => 
-                    `<span style="background:#eee; padding:3px 8px; border-radius:4px; font-size:0.8rem; margin-right:5px; color:#555;">#${t}</span>`
+                    `<span style="background:#e0f2fe; color:#0284c7; padding:4px 10px; border-radius:20px; font-size:0.85rem; font-weight:600;">#${t}</span>`
                 ).join("");
             }
         } else {
@@ -116,7 +178,7 @@
         }
     }
 
-    // 2. 回答一覧を表示
+    // 2. 回答一覧
     function loadAnswers() {
         const answersRef = collection(db, "posts", postId, "answers");
         const q = query(answersRef, orderBy("createdAt", "asc"));
@@ -126,7 +188,7 @@
             container.innerHTML = "";
 
             if(snapshot.empty) {
-                container.innerHTML = "<p style='color:#888;'>まだ回答はありません。</p>";
+                container.innerHTML = "<p style='color:#888; padding:20px; text-align:center;'>まだ回答はありません。最初の回答者になりましょう！</p>";
                 return;
             }
 
@@ -135,20 +197,12 @@
                 const dateStr = ans.createdAt ? ans.createdAt.toDate().toLocaleString() : "たった今";
                 const icon = ans.authorIcon || "https://placehold.co/30";
 
-                let tagsHtml = "";
-                if (ans.userTags && ans.userTags.length > 0) {
-                    tagsHtml = ans.userTags.map(tag => `<span class="user-tag">#${tag}</span>`).join("");
-                } else if (ans.userType === "卒業生") {
-                    tagsHtml = `<span class="user-tag" style="background:#ffe4e6; color:#be123c; border-color:#fecdd3;">#卒業生</span>`;
-                }
-
                 const html = `
                     <div class="answer-card">
                         <div class="answer-header">
-                            <img src="${icon}" style="width:36px; height:36px; border-radius:50%; border:1px solid #eee;">
-                            <div class="answer-author-info">
-                                <div class="answer-name">${ans.authorName}</div>
-                                <div class="answer-tags">${tagsHtml}</div>
+                            <div class="answer-author">
+                                <img src="${icon}" class="author-icon">
+                                <span>${ans.authorName}</span>
                             </div>
                             <div class="answer-date">${dateStr}</div>
                         </div>
@@ -160,57 +214,51 @@
         });
     }
 
-    // 3. 回答送信処理
+    // 3. 回答送信
     document.getElementById('answerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const user = auth.currentUser;
         if (!user) {
             alert("回答するにはログインが必要です。");
-            window.location.href = "login.html";
             return;
         }
 
         const content = document.getElementById('answerInput').value;
+        const isAnon = document.getElementById('anonCheck').checked;
+
         if (!content.trim()) return;
 
         try {
-            const userDocRef = doc(db, "users", user.uid);
-            const userDocSnap = await getDoc(userDocRef);
-            
-            let userTags = [];
-            let userType = "在校生";
+            // ユーザー情報をFirestoreから取得（最新のアイコンなど）
+            let userIcon = user.photoURL;
+            let userName = user.displayName;
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if(userDoc.exists()) {
+                    const ud = userDoc.data();
+                    userIcon = ud.iconUrl || userIcon;
+                    userName = ud.nickname || userName;
+                }
+            } catch(e){}
 
-            if (userDocSnap.exists()) {
-                const userData = userDocSnap.data();
-                userTags = userData.tags || [];
-                userType = userData.userType || "在校生";
-            }
-
-            // 回答を保存
             await addDoc(collection(db, "posts", postId, "answers"), {
                 content: content,
                 authorId: user.uid,
-                authorName: user.displayName || "名無し",
-                authorIcon: user.photoURL,
-                userTags: userTags,
-                userType: userType,
+                authorName: isAnon ? "匿名希望" : (userName || "名無し"),
+                authorIcon: isAnon ? "https://placehold.co/30" : (userIcon || "https://placehold.co/30"),
                 createdAt: serverTimestamp()
             });
 
-            // 投稿の返信数カウントを増やす
-            const postRef = doc(db, "posts", postId);
-            await updateDoc(postRef, { replies: increment(1) });
+            await updateDoc(doc(db, "posts", postId), { replies: increment(1) });
 
-            // ★★★ 追加機能: 質問者に通知を送る ★★★
-            // 自分の投稿への返信でなければ通知する
             if (postAuthorId && postAuthorId !== user.uid) {
                 await addDoc(collection(db, "users", postAuthorId, "notifications"), {
                     type: "reply",
                     postId: postId,
                     postTitle: postTitle,
-                    fromName: user.displayName || "名無し",
-                    fromIcon: user.photoURL,
+                    fromName: isAnon ? "匿名" : (userName || "誰か"),
+                    fromIcon: isAnon ? null : userIcon,
                     isRead: false,
                     createdAt: serverTimestamp()
                 });
@@ -220,7 +268,7 @@
             
         } catch (error) {
             console.error("Error:", error);
-            alert("投稿失敗: " + error.message);
+            alert("送信失敗: " + error.message);
         }
     });
 
