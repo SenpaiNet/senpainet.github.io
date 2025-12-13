@@ -1,17 +1,16 @@
-// Firebase SDK
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+// login.js と同じ設定（senpainet-84a24）に統一します
 const firebaseConfig = {
-  apiKey: "AIzaSyA6poRy4I0DY9xGK3099GqRvyKSR-kUubA",
-  authDomain: "senpainet-faa7a.firebaseapp.com",
-  projectId: "senpainet-faa7a",
-  storageBucket: "senpainet-faa7a.firebasestorage.app",
-  messagingSenderId: "1040425714188",
-  appId: "1:1040425714188:web:be28dc1ecde20a8b52e429",
-  measurementId: "G-53L04J0GHB"
+  apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
+  authDomain: "senpainet-84a24.firebaseapp.com",
+  projectId: "senpainet-84a24",
+  storageBucket: "senpainet-84a24.firebasestorage.app",
+  messagingSenderId: "1053589632945",
+  appId: "1:1053589632945:web:413919be47760675e4ef90",
+  measurementId: "G-1GPKNSMMFZ"
 };
 
-// Firebase 初期化
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
