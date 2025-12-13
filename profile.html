@@ -132,6 +132,12 @@
     }
     .cropper-image-wrapper img { max-width: 100%; display: block; }
 
+    /* ★追加: トリミング枠を円形に見せるCSS */
+    .cropper-view-box,
+    .cropper-face {
+      border-radius: 50%;
+    }
+
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
