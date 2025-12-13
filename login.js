@@ -8,75 +8,59 @@ import {
   setPersistence 
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-// ★★★ 接続設定を統一 ★★★
+// ★★★ 設定を senpainet-auth に統一 ★★★
 const firebaseConfig = {
-  apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
-  authDomain: "senpainet-84a24.firebaseapp.com",
-  projectId: "senpainet-84a24",
-  storageBucket: "senpainet-84a24.firebasestorage.app",
-  messagingSenderId: "1053589632945",
-  appId: "1:1053589632945:web:413919be47760675e4ef90",
-  measurementId: "G-1GPKNSMMFZ"
+  apiKey: "AIzaSyDuDU6ujKlBcxP05XOUwPsGqpxQVqeHgvs",
+  authDomain: "senpainet-auth.firebaseapp.com",
+  projectId: "senpainet-auth",
+  storageBucket: "senpainet-auth.firebasestorage.app",
+  messagingSenderId: "694282767766",
+  appId: "1:694282767766:web:3e0dd18f697aafb60e61b7",
+  measurementId: "G-977F3HXN1F"
 };
-// ★★★ 接続設定を統一 ★★★
+// ★★★ 設定ここまで ★★★
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-// ------------------------------------------
-// 1. Googleログインの処理
-// ------------------------------------------
+// Googleログイン
 const googleLoginBtn = document.getElementById('googleLoginBtn');
-
 if (googleLoginBtn) {
   googleLoginBtn.addEventListener('click', async () => {
     try {
       await setPersistence(auth, browserLocalPersistence);
-      
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-      
       localStorage.setItem("senpaiNet_hasAccount", "true");
-
-      alert(`ようこそ、${user.displayName}さん！\nログインに成功しました。`);
+      alert(`ようこそ、${user.displayName}さん！`);
       window.location.href = "archive.html";
-      
     } catch (error) {
       console.error("Googleログインエラー:", error);
-      alert("ログインに失敗しました: " + (error.message || "予期せぬエラー"));
+      alert("ログイン失敗: " + error.message);
     }
   });
 }
 
-// ------------------------------------------
-// 2. メール・パスワードログインの処理
-// ------------------------------------------
+// メールログイン
 const loginForm = document.getElementById('loginForm');
-
 if (loginForm) {
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
     try {
       await setPersistence(auth, browserLocalPersistence);
-      
       await signInWithEmailAndPassword(auth, email, password);
-
       localStorage.setItem("senpaiNet_hasAccount", "true");
-
       alert("ログインしました！");
       window.location.href = "archive.html"; 
-
     } catch (error) {
       console.error("ログインエラー:", error);
       let msg = "ログインに失敗しました。";
-      if (error.code === 'auth/wrong-password') msg = "パスワードが間違っています。";
-      if (error.code === 'auth/user-not-found') msg = "登録されていないメールアドレスです。";
-      if (error.code === 'auth/invalid-credential') msg = "メールアドレスまたはパスワードが正しくありません。";
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') msg = "メールアドレスかパスワードが間違っています。";
+      else if (error.code === 'auth/user-not-found') msg = "登録されていないメールアドレスです。";
       alert(msg);
     }
   });
