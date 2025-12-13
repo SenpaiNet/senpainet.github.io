@@ -1,25 +1,22 @@
-// ===============================
-// 0. Firebaseの初期化設定
-// ===============================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-// ★★★ 接続設定を統一 ★★★
+// ★★★ 設定を senpainet-auth に統一 ★★★
 const firebaseConfig = {
-  apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
-  authDomain: "senpainet-84a24.firebaseapp.com",
-  projectId: "senpainet-84a24",
-  storageBucket: "senpainet-84a24.firebasestorage.app",
-  messagingSenderId: "1053589632945",
-  appId: "1:1053589632945:web:413919be47760675e4ef90",
-  measurementId: "G-1GPKNSMMFZ"
+  apiKey: "AIzaSyDuDU6ujKlBcxP05XOUwPsGqpxQVqeHgvs",
+  authDomain: "senpainet-auth.firebaseapp.com",
+  projectId: "senpainet-auth",
+  storageBucket: "senpainet-auth.firebasestorage.app",
+  messagingSenderId: "694282767766",
+  appId: "1:694282767766:web:3e0dd18f697aafb60e61b7",
+  measurementId: "G-977F3HXN1F"
 };
-// ★★★ 接続設定を統一 ★★★
+// ★★★ 設定ここまで ★★★
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// === シンプルな色のアイコン画像を生成する関数 ===
+// === アイコン生成関数 ===
 function createColorIcon(color) {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -28,63 +25,42 @@ function createColorIcon(color) {
   return `data:image/svg+xml;base64,${btoa(svg)}`;
 }
 
-// 5色のデフォルトアイコン
 const defaultIcons = [
-  createColorIcon("#4da6ff"), // 水色 (テーマカラー)
-  createColorIcon("#ff6b6b"), // 赤 (アクセント)
-  createColorIcon("#4ecdc4"), // 緑 (爽やか系)
-  createColorIcon("#ffbe0b"), // 黄 (明るい系)
-  createColorIcon("#9b5de5")  // 紫 (落ち着き系)
+  createColorIcon("#4da6ff"), createColorIcon("#ff6b6b"), 
+  createColorIcon("#4ecdc4"), createColorIcon("#ffbe0b"), createColorIcon("#9b5de5")
 ];
 
-// ===============================
-// アカウント作成ページロジック
-// ===============================
 document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signupForm");
   
-  // === 1. アイコン選択UIの生成処理 ===
+  // 1. アイコン選択UI
   const iconContainer = document.getElementById("iconSelection");
   const iconInput = document.getElementById("selectedIconUrl");
 
   if (iconContainer && iconInput) {
     iconInput.value = defaultIcons[0];
-
     defaultIcons.forEach((url, index) => {
       const img = document.createElement("img");
       img.src = url;
       img.className = "tag-option";
-      
-      img.style.width = "40px";
-      img.style.height = "40px";
-      img.style.borderRadius = "50%";
-      img.style.padding = "2px";
-      img.style.objectFit = "cover";
-      img.style.border = "1px solid #ccc";
+      img.style.width = "40px"; img.style.height = "40px"; img.style.borderRadius = "50%";
+      img.style.padding = "2px"; img.style.objectFit = "cover"; img.style.border = "1px solid #ccc";
 
-      if (index === 0) {
-        img.classList.add("selected");
-      }
-
+      if (index === 0) img.classList.add("selected");
       img.addEventListener("click", () => {
-        const siblings = iconContainer.querySelectorAll(".tag-option");
-        siblings.forEach(sib => sib.classList.remove("selected"));
-        
+        iconContainer.querySelectorAll(".tag-option").forEach(sib => sib.classList.remove("selected"));
         img.classList.add("selected");
         iconInput.value = url;
       });
-
       iconContainer.appendChild(img);
     });
   }
 
-  // === 2. 卒業生タグの表示切り替え・選択ロジック (既存) ===
+  // 2. 卒業生タグ
   const alumniTags = document.getElementById("alumniTags");
   const tagOptions = document.querySelectorAll("#alumniTags .tag-option");
   let selectedTags = [];
-
-  const userTypeRadios = document.querySelectorAll('input[name="userType"]');
-  userTypeRadios.forEach(radio => {
+  document.querySelectorAll('input[name="userType"]').forEach(radio => {
     radio.addEventListener("change", () => {
       if (radio.value === "卒業生" && radio.checked) {
         if(alumniTags) alumniTags.classList.remove("hidden");
@@ -95,7 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-
   tagOptions.forEach(tag => {
     tag.addEventListener("click", () => {
       const tagName = tag.dataset.tag;
@@ -109,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // === 3. フォーム送信処理 ===
+  // 3. フォーム送信処理
   if (signupForm) {
     signupForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -121,8 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-          const user = userCredential.user;
-          return updateProfile(user, {
+          return updateProfile(userCredential.user, {
               displayName: nickname,
               photoURL: iconUrl
           });
@@ -134,15 +108,12 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch((error) => {
           console.error(error);
-          let msg = "エラーが発生しました。";
-          if (error.code === "auth/email-already-in-use") {
-              msg = "そのメールアドレスは既に登録されています。";
-          } else if (error.code === "auth/weak-password") {
-              msg = "パスワードは6文字以上にしてください。";
-          }
+          let msg = "エラーが発生しました。\n" + error.code;
+          if (error.code === "auth/email-already-in-use") msg = "そのメールアドレスは既に登録されています。";
+          else if (error.code === "auth/weak-password") msg = "パスワードは6文字以上にしてください。";
+          else if (error.code === "auth/operation-not-allowed") msg = "管理画面でメール認証が許可されていません。Firebase Consoleの[Authentication]→[Sign-in method]で有効にしてください。";
           alert(msg);
         });
     });
   }
 });
-
