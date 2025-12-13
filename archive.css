@@ -6,12 +6,13 @@
   position: sticky;
   top: 0;
   z-index: 50;
+  box-sizing: border-box;
 }
 
 .navbar-container {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: center; /* 垂直中央揃え */
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -22,12 +23,14 @@
   color: #2563eb;
   text-decoration: none;
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
 }
 
 .navbar-menu {
   display: flex;
   gap: 25px;
-  align-items: center;
+  align-items: center; /* メニュー項目を垂直中央揃え */
 }
 
 .navbar-menu a {
@@ -35,6 +38,8 @@
   text-decoration: none;
   font-weight: 500;
   transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
 }
 
 .navbar-menu a:hover {
@@ -167,16 +172,7 @@ body.list-page {
   font-size: 0.8rem;
 }
 
-/* === ヘッダー上部（タイトル＋アカウント） === */
-.header-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  padding: 0 20px;
-}
-
-/* === アカウントボタン === */
+/* === アカウントボタン（ヘッダー上部用） === */
 .account-btn {
   background: linear-gradient(90deg, #64748b, #475569);
   color: white;
