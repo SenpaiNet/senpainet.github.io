@@ -1,4 +1,3 @@
-// firebase.js から auth と db をもらう
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -8,13 +7,14 @@ onAuthStateChanged(auth, (user) => {
   const loader = document.getElementById("global-loader");
   
   if (user) {
-    // ログインOK → ロード画面を消す
     if (loader) {
       loader.style.opacity = "0";
       setTimeout(() => { loader.style.display = "none"; }, 500);
     }
   } else {
-    // 未ログイン → ログイン画面へ
+    // 未ログイン時はアラートを出さずにログイン画面へ飛ばす方がスムーズですが、
+    // ここは「なぜ飛ばされたか」わかるように残すか、削除してもOKです。
+    // 今回は「成功ポップアップ」の削除依頼なので、エラー系は残しておきます。
     alert("相談を投稿するにはログインが必要です。");
     window.location.href = "login.html";
   }
@@ -41,7 +41,7 @@ if (postForm) {
         createdAt: serverTimestamp(),
         replies: 0
       });
-      alert("投稿しました！");
+      // アラート削除: 即移動
       window.location.href = "archive.html";
     } catch (err) {
       console.error(err);
