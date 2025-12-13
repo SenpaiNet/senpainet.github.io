@@ -77,6 +77,8 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('id');
+    let postAuthorId = null; // ★通知用に質問者のIDを保存する変数
+    let postTitle = "";      // ★通知用にタイトルを保存
 
     if (!postId) {
         window.location.href = "archive.html";
@@ -89,6 +91,9 @@
 
         if (docSnap.exists()) {
             const data = docSnap.data();
+            postAuthorId = data.authorId; // ★ここでIDを保存
+            postTitle = data.title;       // ★タイトルを保存
+
             document.getElementById('qTitle').textContent = data.title;
             document.getElementById('qBody').textContent = data.content;
             
@@ -182,6 +187,7 @@
                 userType = userData.userType || "在校生";
             }
 
+            // 回答を保存
             await addDoc(collection(db, "posts", postId, "answers"), {
                 content: content,
                 authorId: user.uid,
@@ -192,13 +198,25 @@
                 createdAt: serverTimestamp()
             });
 
+            // 投稿の返信数カウントを増やす
             const postRef = doc(db, "posts", postId);
-            await updateDoc(postRef, {
-                replies: increment(1)
-            });
+            await updateDoc(postRef, { replies: increment(1) });
 
-            document.getElementById('answerInput').value = ""; // フォームクリア
-            // アラート削除: 何も出さない（自分の投稿が下に即座に追加されるため分かる）
+            // ★★★ 追加機能: 質問者に通知を送る ★★★
+            // 自分の投稿への返信でなければ通知する
+            if (postAuthorId && postAuthorId !== user.uid) {
+                await addDoc(collection(db, "users", postAuthorId, "notifications"), {
+                    type: "reply",
+                    postId: postId,
+                    postTitle: postTitle,
+                    fromName: user.displayName || "名無し",
+                    fromIcon: user.photoURL,
+                    isRead: false,
+                    createdAt: serverTimestamp()
+                });
+            }
+
+            document.getElementById('answerInput').value = ""; 
             
         } catch (error) {
             console.error("Error:", error);
