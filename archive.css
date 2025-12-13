@@ -5,52 +5,6 @@ body.list-page {
   margin: 0; padding: 0; padding-top: 70px;
 }
 
-/* === ナビゲーションバー (style.cssと統一) === */
-.navbar {
-  width: 100%; height: 70px;
-  background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-  position: fixed; top: 0; left: 0;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-  z-index: 1000; box-sizing: border-box;
-  display: flex; align-items: center; padding: 0 40px;
-}
-.navbar-container {
-  width: 100%; max-width: 1200px; margin: 0 auto;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.navbar-logo {
-  font-size: 24px; font-weight: 900;
-  background: linear-gradient(90deg, #4da6ff, #2563eb);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  display: flex; align-items: center; line-height: 1;
-}
-.navbar-logo a { text-decoration: none; }
-.navbar-menu { display: flex; align-items: center; gap: 30px; }
-.navbar-menu a {
-  text-decoration: none; color: #475569; font-weight: 600;
-  transition: 0.2s; font-size: 0.95rem;
-}
-.navbar-menu a:hover { color: #2563eb; }
-
-/* ★★★ かっこいいアカウントボタン (統一) ★★★ */
-.account-btn, .account-link {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white !important;
-  padding: 10px 24px !important;
-  border-radius: 50px !important;
-  display: inline-flex; align-items: center; justify-content: center;
-  height: auto !important; box-sizing: border-box;
-  font-weight: 700 !important; letter-spacing: 0.03em;
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  border: 1px solid rgba(255,255,255,0.2);
-}
-.account-link:hover, .account-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-}
-
 /* === ヘッダー === */
 .header { text-align: center; padding: 40px 15px 20px; }
 .header h1 { color: #1e3a8a; margin-bottom: 20px; font-size: 2rem; }
@@ -85,6 +39,32 @@ body.list-page {
 }
 .search-bar button:hover { background: #2563eb; }
 
+/* ★追加: 検索タグポップアップのスタイル */
+.search-tag-area {
+  display: none; /* 初期非表示 */
+  position: absolute;
+  top: 55px; /* 検索バーの下 */
+  left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 500px;
+  background: white; border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  padding: 20px; z-index: 100;
+  border: 1px solid #f1f5f9;
+  flex-wrap: wrap; justify-content: center; gap: 10px;
+}
+.search-tag-area.active { display: flex; animation: fadeIn 0.2s ease-out; }
+
+.search-tag-chip {
+  background: #f8fafc; color: #475569;
+  padding: 8px 16px; border-radius: 20px;
+  font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; border: 1px solid #e2e8f0;
+}
+.search-tag-chip:hover {
+  background: #e0f2fe; color: #0284c7; border-color: #bae6fd;
+  transform: translateY(-1px);
+}
+
 /* === 投稿カード === */
 .post-list {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -94,6 +74,7 @@ body.list-page {
   background: white; border-radius: 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); padding: 24px;
   transition: all 0.3s ease; border: 1px solid #f1f5f9;
+  cursor: pointer;
 }
 .post-card:hover {
   transform: translateY(-5px);
@@ -101,5 +82,8 @@ body.list-page {
 }
 .post-card h3 { color: #1e3a8a; margin-bottom: 12px; font-size: 1.2rem; }
 .post-card p { color: #475569; font-size: 0.95rem; margin-bottom: 15px; line-height: 1.6; }
-.post-card .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.post-card .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .post-card .tag { background: #f1f5f9; color: #475569; border-radius: 6px; padding: 4px 10px; font-size: 0.8rem; }
+
+/* アニメーション */
+@keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
