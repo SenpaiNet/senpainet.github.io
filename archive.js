@@ -3,15 +3,12 @@ import { collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/
 
 const postList = document.getElementById("postList");
 const keywordInput = document.getElementById("keywordInput");
-const searchTagArea = document.getElementById("searchTagArea");
+// 検索ボタンがある場合のみ取得（エラー防止）
 const searchBtn = document.getElementById("searchBtn");
 
 let allPostsData = [];
 
-// 検索用タグリスト
-const searchTags = ["一般入試", "AO入試", "DP", "課外活動", "履修", "海外大学", "部活", "英検", "IELTS", "TOEFL", "模試", "教育", "キャリア", "AI", "海外", "テクノロジー"];
-
-// === 1. データ読み込み ===
+// === 1. データ読み込み（リアルタイム） ===
 const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
 
 onSnapshot(q, (snapshot) => {
@@ -20,8 +17,8 @@ onSnapshot(q, (snapshot) => {
     allPostsData.push({ id: doc.id, ...doc.data() });
   });
   
-  // データ読み込み時、もし検索バーに何か残っていたらその状態で検索、空なら全件表示
-  performSearch(keywordInput.value);
+  // データ読み込み直後に表示更新
+  performSearch(keywordInput ? keywordInput.value : "");
 });
 
 // === 2. 検索実行ロジック ===
@@ -37,7 +34,12 @@ function performSearch(keyword) {
   const filtered = allPostsData.filter(post => {
     const inTitle = post.title && post.title.toLowerCase().includes(lowerKey);
     const inContent = post.content && post.content.toLowerCase().includes(lowerKey);
-    const inTags = post.tags && post.tags.some(t => t.toLowerCase().includes(lowerKey));
+    
+    // タグ検索
+    let inTags = false;
+    if (post.tags && Array.isArray(post.tags)) {
+        inTags = post.tags.some(t => t.toLowerCase().includes(lowerKey));
+    }
     
     return inTitle || inContent || inTags;
   });
@@ -45,7 +47,7 @@ function performSearch(keyword) {
   renderPosts(filtered);
 }
 
-// === 3. 投稿表示関数 (回答数を追加) ===
+// === 3. 投稿表示関数 ===
 function renderPosts(posts) {
   postList.innerHTML = "";
 
@@ -55,19 +57,25 @@ function renderPosts(posts) {
   }
 
   posts.forEach((post) => {
+    // 日付の処理
     let dateStr = "日付不明";
     if (post.createdAt && typeof post.createdAt.toDate === 'function') {
       dateStr = post.createdAt.toDate().toLocaleDateString();
     }
 
+    // 本文の省略
     const contentStr = post.content || "";
     const snippet = contentStr.length > 40 ? contentStr.substring(0, 40) + "..." : contentStr;
 
-    const tagsHtml = (post.tags || []).map(tag => 
-      `<span class="tag" style="background:#e0f2fe; color:#0284c7; padding:2px 6px; border-radius:10px; font-size:0.7rem; margin-right:3px;">#${tag}</span>`
-    ).join("");
+    // タグのHTML生成
+    let tagsHtml = "";
+    if (post.tags && Array.isArray(post.tags)) {
+        tagsHtml = post.tags.map(tag => 
+          `<span class="tag" style="background:#e0f2fe; color:#0284c7; padding:2px 6px; border-radius:10px; font-size:0.7rem; margin-right:3px;">#${tag}</span>`
+        ).join("");
+    }
 
-    // ★追加: 回答数の表示ロジック
+    // ★重要: 回答数の取得（データがない場合は0にする）
     const replyCount = post.replies || 0;
 
     const html = `
@@ -86,7 +94,7 @@ function renderPosts(posts) {
 
         <div style="font-size: 0.75rem; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; margin-top:auto;">
            <div style="display:flex; align-items:center; overflow:hidden;">
-             <img src="${post.authorIcon || 'https://placehold.co/20'}" style="width:18px; height:18px; border-radius:50%; margin-right:4px; flex-shrink:0;">
+             <img src="${post.authorIcon || 'https://placehold.co/20'}" style="width:18px; height:18px; border-radius:50%; margin-right:4px; flex-shrink:0; object-fit:cover;">
              <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:80px;">${post.authorName || "匿名"}</span>
            </div>
            <span>${dateStr}</span>
@@ -99,44 +107,18 @@ function renderPosts(posts) {
 
 // === 4. イベントリスナー ===
 
-keywordInput.addEventListener("input", () => {
-  performSearch(keywordInput.value);
-});
-
-function renderSearchTags() {
-  searchTagArea.innerHTML = "";
-  searchTags.forEach(tag => {
-    const span = document.createElement("span");
-    span.className = "search-tag";
-    span.textContent = "#" + tag;
-    span.addEventListener("click", (e) => {
-      e.stopPropagation();
-      keywordInput.value = tag; 
-      performSearch(tag);       
-      searchTagArea.style.display = "none";
+if (keywordInput) {
+    keywordInput.addEventListener("input", () => {
+      performSearch(keywordInput.value);
     });
-    searchTagArea.appendChild(span);
-  });
 }
 
-keywordInput.addEventListener("click", (e) => {
-  e.stopPropagation();
-  renderSearchTags();
-  searchTagArea.style.display = "flex";
-});
-
-searchBtn.addEventListener("click", (e) => {
-  if (!keywordInput.value.trim()) {
-    e.stopPropagation();
-    renderSearchTags();
-    searchTagArea.style.display = "flex";
-    return;
-  }
-  performSearch(keywordInput.value);
-});
-
-document.addEventListener("click", (e) => {
-  if (e.target !== keywordInput && !searchTagArea.contains(e.target)) {
-    searchTagArea.style.display = "none";
-  }
-});
+if (searchBtn) {
+    searchBtn.addEventListener("click", () => {
+      if (!keywordInput.value.trim()) {
+        performSearch(""); // 全件表示
+        return;
+      }
+      performSearch(keywordInput.value);
+    });
+}
