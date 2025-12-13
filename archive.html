@@ -4,6 +4,54 @@
   <meta charset="UTF-8">
   <title>投稿一覧 | SenpaiNet</title>
   <link rel="stylesheet" href="archive.css">
+  <style>
+    /* === 1行5個にするレイアウト変更 === */
+    .post-list {
+      display: grid !important;
+      grid-template-columns: repeat(5, 1fr) !important; /* 強制的に5列 */
+      gap: 15px !important;
+      padding: 0 20px 50px;
+    }
+
+    /* 画面が狭すぎる場合は横スクロールさせるか、最低幅を維持 */
+    @media (max-width: 1200px) {
+      .post-list {
+        min-width: 1000px; /* 5個並べるために最低幅を確保 */
+        overflow-x: auto;
+      }
+    }
+
+    /* === 検索用タグエリアのスタイル === */
+    #searchTagArea {
+      display: none; /* 最初は非表示 */
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .search-tag {
+      background: #e0f2fe;
+      color: #0284c7;
+      padding: 5px 12px;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      border: 1px solid #bae6fd;
+    }
+
+    .search-tag:hover {
+      background: #0284c7;
+      color: white;
+    }
+  </style>
   </head>
 <body class="list-page">
 
@@ -16,9 +64,7 @@
       <nav class="navbar-menu">
         <a href="post.html">相談する</a>
         <a href="archive.html" class="active">相談を見る</a>
-        <a href="#">実績</a>
-        <a href="#">お問い合わせ</a>
-        <a href="#" id="logoutBtn" class="account-link" style="color: #ff6b6b;">🚪 ログアウト</a>
+        <a href="#" class="account-btn">ログイン</a>
       </nav>
     </div>
   </header>
@@ -26,10 +72,18 @@
   <main>
     <section class="header">
       <h1>🌐 みんなの相談一覧</h1>
-      <div class="search-bar">
-        <input type="text" id="keywordInput" placeholder="キーワードで検索">
-        <button id="searchBtn">検索</button>
+      
+      <div class="search-container" style="max-width: 600px; margin: 0 auto;">
+        <div class="search-bar">
+          <input type="text" id="keywordInput" placeholder="キーワードまたはタグを選択" autocomplete="off">
+          <button id="searchBtn">検索</button>
+        </div>
+        
+        <div id="searchTagArea">
+          </div>
       </div>
+
+      <br>
       <a href="post.html" class="new-post-btn">＋ 新しく投稿</a>
     </section>
 
@@ -37,12 +91,7 @@
       </section>
   </main>
     
-<script type="module" src="firebase.js"></script>
-<script type="module" src="archive.js"></script>
 <script type="module" src="auth_header.js"></script>
+<script type="module" src="archive.js"></script>
 </body>
 </html>
-
-
-
-
