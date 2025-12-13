@@ -31,7 +31,7 @@ const googleLoginBtn = document.getElementById('googleLoginBtn');
 if (googleLoginBtn) {
   googleLoginBtn.addEventListener('click', async () => {
     try {
-      // ログイン状態を維持
+      // ログイン状態を維持設定
       await setPersistence(auth, browserLocalPersistence);
       
       const result = await signInWithPopup(auth, googleProvider);
@@ -41,7 +41,7 @@ if (googleLoginBtn) {
       localStorage.setItem("senpaiNet_hasAccount", "true");
 
       alert(`ようこそ、${user.displayName}さん！\nログインに成功しました。`);
-      window.location.href = "archive.html";
+      window.location.href = "archive.html"; // 一覧ページへ移動
       
     } catch (error) {
       console.error("Googleログインエラー:", error);
@@ -66,13 +66,13 @@ if (loginForm) {
       await setPersistence(auth, browserLocalPersistence);
       
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // const user = userCredential.user; // 必要であれば使用
+      // const user = userCredential.user; 
 
       // ★ログイン成功フラグを保存
       localStorage.setItem("senpaiNet_hasAccount", "true");
 
       alert("ログインしました！");
-      window.location.href = "archive.html"; 
+      window.location.href = "archive.html"; // 一覧ページへ移動
 
     } catch (error) {
       console.error("ログインエラー:", error);
