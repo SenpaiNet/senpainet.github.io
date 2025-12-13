@@ -2,22 +2,7 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-function createColorIcon(color) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="${color}"/></svg>`;
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
-}
-const iconColors = ["#4da6ff", "#ff6b6b", "#4ecdc4", "#ffbe0b", "#9b5de5"];
-const defaultIcons = iconColors.map(createColorIcon);
-const fallbackIcon = `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#cccccc"/></svg>')}`;
-
-let currentUser = null;
-let currentUserData = {};
-let selectedIconUrl = null;
-let selectedTags = [];
-let cropper = null; 
-let currentFileType = "image/png";
-
-// ★円形に切り抜くためのヘルパー関数
+// === 円形切り抜き用の関数 ===
 function getRoundedCanvas(sourceCanvas) {
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
@@ -34,6 +19,22 @@ function getRoundedCanvas(sourceCanvas) {
   context.fill();
   return canvas;
 }
+
+// アイコン生成用
+function createColorIcon(color) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="${color}"/></svg>`;
+  return `data:image/svg+xml;base64,${btoa(svg)}`;
+}
+const iconColors = ["#4da6ff", "#ff6b6b", "#4ecdc4", "#ffbe0b", "#9b5de5"];
+const defaultIcons = iconColors.map(createColorIcon);
+const fallbackIcon = `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#cccccc"/></svg>')}`;
+
+let currentUser = null;
+let currentUserData = {};
+let selectedIconUrl = null;
+let selectedTags = [];
+let cropper = null; 
+let currentFileType = "image/png";
 
 document.addEventListener("DOMContentLoaded", () => {
   onAuthStateChanged(auth, async (user) => {
@@ -71,6 +72,7 @@ async function loadUserProfile(user) {
     }
 
     const finalName = currentUserData.nickname || user.displayName || "ゲスト";
+    // Firestoreのアイコンを優先
     const finalIcon = currentUserData.iconUrl || user.photoURL || fallbackIcon;
     
     updateDisplay(finalName, finalIcon, user.email);
@@ -116,6 +118,7 @@ function renderTags(tags) {
 }
 
 function setupEventListeners() {
+    // === A. アイコン編集 ===
     const iconTrigger = document.getElementById("iconEditTrigger");
     const iconArea = document.getElementById("iconEditArea");
     const iconContainer = document.getElementById("iconSelectionContainer");
@@ -156,6 +159,7 @@ function setupEventListeners() {
                     cropperImage.src = evt.target.result;
                     cropperModal.style.display = "flex";
                     if (cropper) cropper.destroy();
+                    // viewMode: 1 で画像が枠内に収まるように
                     cropper = new Cropper(cropperImage, { aspectRatio: 1, viewMode: 1, background: false });
                 };
                 reader.readAsDataURL(file);
@@ -170,11 +174,12 @@ function setupEventListeners() {
 
         cropperConfirm.addEventListener("click", () => {
             if(!cropper) return;
-            // 1. まず普通にクロップ
+            // 1. 通常の四角い切り抜きを取得
             const croppedCanvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
-            // 2. それを円形に加工
+            // 2. それを円形に加工する関数を通す
             const roundedCanvas = getRoundedCanvas(croppedCanvas);
             
+            // PNGで書き出し（透過維持）
             selectedIconUrl = roundedCanvas.toDataURL("image/png");
             
             document.getElementById("dispIcon").src = selectedIconUrl;
@@ -192,12 +197,15 @@ function setupEventListeners() {
 
         document.getElementById("iconSaveBtn").addEventListener("click", async () => {
             try {
+                // Firestoreのみ更新（容量制限回避）
                 await setDoc(doc(db, "users", currentUser.uid), { iconUrl: selectedIconUrl }, { merge: true });
                 
                 document.getElementById("dispIcon").src = selectedIconUrl;
                 iconArea.classList.remove("active");
                 iconTrigger.style.display = "flex";
-                // ★アラート削除: 何も表示せず閉じるだけ
+                
+                // ★アラート削除: ここには何も書かず、静かに終了
+                
             } catch (e) { 
                 console.error(e); 
                 alert("更新失敗: " + e.message); 
@@ -205,6 +213,7 @@ function setupEventListeners() {
         });
     }
 
+    // === B. 基本情報編集 ===
     const basicEditBtn = document.getElementById("basicInfoEditBtn");
     const basicView = document.getElementById("basicInfoViewMode");
     const basicEditArea = document.getElementById("basicInfoEditArea");
@@ -240,6 +249,7 @@ function setupEventListeners() {
         });
     }
     
+    // === C. タグ編集 ===
     const tagsEditBtn = document.getElementById("tagsEditBtn");
     const tagsView = document.getElementById("tagsViewMode");
     const tagsEditArea = document.getElementById("tagsEditArea");
