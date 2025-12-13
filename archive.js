@@ -26,7 +26,7 @@ onSnapshot(q, (snapshot) => {
 
 // === 2. 検索実行ロジック ===
 function performSearch(keyword) {
-  // ★ここが重要: 入力が空なら「全件表示」して終了
+  // 入力が空なら「全件表示」
   if (!keyword || keyword.trim() === "") {
     renderPosts(allPostsData);
     return;
@@ -35,11 +35,8 @@ function performSearch(keyword) {
   const lowerKey = keyword.toLowerCase().trim();
   
   const filtered = allPostsData.filter(post => {
-    // タイトル検索
     const inTitle = post.title && post.title.toLowerCase().includes(lowerKey);
-    // 本文検索
     const inContent = post.content && post.content.toLowerCase().includes(lowerKey);
-    // タグ検索
     const inTags = post.tags && post.tags.some(t => t.toLowerCase().includes(lowerKey));
     
     return inTitle || inContent || inTags;
@@ -48,7 +45,7 @@ function performSearch(keyword) {
   renderPosts(filtered);
 }
 
-// === 3. 投稿表示関数 ===
+// === 3. 投稿表示関数 (回答数を追加) ===
 function renderPosts(posts) {
   postList.innerHTML = "";
 
@@ -70,6 +67,9 @@ function renderPosts(posts) {
       `<span class="tag" style="background:#e0f2fe; color:#0284c7; padding:2px 6px; border-radius:10px; font-size:0.7rem; margin-right:3px;">#${tag}</span>`
     ).join("");
 
+    // ★追加: 回答数の表示ロジック
+    const replyCount = post.replies || 0;
+
     const html = `
       <article class="post-card" onclick="location.href='detail2.html?id=${post.id}'" style="
         background: white; border-radius: 12px; padding: 15px;
@@ -79,6 +79,11 @@ function renderPosts(posts) {
         <h3 style="margin:0 0 8px 0; color:#1e3a8a; font-size:1rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${post.title || "無題"}</h3>
         <p style="color:#475569; font-size:0.85rem; flex-grow:1; margin-bottom:10px; word-break: break-all;">${snippet}</p>
         <div class="tags" style="margin-bottom:8px; display:flex; flex-wrap:wrap; gap:4px;">${tagsHtml}</div>
+        
+        <div style="margin-bottom: 8px; font-size: 0.85rem; color: #4da6ff; font-weight: bold;">
+           💬 回答 ${replyCount}件
+        </div>
+
         <div style="font-size: 0.75rem; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; margin-top:auto;">
            <div style="display:flex; align-items:center; overflow:hidden;">
              <img src="${post.authorIcon || 'https://placehold.co/20'}" style="width:18px; height:18px; border-radius:50%; margin-right:4px; flex-shrink:0;">
@@ -94,13 +99,10 @@ function renderPosts(posts) {
 
 // === 4. イベントリスナー ===
 
-// ★リアルタイム検索 (文字入力・削除のたびに動く)
 keywordInput.addEventListener("input", () => {
-  // 入力が空になった瞬間も含めて、常に最新の入力値で検索(または全件表示)を実行
   performSearch(keywordInput.value);
 });
 
-// タグ表示制御
 function renderSearchTags() {
   searchTagArea.innerHTML = "";
   searchTags.forEach(tag => {
