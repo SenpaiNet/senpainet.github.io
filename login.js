@@ -8,7 +8,7 @@ import {
   setPersistence 
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-// Firebase設定
+// ★★★ 接続設定を統一 ★★★
 const firebaseConfig = {
   apiKey: "AIzaSyCwPtYMU_xiM5YgcqfNsCFESkj-Y4ICD5E",
   authDomain: "senpainet-84a24.firebaseapp.com",
@@ -18,6 +18,7 @@ const firebaseConfig = {
   appId: "1:1053589632945:web:413919be47760675e4ef90",
   measurementId: "G-1GPKNSMMFZ"
 };
+// ★★★ 接続設定を統一 ★★★
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -31,21 +32,19 @@ const googleLoginBtn = document.getElementById('googleLoginBtn');
 if (googleLoginBtn) {
   googleLoginBtn.addEventListener('click', async () => {
     try {
-      // ログイン状態を維持設定
       await setPersistence(auth, browserLocalPersistence);
       
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       
-      // ★ログイン成功フラグを保存
       localStorage.setItem("senpaiNet_hasAccount", "true");
 
       alert(`ようこそ、${user.displayName}さん！\nログインに成功しました。`);
-      window.location.href = "archive.html"; // 一覧ページへ移動
+      window.location.href = "archive.html";
       
     } catch (error) {
       console.error("Googleログインエラー:", error);
-      alert("ログインに失敗しました: " + error.message);
+      alert("ログインに失敗しました: " + (error.message || "予期せぬエラー"));
     }
   });
 }
@@ -65,20 +64,19 @@ if (loginForm) {
     try {
       await setPersistence(auth, browserLocalPersistence);
       
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // const user = userCredential.user; 
+      await signInWithEmailAndPassword(auth, email, password);
 
-      // ★ログイン成功フラグを保存
       localStorage.setItem("senpaiNet_hasAccount", "true");
 
       alert("ログインしました！");
-      window.location.href = "archive.html"; // 一覧ページへ移動
+      window.location.href = "archive.html"; 
 
     } catch (error) {
       console.error("ログインエラー:", error);
       let msg = "ログインに失敗しました。";
       if (error.code === 'auth/wrong-password') msg = "パスワードが間違っています。";
       if (error.code === 'auth/user-not-found') msg = "登録されていないメールアドレスです。";
+      if (error.code === 'auth/invalid-credential') msg = "メールアドレスまたはパスワードが正しくありません。";
       alert(msg);
     }
   });
