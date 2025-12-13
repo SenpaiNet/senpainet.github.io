@@ -3,6 +3,8 @@ body {
   padding: 0;
   font-family: 'Inter', sans-serif;
   background: linear-gradient(135deg, #e1f3ff, #f6fbff);
+  /* ★修正: ヘッダー固定分の余白を確保（これでコンテンツが隠れません） */
+  padding-top: 80px;
 }
 
 /* ▲ ナビゲーション */
@@ -15,33 +17,51 @@ body {
   left: 0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   z-index: 100;
+  box-sizing: border-box; /* パディングを含めた幅計算 */
 }
 
 .navbar-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  max-width: 1200px; /* 横幅が広がりすぎないように制限 */
+  margin: 0 auto;
 }
 
 .navbar-logo {
   font-size: 22px;
   font-weight: 800;
   color: #4da6ff;
+  display: flex;
+  align-items: center;
+}
+.navbar-logo a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ★修正: メニュー項目をフレックスボックスで整列 */
+.navbar-menu {
+  display: flex;
+  align-items: center;
+  gap: 24px; /* アイテム間の余白 */
 }
 
 .navbar-menu a {
-  margin-left: 24px;
+  /* margin-left: 24px; ← gapを使うので削除 */
   text-decoration: none;
   color: #333;
   font-weight: 600;
   transition: 0.2s;
+  display: inline-flex; /* 垂直中央揃えのため */
+  align-items: center;
 }
 
 .navbar-menu a:hover {
   color: #4da6ff;
 }
 
-/* アカウントボタン（既存サイトの水色系） */
+/* アカウントボタン */
 .account-btn {
   background: #4da6ff;
   color: white !important;
@@ -53,15 +73,17 @@ body {
 .hero {
   display: flex;
   justify-content: space-between;
-  padding: 180px 80px 120px;
+  padding: 100px 80px 120px; /* 上部の余白を少し調整 */
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .hero-right {
   display: flex;
-  justify-content: flex-start; /* ← 左に寄せる */
+  justify-content: flex-start;
   align-items: center;
   flex: 1;
-  margin-left: 40px; /* ← ロゴ全体を左へ移動 */
+  margin-left: 40px;
 }
 
 .hero-left {
@@ -89,13 +111,14 @@ body {
   margin-bottom: 28px;
 }
 
-/* ▲ ボタンデザイン（現行サイトと同じ水色系） */
+/* ▲ ボタンデザイン */
 .btn {
   text-decoration: none;
   padding: 14px 26px;
   border-radius: 8px;
   font-weight: 600;
   transition: 0.25s;
+  display: inline-block;
 }
 
 .main {
@@ -129,42 +152,19 @@ body {
   animation: float 4s ease-in-out infinite;
 }
 
-/* 浮くアニメーション */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-12px); }
 }
 
-/* ▲ スライドアニメーション */
-.slide-left {
-  opacity: 0;
-  animation: slideLeft .9s ease forwards;
-}
+/* ▲ アニメーション */
+.slide-left { opacity: 0; animation: slideLeft .9s ease forwards; }
+.slide-right { opacity: 0; animation: slideRight .9s ease forwards; }
+.fade-down { opacity: 0; animation: fadeDown .8s ease forwards; }
 
-.slide-right {
-  opacity: 0;
-  animation: slideRight .9s ease forwards;
-}
-
-.fade-down {
-  opacity: 0;
-  animation: fadeDown .8s ease forwards;
-}
-
-@keyframes slideLeft {
-  from { opacity: 0; transform: translateX(-40px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes slideRight {
-  from { opacity: 0; transform: translateX(40px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+@keyframes slideLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ▲ フッター */
 footer {
@@ -193,65 +193,5 @@ footer {
   color: #555;
 }
 
-/* ▼ Contact セクション */
-.contact {
-  padding: 100px 80px;
-  text-align: center;
-  background: #f1f8ff; /* やわらかい水色背景 */
-}
-
-.contact h2 {
-  font-size: 32px;
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.contact-text {
-  max-width: 760px;
-  margin: 0 auto 30px;
-  font-size: 18px;
-  color: #555;
-}
-
-.contact-box {
-  background: white;
-  padding: 24px 32px;
-  display: inline-block;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-.contact-mail {
-  font-size: 20px;
-  margin-bottom: 14px;
-  color: #333;
-}
-
-.contact-btn {
-  display: inline-block;
-  background: #4da6ff;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: 0.2s;
-}
-
-.contact-btn:hover {
-  background: #3a8de0;
-}
-
-/* ▼ フェードイン アニメーション */
-.fade-up {
-  opacity: 0;
-  animation: fadeUp 1s ease forwards;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-
-
+.fade-up { opacity: 0; animation: fadeUp 1s ease forwards; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
