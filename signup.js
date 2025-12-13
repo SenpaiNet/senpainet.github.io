@@ -17,13 +17,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// デフォルトアイコンリスト (DiceBear API)
+// === シンプルな色のアイコン画像を生成する関数 ===
+function createColorIcon(color) {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="50" fill="${color}"/>
+    </svg>`;
+  return `data:image/svg+xml;base64,${btoa(svg)}`;
+}
+
+// 5色のデフォルトアイコン (SenpaiNetのテーマに合わせた色 + 定番色)
 const defaultIcons = [
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Felix",
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Aneka",
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Shadow",
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Molly",
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Spooky"
+  createColorIcon("#4da6ff"), // 水色 (テーマカラー)
+  createColorIcon("#ff6b6b"), // 赤 (アクセント)
+  createColorIcon("#4ecdc4"), // 緑 (爽やか系)
+  createColorIcon("#ffbe0b"), // 黄 (明るい系)
+  createColorIcon("#9b5de5")  // 紫 (落ち着き系)
 ];
 
 // ===============================
@@ -32,26 +41,26 @@ const defaultIcons = [
 document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signupForm");
   
-  // === アイコン選択UIの生成処理 ===
+  // === 1. アイコン選択UIの生成処理 ===
   const iconContainer = document.getElementById("iconSelection");
-  const iconInput = document.getElementById("selectedIconUrl"); // HTML側に追加したhidden input
+  const iconInput = document.getElementById("selectedIconUrl");
 
   if (iconContainer && iconInput) {
-    // 初期値
+    // 初期値 (水色)
     iconInput.value = defaultIcons[0];
 
     defaultIcons.forEach((url, index) => {
       const img = document.createElement("img");
       img.src = url;
-      // 既存のCSSクラス .tag-option を流用してデザインを統一
-      img.className = "tag-option"; 
+      img.className = "tag-option"; // 既存クラス流用
       
-      // アイコン用の追加スタイル（デザイン崩れ防止のためインラインで微調整）
+      // 見た目の調整（インラインスタイル）
       img.style.width = "40px";
       img.style.height = "40px";
       img.style.borderRadius = "50%";
-      img.style.padding = "4px";
+      img.style.padding = "2px";     // 枠線との隙間を少し減らす
       img.style.objectFit = "cover";
+      img.style.border = "1px solid #ccc"; // 薄い枠線を追加して視認性アップ
 
       // 最初の1つを選択状態に
       if (index === 0) {
@@ -60,11 +69,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // クリック時の処理
       img.addEventListener("click", () => {
-        // 他の選択を解除
         const siblings = iconContainer.querySelectorAll(".tag-option");
         siblings.forEach(sib => sib.classList.remove("selected"));
         
-        // 自分を選択
         img.classList.add("selected");
         iconInput.value = url;
       });
@@ -73,9 +80,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // === 卒業生タグの表示切り替え（既存ロジック） ===
+  // === 2. 卒業生タグの表示切り替え ===
   const alumniTags = document.getElementById("alumniTags");
-  const tagOptions = document.querySelectorAll("#alumniTags .tag-option"); // アイコン以外のタグ
+  const tagOptions = document.querySelectorAll("#alumniTags .tag-option");
   let selectedTags = [];
 
   const userTypeRadios = document.querySelectorAll('input[name="userType"]');
@@ -91,6 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // === 3. タグ選択ロジック ===
   tagOptions.forEach(tag => {
     tag.addEventListener("click", () => {
       const tagName = tag.dataset.tag;
@@ -104,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // === フォーム送信 ===
+  // === 4. フォーム送信処理 ===
   if (signupForm) {
     signupForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -112,13 +120,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       const nickname = document.getElementById("nickname").value;
+      
+      // アイコンURLを取得（なければデフォルト）
       const iconUrl = document.getElementById("selectedIconUrl") ? document.getElementById("selectedIconUrl").value : defaultIcons[0];
 
       // Firebaseでユーザー作成
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user;
-
           // プロフィール更新（名前とアイコン画像）
           return updateProfile(user, {
               displayName: nickname,
@@ -126,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         })
         .then(() => {
-          // ★ここで「アカウント作成済み」フラグをローカルストレージに保存
+          // アカウント作成済みフラグを保存
           localStorage.setItem("senpaiNet_hasAccount", "true");
 
           alert(`✅ ${nickname} さんのアカウントを作成しました！`);
