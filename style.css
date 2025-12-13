@@ -215,3 +215,26 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   background: #e0f7ff;
   color: #0ea5e9;
 }
+
+/* -------------------
+   Contact form
+------------------- */
+.contact-form {
+  display: grid;
+  gap: 12px;
+  max-width: 520px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.15);
+  font: inherit;
+}
+
+.contact-form textarea {
+  min-height: 140px;
+}
+
