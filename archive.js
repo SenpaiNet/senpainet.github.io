@@ -1,33 +1,53 @@
 import { db } from "./firebase.js";
-import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 const postList = document.getElementById("postList");
 
-async function loadPosts() {
-  const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
+// 投稿を新しい順に取得するクエリ
+const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
 
-  postList.innerHTML = "";
+// リアルタイムでデータを監視して表示
+onSnapshot(q, (snapshot) => {
+  postList.innerHTML = ""; // 一旦クリア
 
-  snap.forEach(doc => {
-    const p = doc.data();
-    const id = doc.id;
+  if (snapshot.empty) {
+    postList.innerHTML = "<p style='text-align:center; color:#666;'>まだ投稿がありません。</p>";
+    return;
+  }
 
-    const card = document.createElement("a");
-    card.className = "post-card";
-    card.href = `detail.html?id=${id}`;
+  snapshot.forEach((doc) => {
+    const post = doc.data();
+    
+    // 日付のフォーマット
+    let dateStr = "日付不明";
+    if (post.createdAt) {
+      dateStr = post.createdAt.toDate().toLocaleDateString();
+    }
 
-    card.innerHTML = `
-      <h2>${p.title}</h2>
-      <p>${p.content.substring(0, 60)}...</p>
-      <div class="tag-box">
-        ${p.tags.map(t => `<span>#${t}</span>`).join("")}
-      </div>
-      <div class="reply-count">💬 ${p.replies}件</div>
+    // 本文の省略表示（60文字まで）
+    const snippet = post.content.length > 60 ? post.content.substring(0, 60) + "..." : post.content;
+
+    // タグのHTML生成
+    const tagsHtml = (post.tags || []).map(tag => 
+      `<span class="tag">#${tag}</span>`
+    ).join("");
+
+    // カードのHTML生成
+    const html = `
+      <article class="post-card" onclick="location.href='detail2.html?id=${doc.id}'" style="cursor: pointer;">
+        <h3>${post.title}</h3>
+        <p>${snippet}</p>
+        <div class="tags">${tagsHtml}</div>
+        <div style="margin-top: 10px; font-size: 0.85rem; color: #888; display: flex; justify-content: space-between;">
+           <span>👤 ${post.authorName || "匿名"}</span>
+           <span>📅 ${dateStr}</span>
+        </div>
+        <div style="margin-top: 8px; font-weight: bold; color: #4da6ff;">
+           💬 返信 ${post.replies || 0}件
+        </div>
+      </article>
     `;
 
-    postList.appendChild(card);
+    postList.insertAdjacentHTML("beforeend", html);
   });
-}
-
-loadPosts();
+});
