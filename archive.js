@@ -81,25 +81,9 @@ function renderPosts(posts) {
   });
 }
 
-// === 3. 検索バーの挙動制御 ===
+// === 3. 検索バーとタグの挙動制御 (改良版) ===
 
-// 検索バーにフォーカスしたらタグを表示
-keywordInput.addEventListener("focus", () => {
-  renderSearchTags();
-  searchTagArea.style.display = "flex";
-});
-
-// クリック以外で外れたら消す（少し遅延させないとタグクリック前に消えてしまう）
-keywordInput.addEventListener("blur", () => {
-  setTimeout(() => {
-    // タグエリア内のクリックでなければ消す
-    if (document.activeElement.parentElement !== searchTagArea) {
-      searchTagArea.style.display = "none";
-    }
-  }, 200);
-});
-
-// タグ一覧を生成して表示
+// タグ一覧を生成
 function renderSearchTags() {
   searchTagArea.innerHTML = "";
   searchTags.forEach(tag => {
@@ -108,15 +92,44 @@ function renderSearchTags() {
     span.textContent = "#" + tag;
     
     // タグをクリックした時の処理
-    span.addEventListener("click", () => {
-      keywordInput.value = tag; // 検索ボックスに入力
-      performSearch(tag);       // 検索実行
-      searchTagArea.style.display = "none"; // 閉じる
+    span.addEventListener("click", (e) => {
+      e.stopPropagation(); // クリックイベントが親に伝わらないようにする
+      keywordInput.value = tag; 
+      performSearch(tag);       
+      searchTagArea.style.display = "none";
     });
     
     searchTagArea.appendChild(span);
   });
 }
+
+// 検索バー(入力欄)をクリックしたらタグを表示
+keywordInput.addEventListener("click", (e) => {
+  e.stopPropagation(); // 閉じる処理が走らないようにする
+  renderSearchTags();
+  searchTagArea.style.display = "flex";
+});
+
+// 検索ボタンをクリックした時の処理
+searchBtn.addEventListener("click", (e) => {
+  // 入力が空ならタグを出す親切設計
+  if (!keywordInput.value.trim()) {
+    e.stopPropagation();
+    renderSearchTags();
+    searchTagArea.style.display = "flex";
+    return;
+  }
+  // 入力があれば検索実行
+  performSearch(keywordInput.value);
+});
+
+// 画面のどこかをクリックした時の処理（タグエリア外なら閉じる）
+document.addEventListener("click", (e) => {
+  // クリックされた場所が「検索バー」でも「タグエリア」でもない場合
+  if (e.target !== keywordInput && !searchTagArea.contains(e.target)) {
+    searchTagArea.style.display = "none";
+  }
+});
 
 // === 4. 検索実行ロジック ===
 function performSearch(keyword) {
@@ -138,12 +151,7 @@ function performSearch(keyword) {
   renderPosts(filtered);
 }
 
-// ボタンクリックで検索
-searchBtn.addEventListener("click", () => {
-  performSearch(keywordInput.value);
-});
-
-// Enterキーで検索
+// Enterキーでも検索
 keywordInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
     performSearch(keywordInput.value);
