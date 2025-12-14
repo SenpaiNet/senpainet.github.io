@@ -155,3 +155,37 @@ body.list-page {
 }
 
 @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* タグフィルター全体 */
+.tag-filter {
+  max-width: 900px;
+  margin: 20px auto 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* 通常タグ */
+.filter-tag {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #e6f2ff;
+  color: #3b82f6;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+/* ホバー */
+.filter-tag:hover {
+  background: #cfe6ff;
+}
+
+/* 選択中 */
+.filter-tag.active {
+  background: #4da6ff;
+  color: white;
+}
+
+
