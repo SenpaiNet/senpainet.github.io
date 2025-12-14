@@ -94,6 +94,11 @@ function renderPosts(posts) {
     postList.innerHTML = "<p>投稿が見つかりませんでした。</p>";
     return;
   }
+  posts.sort((a, b) => {
+    const aReplies = a.replies ? a.replies.length : 0;
+    const bReplies = b.replies ? b.replies.length : 0;
+    return bReplies - aReplies;
+  });
 
   posts.forEach(post => {
     const dateStr = post.createdAt ? post.createdAt.toDate().toLocaleDateString() : "日付不明";
@@ -141,3 +146,4 @@ if(searchBtn) {
       renderPosts(filtered);
     });
 }
+
