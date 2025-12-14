@@ -71,7 +71,8 @@ const postList = document.getElementById('postList');
 const keywordInput = document.getElementById('keywordInput');
 const searchBtn = document.getElementById('searchBtn');
 
-let allPosts = [];
+let selectedTags = [];
+let allPosts = []; // Firestore / localStorage から取った元データ
 
 const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
 
@@ -146,4 +147,5 @@ if(searchBtn) {
       renderPosts(filtered);
     });
 }
+
 
