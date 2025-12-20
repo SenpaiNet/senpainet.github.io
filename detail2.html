@@ -95,8 +95,7 @@
         <a href="post.html">相談する</a>
         <a href="archive.html" class="active">相談を見る</a>
         <a href="senpai.html">先輩一覧</a>
-       
-        <a href="#">お問い合わせ</a>
+        <a href="form.html">お問い合わせ</a>
         <a href="#" class="account-btn">ログイン</a>
       </nav>
     </div>
@@ -178,7 +177,7 @@
                 <span>📅 ${dateStr}</span>
             `;
 
-            // ▼ 追加: 投稿者本人なら削除ボタンを表示
+            // 投稿者本人なら削除ボタンを表示
             if (currentUser && currentUser.uid === postAuthorId) {
                 const deleteBtn = document.createElement("button");
                 deleteBtn.textContent = "🗑️ 削除";
@@ -222,7 +221,7 @@
                 const dateStr = ans.createdAt ? ans.createdAt.toDate().toLocaleString() : "たった今";
                 const icon = ans.authorIcon || "https://placehold.co/30";
 
-                // ▼ 追加: いいね機能
+                // いいね機能
                 const likes = ans.likes || [];
                 const likeCount = likes.length;
                 const isLiked = currentUser && likes.includes(currentUser.uid);
@@ -251,7 +250,7 @@
         });
     }
 
-    // ▼ 追加: いいね切り替え処理をグローバル関数として登録
+    // いいね切り替え処理をグローバル関数として登録
     window.toggleLike = async (ansId, isLiked) => {
         if (!currentUser) return alert("ログインが必要です。");
         const ansRef = doc(db, "posts", postId, "answers", ansId);
@@ -302,6 +301,7 @@
 
             await updateDoc(doc(db, "posts", postId), { replies: increment(1) });
 
+            // 1. サイト内通知
             if (postAuthorId && postAuthorId !== user.uid) {
                 await addDoc(collection(db, "users", postAuthorId, "notifications"), {
                     type: "reply",
@@ -312,6 +312,22 @@
                     isRead: false,
                     createdAt: serverTimestamp()
                 });
+
+                // ▼▼▼ 2. メール通知 (GAS呼び出し) ▼▼▼
+                const GAS_URL = "https://script.google.com/macros/s/AKfycby_E9sdKqXmZFU7NyV2y8Gb7gN97SETeVl7cWLwt9JqcmBkTDv4qOHDeOaSoeBA44U8/exec";
+
+                // GASに通知リクエストを送信 (no-corsモード)
+                fetch(GAS_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        targetUserId: postAuthorId,
+                        postTitle: postTitle,
+                        postId: postId
+                    })
+                }).catch(err => console.log("Mail trigger sent (ignore error for no-cors)"));
+                // ▲▲▲ 追加ここまで ▲▲▲
             }
 
             document.getElementById('answerInput').value = ""; 
