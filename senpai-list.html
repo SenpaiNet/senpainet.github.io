@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>先輩一覧 - SenpaiNet</title>
+    <link rel="stylesheet" href="style.css"> 
+    <style>
+        /* このページ専用のスタイル */
+        body {
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* ボタンのデザイン */
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        /* フォームエリア */
+        .profile-form {
+            display: none; /* 最初は隠す */
+            background: white;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* 枠線を幅に含める */
+        }
+
+        /* 先輩カードリスト */
+        .senpai-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 5px solid #007bff;
+        }
+        .senpai-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 0;
+            color: #333;
+        }
+        .senpai-tags {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .tag-badge {
+            background-color: #eef;
+            color: #007bff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        .senpai-bio {
+            line-height: 1.6;
+            color: #444;
+            white-space: pre-wrap; /* 改行をそのまま表示 */
+        }
+
+        /* ナビゲーションバー（簡易版） */
+        nav {
+            background: #333;
+            padding: 15px;
+            color: white;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html">ホーム</a>
+        <a href="senpai-list.html">先輩一覧</a>
+        </nav>
+
+    <div class="container">
+        <h1>先輩たちの一覧</h1>
+        <p>登録している先輩たちのプロフィールを見ることができます。</p>
+
+        <button id="show-form-btn" class="btn-primary">自分のプロフィールを追加・編集する</button>
+
+        <div id="profile-form" class="profile-form">
+            <h2>プロフィールの編集</h2>
+            
+            <div class="form-group">
+                <label>お名前（表示名）</label>
+                <input type="text" id="input-name" placeholder="例: 田中先輩">
+            </div>
+
+            <div class="form-group">
+                <label>得意分野タグ（カンマ区切りで入力）</label>
+                <input type="text" id="input-tags" placeholder="例: 物理, 留学, 数学">
+                <small style="color: gray;">※相談フォームのタグと一致すると通知が届きやすくなります。</small>
+            </div>
+            
+            <div class="form-group">
+                <label>自己紹介・経歴 (Bio)</label>
+                <textarea id="input-bio" rows="5" placeholder="例: ○○大学で物理を専攻しています。留学経験もあるのでなんでも聞いてください！"></textarea>
+            </div>
+            
+            <button id="save-profile-btn" class="btn-primary" style="background-color: #28a745;">保存して公開</button>
+            <button id="cancel-btn" style="background:none; border:none; color:gray; cursor:pointer; text-decoration:underline;">キャンセル</button>
+        </div>
+
+        <hr style="margin: 30px 0; border-top: 1px solid #ddd;">
+
+        <div id="senpai-list-container">
+            <p style="text-align:center;">読み込み中...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+        // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+        // ここに自分のFirebase Configを貼り付けてください
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+        const firebaseConfig = {
+            apiKey: "AIzaSy...", 
+            authDomain: "...",
+            projectId: "...",
+            storageBucket: "...",
+            messagingSenderId: "...",
+            appId: "..."
+        };
+
+        // アプリの初期化
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // DOM要素
+        const showFormBtn = document.getElementById('show-form-btn');
+        const profileForm = document.getElementById('profile-form');
+        const saveBtn = document.getElementById('save-profile-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const listContainer = document.getElementById('senpai-list-container');
+
+        // ==========================================
+        // 1. プロフィール編集画面の表示/非表示
+        // ==========================================
+        showFormBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("プロフィールを編集するにはログインしてください。");
+                return;
+            }
+
+            // フォームを表示
+            profileForm.style.display = 'block';
+            showFormBtn.style.display = 'none';
+
+            // 既存データをロードしてフォームに入れる
+            try {
+                const docSnap = await getDoc(doc(db, "users", user.uid));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('input-name').value = data.name || "";
+                    document.getElementById('input-bio').value = data.bio || "";
+                    if (data.tags && Array.isArray(data.tags)) {
+                        document.getElementById('input-tags').value = data.tags.join(", ");
+                    }
+                }
+            } catch (e) {
+                console.error("データ取得エラー:", e);
+            }
+        });
+
+        // キャンセルボタン
+        cancelBtn.addEventListener('click', () => {
+            profileForm.style.display = 'none';
+            showFormBtn.style.display = 'inline-block';
+        });
+
+        // ==========================================
+        // 2. プロフィールの保存処理
+        // ==========================================
+        saveBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const nameVal = document.getElementById('input-name').value;
+            const bioVal = document.getElementById('input-bio').value;
+            const tagsVal = document.getElementById('input-tags').value;
+            
+            // タグを配列に変換（カンマ区切りを分解）
+            const tagsArray = tagsVal.split(',')
+                .map(tag => tag.trim())     // 前後の空白削除
+                .filter(tag => tag !== ""); // 空文字削除
+
+            try {
+                // setDoc(..., {merge: true}) は既存のデータ（emailなど）を消さずに上書きします
+                await setDoc(doc(db, "users", user.uid), {
+                    name: nameVal,
+                    bio: bioVal,
+                    tags: tagsArray,
+                    role: "graduate", // 先輩として登録
+                    updatedAt: new Date()
+                }, { merge: true });
+
+                alert("プロフィールを保存しました！");
+                location.reload(); // 再読み込みして反映
+            } catch (error) {
+                console.error("保存エラー:", error);
+                alert("保存に失敗しました: " + error.message);
+            }
+        });
+
+        // ==========================================
+        // 3. 先輩一覧の表示処理
+        // ==========================================
+        async function loadSenpaiList() {
+            listContainer.innerHTML = ""; // クリア
+
+            try {
+                // usersコレクションをすべて取得
+                const querySnapshot = await getDocs(collection(db, "users"));
+                
+                let count = 0;
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+
+                    // 自己紹介(bio)がある人だけを表示
+                    if (data.bio && data.bio.trim() !== "") {
+                        count++;
+                        
+                        // タグのHTML生成
+                        let tagsHtml = "";
+                        if (data.tags && Array.isArray(data.tags)) {
+                            tagsHtml = data.tags.map(tag => `<span class="tag-badge">${tag}</span>`).join("");
+                        }
+
+                        // カードHTML生成
+                        const cardHtml = `
+                            <div class="senpai-card">
+                                <h3 class="senpai-name">${data.name || "名無し先輩"}</h3>
+                                <div class="senpai-tags">
+                                    <strong>得意分野:</strong> ${tagsHtml || "なし"}
+                                </div>
+                                <div class="senpai-bio">${data.bio}</div>
+                            </div>
+                        `;
+                        listContainer.innerHTML += cardHtml;
+                    }
+                });
+
+                if (count === 0) {
+                    listContainer.innerHTML = "<p>まだプロフィールの登録はありません。</p>";
+                }
+
+            } catch (error) {
+                console.error("一覧取得エラー:", error);
+                listContainer.innerHTML = "<p>データの読み込みに失敗しました。</p>";
+            }
+        }
+
+        // ページ読み込み時に実行
+        loadSenpaiList();
+        
+        // ログイン状態監視（デバッグ用）
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log("Logged in:", user.uid);
+            } else {
+                console.log("Not logged in");
+            }
+        });
+
+    </script>
+</body>
+</html>
