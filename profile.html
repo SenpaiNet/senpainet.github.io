@@ -66,8 +66,16 @@
     .info-value { font-size: 1.1rem; color: #333; flex-grow: 1; }
 
     .current-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+    
+    /* ▼ デザイン修正箇所：表示用タグ ▼ */
     .tag-badge {
-      background: #e0f2fe; color: #0284c7; padding: 8px 16px; border-radius: 24px; font-size: 1rem; border: 1px solid #bae6fd;
+      background-color: #e6f0ff; /* 薄い水色 */
+      color: #5a8dee;            /* 青文字 */
+      padding: 8px 16px;
+      border-radius: 24px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;              /* 枠線を削除 */
     }
 
     /* 編集エリア */
@@ -103,10 +111,28 @@
     .selection-option:hover { transform: scale(1.1); }
     .selection-option.selected { border-color: #4da6ff; box-shadow: 0 0 0 4px rgba(77, 166, 255, 0.3); }
     .icon-option { width: 60px; height: 60px; border-radius: 50%; padding: 4px; background: white; border: 2px solid #eee; }
+    
+    /* ▼ デザイン修正箇所：編集モードのタグ選択ボタン ▼ */
     .tag-option-btn {
-      background: white; color: #64748b; border: 2px solid #e2e8f0; padding: 8px 16px; border-radius: 24px; font-weight: bold;
+      background-color: #e6f0ff; /* 未選択時は他のタグと同じ見た目 */
+      color: #5a8dee;
+      border: none;
+      padding: 8px 16px; 
+      border-radius: 24px; 
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
     }
-    .tag-option-btn.selected { background: #4da6ff; color: white; border-color: #4da6ff; }
+    .tag-option-btn:hover {
+        background-color: #d0e1ff;
+        transform: translateY(-1px);
+    }
+    /* 選択された時は濃い青にして反転させる */
+    .tag-option-btn.selected { 
+        background: #5a8dee; 
+        color: white; 
+        box-shadow: 0 4px 10px rgba(90, 141, 238, 0.3);
+    }
 
     /* ファイルアップロードボタン */
     .file-upload-btn {
