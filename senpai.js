@@ -1,102 +1,133 @@
-import { db } from "./firebase.js";
-import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { db, auth } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 const listContainer = document.getElementById("senpaiList");
-const keywordInput = document.getElementById("keywordInput");
-const addBtn = document.getElementById("addProfileBtn");
-const clearBtn = document.getElementById("clearListBtn");
+const toggleBtn = document.getElementById("toggleFormBtn");
+const formArea = document.getElementById("profileFormArea");
+const addBtn = document.getElementById("addCardBtn");
 const emptyMsg = document.getElementById("emptyMsg");
 
-// 既に表示しているユーザーIDを記録（重複表示防止用）
-let displayedUserIds = new Set();
+// 入力欄
+const inName = document.getElementById("inputName");
+const inGrade = document.getElementById("inputGrade");
+const inBio = document.getElementById("inputBio");
+const inTags = document.getElementById("inputTags");
 
-addBtn.addEventListener("click", async () => {
-    const keyword = keywordInput.value.trim().toLowerCase();
-    
-    if (!keyword) {
-        alert("キーワードを入力してください");
+let isFormOpen = false;
+let currentUserData = null; // 自分のデータを保持
+
+// 0. ログインユーザーの情報を取得しておく
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        try {
+            const docSnap = await getDoc(doc(db, "users", user.uid));
+            if (docSnap.exists()) {
+                currentUserData = docSnap.data();
+            }
+        } catch (e) {
+            console.error("ユーザーデータ取得エラー:", e);
+        }
+    } else {
+        // 未ログイン時はボタンを押せないようにする等の処理も可能ですが
+        // auth_header.jsでログインボタンが出るのでそのままでOK
+    }
+});
+
+// 1. フォームの開閉 (開くときにデータを自動入力)
+toggleBtn.addEventListener("click", () => {
+    if (!auth.currentUser) {
+        alert("機能を使用するにはログインが必要です");
         return;
     }
 
-    addBtn.disabled = true;
-    addBtn.textContent = "検索中...";
+    isFormOpen = !isFormOpen;
+    
+    if (isFormOpen) {
+        formArea.classList.add("active");
+        toggleBtn.textContent = "▲ 閉じる";
+        toggleBtn.style.background = "#64748b";
 
-    try {
-        // 卒業生を全件取得してJS側でフィルタリング
-        // (※Firestoreの仕様上、部分一致検索には全文検索サービスが必要なため、
-        //  小規模なら全件取得→JSフィルタが一番手軽で確実です)
-        const q = query(collection(db, "users"), where("userType", "==", "卒業生"));
-        const snapshot = await getDocs(q);
-        
-        const matches = [];
-        snapshot.forEach(doc => {
-            const u = doc.data();
-            // すでに表示されている人は除外
-            if (displayedUserIds.has(doc.id)) return;
-
-            // 名前、Bio、タグのいずれかにキーワードが含まれるか
-            const textData = [u.nickname, u.bio, ...(u.tags || [])].join(" ").toLowerCase();
-            
-            if (textData.includes(keyword)) {
-                matches.push({ id: doc.id, ...u });
+        // ▼▼▼ 自動入力ロジック ▼▼▼
+        if (currentUserData) {
+            // 名前が空なら自動入力
+            if (!inName.value) inName.value = currentUserData.nickname || "";
+            // 学年が空なら自動入力
+            if (!inGrade.value) inGrade.value = currentUserData.grade || "";
+            // Bioが空なら自動入力
+            if (!inBio.value) inBio.value = currentUserData.bio || "";
+            // タグが空なら自動入力 (配列をカンマ区切り文字列に変換)
+            if (!inTags.value && currentUserData.tags && Array.isArray(currentUserData.tags)) {
+                inTags.value = currentUserData.tags.join(", ");
             }
-        });
-
-        if (matches.length === 0) {
-            alert("該当する先輩が見つかりませんでした（または既に表示されています）");
-        } else {
-            // 見つかった人を画面に追加
-            if(emptyMsg) emptyMsg.style.display = "none";
-            clearBtn.style.display = "block";
-            
-            matches.forEach(user => {
-                displayedUserIds.add(user.id);
-                renderCard(user);
-            });
-            
-            keywordInput.value = ""; // 入力欄をクリア
         }
+        // ▲▲▲ ここまで ▲▲▲
 
-    } catch (e) {
-        console.error(e);
-        alert("エラーが発生しました");
-    } finally {
-        addBtn.disabled = false;
-        addBtn.textContent = "＋ プロフィールを追加";
+    } else {
+        formArea.classList.remove("active");
+        toggleBtn.textContent = "＋ プロフィールカードを作成";
+        toggleBtn.style.background = "#3b82f6";
     }
 });
 
-// 表示リセット機能
-clearBtn.addEventListener("click", () => {
-    listContainer.innerHTML = "";
-    if(emptyMsg) {
-        emptyMsg.style.display = "block";
-        listContainer.appendChild(emptyMsg);
+// 2. カードを追加して表示
+addBtn.addEventListener("click", () => {
+    // 入力値を取得
+    const name = inName.value.trim() || "名無し先輩";
+    const grade = inGrade.value.trim() || "卒業生";
+    const bio = inBio.value.trim() || "自己紹介なし";
+    const tagsStr = inTags.value.trim();
+    
+    // タグを配列化（カンマ区切りに対応）
+    let tags = [];
+    if (tagsStr) {
+        tags = tagsStr.split(/,|、/).map(t => t.trim()).filter(t => t);
     }
-    displayedUserIds.clear();
-    clearBtn.style.display = "none";
+
+    // アイコンは自分のものを使う (なければデフォルト)
+    const icon = currentUserData ? (currentUserData.iconUrl || auth.currentUser.photoURL) : "https://placehold.co/50";
+
+    const user = {
+        nickname: name,
+        grade: grade,
+        bio: bio,
+        tags: tags,
+        iconUrl: icon
+    };
+
+    renderSenpaiCard(user);
+
+    // フォームを閉じる
+    toggleBtn.click(); 
+    
+    if(emptyMsg) emptyMsg.style.display = "none";
 });
 
-function renderCard(user) {
+// カード描画関数
+function renderSenpaiCard(user) {
     const icon = user.iconUrl || "https://placehold.co/50";
-    const name = user.nickname || "名無し先輩";
-    const bio = user.bio ? (user.bio.length > 50 ? user.bio.substring(0,50)+"..." : user.bio) : "自己紹介なし";
-    const tagsHtml = (user.tags || []).map(t => `<span class="tag">#${t}</span>`).join("");
+    const name = user.nickname;
+    // Bioの長さ制限（表示用）
+    const bioSnippet = user.bio.length > 60 ? user.bio.substring(0, 60) + "..." : user.bio;
+    
+    const tagsHtml = user.tags.map(t => `<span class="tag">#${t}</span>`).join("");
 
     const html = `
-      <article class="post-card" style="cursor: default;">
+      <article class="post-card" style="cursor: default; animation: fadeIn 0.5s ease;">
         <div style="display:flex; align-items:center; margin-bottom:15px; border-bottom:1px solid #f1f5f9; padding-bottom:10px;">
-             <img src="${icon}" style="width:40px; height:40px; border-radius:50%; margin-right:10px; object-fit:cover; border:1px solid #eee;">
+             <img src="${icon}" style="width:45px; height:45px; border-radius:50%; margin-right:12px; object-fit:cover; border:1px solid #eee;">
              <div>
-                 <h3 style="margin:0; font-size:1rem; color:#1e3a8a;">${name}</h3>
-                 <span style="font-size:0.8rem; color:#999;">${user.grade || ""}</span>
+                 <h3 style="margin:0; font-size:1.1rem; color:#1e3a8a;">${name}</h3>
+                 <span style="font-size:0.85rem; color:#64748b;">${user.grade}</span>
              </div>
         </div>
         
-        <p style="font-size:0.9rem; color:#444; min-height:40px;">${bio}</p>
+        <div class="tags" style="margin-bottom:12px;">${tagsHtml}</div>
         
-        <div class="tags" style="margin-top:auto;">${tagsHtml}</div>
+        <p style="font-size:0.95rem; color:#334155; line-height:1.6; flex-grow:1;">${bioSnippet}</p>
       </article>
     `;
-    listContainer.insertAdjacentHTML("afterbegin", html); // 新しい人を上に表示
+    
+    // リストの先頭に追加
+    listContainer.insertAdjacentHTML("afterbegin", html);
 }
