@@ -79,6 +79,11 @@ async function loadUserProfile(user) {
     setText("infoNickname", finalName);
     setText("infoUserType", currentUserData.userType || "-");
     setText("infoGrade", currentUserData.grade || "-");
+    
+    // Bio表示
+    if (currentUserData.bio) {
+        document.getElementById("infoBio").textContent = currentUserData.bio;
+    }
 
     selectedIconUrl = finalIcon;
     selectedTags = currentUserData.tags || [];
@@ -248,8 +253,41 @@ function setupEventListeners() {
             } catch (e) { console.error(e); alert("更新失敗: " + e.message); }
         });
     }
+
+    // === C. Bio編集 (追加) ===
+    const bioEditBtn = document.getElementById("bioEditBtn");
+    const bioView = document.getElementById("bioViewMode");
+    const bioEditArea = document.getElementById("bioEditArea");
+
+    if (bioEditBtn && bioView && bioEditArea) {
+        bioEditBtn.addEventListener("click", () => {
+            bioView.style.display = "none";
+            bioEditArea.classList.add("active");
+            bioEditBtn.classList.add("editing");
+            bioEditBtn.disabled = true;
+            document.getElementById("editBio").value = currentUserData.bio || "";
+        });
+
+        document.getElementById("bioCancelBtn").addEventListener("click", () => {
+            bioView.style.display = "block";
+            bioEditArea.classList.remove("active");
+            bioEditBtn.classList.remove("editing");
+            bioEditBtn.disabled = false;
+        });
+
+        document.getElementById("bioSaveBtn").addEventListener("click", async () => {
+            const newBio = document.getElementById("editBio").value;
+            try {
+                await setDoc(doc(db, "users", currentUser.uid), { bio: newBio }, { merge: true });
+                window.location.reload();
+            } catch (e) {
+                console.error(e);
+                alert("更新失敗: " + e.message);
+            }
+        });
+    }
     
-    // === C. タグ編集 ===
+    // === D. タグ編集 ===
     const tagsEditBtn = document.getElementById("tagsEditBtn");
     const tagsView = document.getElementById("tagsViewMode");
     const tagsEditArea = document.getElementById("tagsEditArea");
