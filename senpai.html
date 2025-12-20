@@ -2,47 +2,51 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>先輩一覧 | SenpaiNet</title>
+  <title>先輩ポートフォリオ | SenpaiNet</title>
   <link rel="stylesheet" href="archive.css">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* シンプルな検索エリアスタイル */
-    .search-section {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    .search-box {
-      display: inline-flex;
-      gap: 10px;
-      max-width: 600px;
-      width: 100%;
-    }
-    .search-input {
-      flex: 1;
-      padding: 12px;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-    .add-btn {
-      background: #3b82f6;
-      color: white;
-      border: none;
-      padding: 0 24px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.2s;
-    }
-    .add-btn:hover { background: #2563eb; }
+    /* 追加ボタンエリア */
+    .header-actions { text-align: center; margin-bottom: 30px; }
     
-    /* リセットボタン（任意） */
-    .clear-btn {
-      display: block; margin: 10px auto 0;
-      background: none; border: none; color: #94a3b8;
-      text-decoration: underline; cursor: pointer; font-size: 0.9rem;
+    .toggle-form-btn {
+      background: #3b82f6; color: white; border: none;
+      padding: 12px 30px; border-radius: 50px; font-weight: bold; font-size: 1rem;
+      cursor: pointer; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
     }
+    .toggle-form-btn:hover { transform: translateY(-2px); background: #2563eb; }
+
+    /* プロフィール入力ボックス（最初は隠す） */
+    .profile-input-box {
+      max-width: 600px; margin: 0 auto 40px; 
+      background: white; padding: 30px; border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      display: none; animation: slideDown 0.3s ease;
+      border: 1px solid #e2e8f0;
+    }
+    .profile-input-box.active { display: block; }
+    
+    /* フォームパーツ */
+    .input-group { margin-bottom: 15px; }
+    .input-label { display: block; font-weight: bold; color: #475569; margin-bottom: 5px; font-size: 0.9rem; }
+    .input-field {
+      width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;
+      font-size: 1rem; box-sizing: border-box; transition: 0.2s; background: #f8fafc;
+    }
+    .input-field:focus { border-color: #3b82f6; outline: none; background: #fff; }
+    
+    .row { display: flex; gap: 15px; }
+    .col { flex: 1; }
+
+    .add-submit-btn {
+      width: 100%; background: #1e3a8a; color: white; border: none;
+      padding: 12px; border-radius: 8px; font-weight: bold; font-size: 1rem;
+      cursor: pointer; margin-top: 10px; transition: 0.2s;
+    }
+    .add-submit-btn:hover { background: #172554; }
+
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body class="list-page">
@@ -62,22 +66,48 @@
 
   <main>
     <section class="header">
-      <h1>🎓 先輩一覧</h1>
-      <p style="color:#666; margin-bottom:30px;">名前や得意分野を入力して、一覧に追加表示します</p>
+      <h1>🎓 先輩ポートフォリオ</h1>
+      <p style="color:#666; margin-bottom:20px;">あなたの情報をカードにして表示します</p>
 
-      <div class="search-section">
-        <div class="search-box">
-          <input type="text" id="keywordInput" class="search-input" placeholder="例：理系、留学、サッカー部..." autocomplete="off">
-          <button id="addProfileBtn" class="add-btn">＋ プロフィールを追加</button>
+      <div class="header-actions">
+        <button id="toggleFormBtn" class="toggle-form-btn">
+          <span>＋ プロフィールカードを作成</span>
+        </button>
+      </div>
+
+      <div id="profileFormArea" class="profile-input-box">
+        <h3 style="margin-top:0; color:#1e3a8a; margin-bottom:20px;">登録情報を元に作成</h3>
+        <p style="font-size:0.85rem; color:#666; margin-bottom:15px;">※内容はここで自由に修正できます</p>
+        
+        <div class="row">
+            <div class="col input-group">
+                <label class="input-label">名前 (ニックネーム)</label>
+                <input type="text" id="inputName" class="input-field" placeholder="読み込み中...">
+            </div>
+            <div class="col input-group">
+                <label class="input-label">学年・属性</label>
+                <input type="text" id="inputGrade" class="input-field" placeholder="読み込み中...">
+            </div>
         </div>
-        <button id="clearListBtn" class="clear-btn" style="display:none;">表示をリセット</button>
+
+        <div class="input-group">
+            <label class="input-label">自己紹介・経歴</label>
+            <textarea id="inputBio" class="input-field" rows="3" placeholder="経歴や得意分野を入力してください..."></textarea>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">タグ (カンマ区切り)</label>
+            <input type="text" id="inputTags" class="input-field" placeholder="例: 理系, サッカー部, 海外大">
+        </div>
+
+        <button id="addCardBtn" class="add-submit-btn">この内容でカードを表示</button>
       </div>
     </section>
 
     <section class="post-list" id="senpaiList">
-      <p id="emptyMsg" style="text-align:center; color:#ccc; grid-column:1/-1;">
-        検索して先輩を追加表示してください
-      </p>
+        <p id="emptyMsg" style="text-align:center; color:#ccc; grid-column:1/-1; padding: 40px;">
+            ボタンを押してプロフィールカードを追加してください
+        </p>
     </section>
   </main>
 
