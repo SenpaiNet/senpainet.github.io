@@ -43,25 +43,51 @@
         
         <input type="hidden" id="selectedIconUrl">
 
-
         <div id="alumniTags" class="tag-select hidden">
           <label>得意分野（最大3つ）</label>
           <div class="tag-options">
+            <span class="tag-option" data-tag="一般入試">#一般入試</span>
+            <span class="tag-option" data-tag="AO入試">#AO入試</span>
+            <span class="tag-option" data-tag="DP">#DP</span>
+            <span class="tag-option" data-tag="課外活動">#課外活動</span>
+            <span class="tag-option" data-tag="履修">#履修</span>
+            <span class="tag-option" data-tag="海外大学">#海外大学</span>
+            <span class="tag-option" data-tag="部活">#部活</span>
+            <span class="tag-option" data-tag="英検">#英検</span>
+            <span class="tag-option" data-tag="IELTS">#IELTS</span>
+            <span class="tag-option" data-tag="TOEFL">#TOEFL</span>
+            <span class="tag-option" data-tag="模試">#模試</span>
             <span class="tag-option" data-tag="教育">#教育</span>
             <span class="tag-option" data-tag="キャリア">#キャリア</span>
             <span class="tag-option" data-tag="AI">#AI</span>
             <span class="tag-option" data-tag="海外">#海外</span>
             <span class="tag-option" data-tag="テクノロジー">#テクノロジー</span>
+            <span class="tag-option" data-tag="理系">#理系</span>
+            <span class="tag-option" data-tag="文系">#文系</span>
             <span class="tag-option" data-tag="ボランティア">#ボランティア</span>
           </div>
         </div>
 
+        <div style="margin: 20px 0; font-size: 0.9rem; color: #475569; background: #f8fafc; padding: 15px; border-radius: 8px;">
+          <label style="display: flex; align-items: start; cursor: pointer; gap: 8px;">
+            <input type="checkbox" required style="width: auto; margin-top: 4px;">
+            <span>
+              <a href="#" style="text-decoration:underline;">利用規約</a>およびプライバシーポリシーに同意します。<br>
+              <small style="color: #64748b;">※登録した得意分野に関する相談が投稿された際、メール通知が届くことに同意します。</small>
+            </span>
+          </label>
+        </div>
+
         <button type="submit" class="submit-btn">🚀 アカウント作成</button>
       </form>
+
+      <div style="margin-top: 20px; text-align: center;">
+        <p>すでにアカウントをお持ちですか？<br>
+        <a href="login.html" style="color: #007bff;">ログインはこちら</a></p>
+      </div>
     </div>
   </div>
 
   <script type="module" src="signup.js"></script>
-  <script type="module" src="auth_header.js"></script>
 </body>
 </html>
