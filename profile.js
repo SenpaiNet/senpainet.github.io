@@ -85,6 +85,14 @@ async function loadUserProfile(user) {
         document.getElementById("infoBio").textContent = currentUserData.bio;
     }
 
+    // ▼ 通知設定の反映
+    const notifToggle = document.getElementById("emailNotifToggle");
+    if(notifToggle) {
+        // 設定がない場合はfalse（安全側）か、signup時のデフォルトに従う
+        // ここでは明示的にtrueの場合のみチェックを入れる
+        notifToggle.checked = currentUserData.allowEmailNotification === true;
+    }
+
     selectedIconUrl = finalIcon;
     selectedTags = currentUserData.tags || [];
 
@@ -329,6 +337,25 @@ function setupEventListeners() {
                 await setDoc(doc(db, "users", currentUser.uid), { tags: selectedTags }, { merge: true });
                 window.location.reload();
             } catch (e) { console.error(e); alert("更新失敗: " + e.message); }
+        });
+    }
+
+    // === E. 通知設定 (追加) ===
+    const notifToggle = document.getElementById("emailNotifToggle");
+    if(notifToggle) {
+        notifToggle.addEventListener("change", async (e) => {
+            try {
+                // チェック状態が変わったら即座に保存
+                await updateDoc(doc(db, "users", currentUser.uid), { 
+                    allowEmailNotification: e.target.checked 
+                });
+                console.log("通知設定を更新しました:", e.target.checked);
+            } catch (err) {
+                console.error(err);
+                alert("設定の保存に失敗しました。");
+                // エラー時は見た目を元に戻す
+                e.target.checked = !e.target.checked;
+            }
         });
     }
 }
