@@ -1,6 +1,8 @@
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { collection, addDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+// EmailJSを初期化
+emailjs.init("2O4UoTxHcvDAfpIoV");
 
 // 1. ログイン監視 & ロード画面制御
 onAuthStateChanged(auth, (user) => {
@@ -41,6 +43,39 @@ if (postForm) {
         createdAt: serverTimestamp(),
         replies: 0
       });
+      // ▼▼▼ ここから追加（メール通知機能） ▼▼▼
+
+      // 1. タグが一致する先輩を探す
+      const q = query(
+          collection(db, "users"),
+          where("role", "==", "graduate"),
+          where("tags", "array-contains-any", tags) // あなたの変数名「tags」
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      // 2. メールを送る
+      querySnapshot.forEach((doc) => {
+          const senpai = doc.data();
+          
+          // 自分以外に送信
+          if (senpai.email && senpai.email !== user.email) {
+              emailjs.send(
+                  "service_9c8mqrk",   // Service ID
+                  "template_tcokpqj",  // Template ID
+                  {
+                      to_name: senpai.name || "先輩",
+                      to_email: senpai.email,
+                      title: title,
+                      tags: tags.join(", "),
+                      link: window.location.origin + "/archive.html"
+                  }
+              );
+              console.log("通知送信:", senpai.email);
+          }
+      });
+
+      // ▲▲▲ ここまで追加 ▲▲▲
       // アラート削除: 即移動
       window.location.href = "archive.html";
     } catch (err) {
