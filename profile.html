@@ -149,6 +149,7 @@
         <a href="post.html">相談する</a>
         <a href="archive.html">相談を見る</a>
         <a href="senpai.html">先輩一覧</a>
+        <a href="form.html">お問い合わせ</a>
         <a href="#" id="logoutBtn" class="account-btn" style="background:#ff6b6b; border:none;">ログアウト</a>
       </nav>
     </div>
@@ -273,6 +274,21 @@
       </div>
     </section>
 
+    <section class="content-card">
+      <div class="card-header" style="border-bottom:none; margin-bottom:0; padding-bottom:0;">
+        <div class="card-title"><span>🔔</span>通知設定</div>
+      </div>
+      <div style="margin-top: 15px;">
+        <label style="display: flex; align-items: center; cursor: pointer; gap: 12px; font-size: 1rem; color: #333;">
+            <input type="checkbox" id="emailNotifToggle" style="width: 20px; height: 20px; cursor: pointer;">
+            <span>自分の投稿に回答がついたらメールで通知する</span>
+        </label>
+        <p style="font-size: 0.85rem; color: #64748b; margin-left: 32px; margin-top: 5px;">
+            ※オフにすると、サイト上の通知（ベルマーク）のみになります。
+        </p>
+      </div>
+    </section>
+
   </main>
 
   <div class="cropper-modal-overlay" id="cropperModal">
@@ -291,4 +307,3 @@
   <script type="module" src="profile.js"></script>
 </body>
 </html>
-
