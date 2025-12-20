@@ -5,14 +5,16 @@ const postList = document.getElementById("postList");
 const keywordInput = document.getElementById("keywordInput");
 const searchBtn = document.getElementById("searchBtn");
 const searchTagArea = document.getElementById("searchTagArea");
+const tagFilterContainer = document.getElementById("tagFilter");
 
 let allPostsData = [];
 
-// 検索用タグリスト
+// ▼ 修正箇所: 統一タグリスト
 const searchTags = [
   "一般入試", "AO入試", "DP", "課外活動", "履修", "海外大学", 
   "部活", "英検", "IELTS", "TOEFL", "模試", 
-  "教育", "キャリア", "AI", "海外", "テクノロジー"
+  "教育", "キャリア", "AI", "海外", "テクノロジー",
+  "理系", "文系", "ボランティア"
 ];
 
 // === 1. データ読み込み ===
@@ -104,7 +106,23 @@ function renderPosts(posts) {
 
 // === 4. タグ検索UIの制御 ===
 
-// タグ一覧を生成して表示
+// (A) 検索バー直下のタグフィルター（ボタン）クリック時
+if (tagFilterContainer) {
+    tagFilterContainer.addEventListener("click", (e) => {
+        if (e.target.classList.contains("filter-tag")) {
+            const tag = e.target.dataset.tag;
+            // 既存のactiveクラスを削除して、クリックされたものに追加
+            document.querySelectorAll(".filter-tag").forEach(el => el.classList.remove("active"));
+            e.target.classList.add("active");
+            
+            // 検索実行
+            keywordInput.value = tag;
+            performSearch(tag);
+        }
+    });
+}
+
+// (B) 検索バー入力時のポップアップタグ制御
 function renderSearchTags() {
   if (!searchTagArea) return;
   
