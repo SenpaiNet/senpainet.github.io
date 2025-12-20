@@ -4,7 +4,56 @@
   <meta charset="UTF-8">
   <title>投稿一覧 | SenpaiNet</title>
   <link rel="stylesheet" href="archive.css">
-  <link rel="stylesheet" href="style.css"> </head>
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    /* 投稿リストの親要素をグリッド化 */
+    #postList {
+      display: grid;
+      /* 幅300pxを基準に、画面幅に合わせて自動で列数を調整 */
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;       /* カード間の隙間 */
+      width: 100%;     /* 幅いっぱい */
+      padding: 20px;   /* 全体の余白 */
+      box-sizing: border-box;
+    }
+
+    /* JavaScriptで生成される各カード（div）へのスタイル */
+    #postList > div {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      
+      /* 高さを揃える設定 */
+      height: 100%; 
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      
+      /* アニメーション（任意） */
+      transition: transform 0.2s;
+    }
+
+    #postList > div:hover {
+        transform: translateY(-3px);
+    }
+
+    /* もしカード内にクラス .card-footer がある場合、底に固定する */
+    #postList > div .card-footer {
+        margin-top: auto;
+    }
+    
+    /* レスポンシブ対応：スマホ時は隙間を少し狭く */
+    @media (max-width: 600px) {
+        #postList {
+            gap: 15px;
+            padding: 10px;
+            grid-template-columns: 1fr; /* スマホは1列固定 */
+        }
+    }
+  </style>
+</head>
 <body class="list-page">
 
   <header class="navbar">
@@ -62,12 +111,11 @@
     </section>
 
     <section class="post-list" id="postList">
-      </section>
+    </section>
   </main>
     
-<script type="module" src="firebase.js"></script>
-<script type="module" src="auth_header.js"></script> <script type="module" src="archive.js"></script>
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="auth_header.js"></script> 
+  <script type="module" src="archive.js"></script>
 </body>
 </html>
-
-
