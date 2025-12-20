@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>先輩一覧 | SenpaiNet</title>
+  <link rel="stylesheet" href="archive.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="list-page">
+
+  <header class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-logo"><a href="index.html">SenpaiNet</a></div>
+      <nav class="navbar-menu">
+        <a href="post.html">相談する</a>
+        <a href="archive.html">相談を見る</a>
+        <a href="senpai.html" class="active" style="color:#2563eb;">先輩一覧</a>
+        <a href="#" class="account-btn">ログイン</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="header">
+      <h1>🎓 先輩一覧</h1>
+      <p style="color:#666; margin-bottom:30px;">相談に乗ってくれる卒業生の皆さんです</p>
+    </section>
+
+    <section class="post-list" id="senpaiList"></section>
+  </main>
+
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="auth_header.js"></script>
+  <script type="module" src="senpai.js"></script>
+</body>
+</html>
