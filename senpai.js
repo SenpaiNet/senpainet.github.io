@@ -28,9 +28,6 @@ onAuthStateChanged(auth, async (user) => {
         } catch (e) {
             console.error("ユーザーデータ取得エラー:", e);
         }
-    } else {
-        // 未ログイン時はボタンを押せないようにする等の処理も可能ですが
-        // auth_header.jsでログインボタンが出るのでそのままでOK
     }
 });
 
@@ -48,20 +45,15 @@ toggleBtn.addEventListener("click", () => {
         toggleBtn.textContent = "▲ 閉じる";
         toggleBtn.style.background = "#64748b";
 
-        // ▼▼▼ 自動入力ロジック ▼▼▼
+        // 自動入力
         if (currentUserData) {
-            // 名前が空なら自動入力
             if (!inName.value) inName.value = currentUserData.nickname || "";
-            // 学年が空なら自動入力
             if (!inGrade.value) inGrade.value = currentUserData.grade || "";
-            // Bioが空なら自動入力
             if (!inBio.value) inBio.value = currentUserData.bio || "";
-            // タグが空なら自動入力 (配列をカンマ区切り文字列に変換)
             if (!inTags.value && currentUserData.tags && Array.isArray(currentUserData.tags)) {
                 inTags.value = currentUserData.tags.join(", ");
             }
         }
-        // ▲▲▲ ここまで ▲▲▲
 
     } else {
         formArea.classList.remove("active");
@@ -72,22 +64,25 @@ toggleBtn.addEventListener("click", () => {
 
 // 2. カードを追加して表示
 addBtn.addEventListener("click", () => {
+    // ログインチェック
+    if (!auth.currentUser) return;
+
     // 入力値を取得
     const name = inName.value.trim() || "名無し先輩";
     const grade = inGrade.value.trim() || "卒業生";
     const bio = inBio.value.trim() || "自己紹介なし";
     const tagsStr = inTags.value.trim();
     
-    // タグを配列化（カンマ区切りに対応）
+    // タグを配列化
     let tags = [];
     if (tagsStr) {
         tags = tagsStr.split(/,|、/).map(t => t.trim()).filter(t => t);
     }
 
-    // アイコンは自分のものを使う (なければデフォルト)
     const icon = currentUserData ? (currentUserData.iconUrl || auth.currentUser.photoURL) : "https://placehold.co/50";
 
     const user = {
+        uid: auth.currentUser.uid, // ★IDを追加（これで同一人物か判定します）
         nickname: name,
         grade: grade,
         bio: bio,
@@ -105,15 +100,21 @@ addBtn.addEventListener("click", () => {
 
 // カード描画関数
 function renderSenpaiCard(user) {
+    // ★【修正ポイント】既に同じユーザーのカードがあれば削除する（置き換え）
+    const existingCard = document.getElementById(`card-${user.uid}`);
+    if (existingCard) {
+        existingCard.remove();
+    }
+
     const icon = user.iconUrl || "https://placehold.co/50";
     const name = user.nickname;
-    // Bioの長さ制限（表示用）
     const bioSnippet = user.bio.length > 60 ? user.bio.substring(0, 60) + "..." : user.bio;
     
     const tagsHtml = user.tags.map(t => `<span class="tag">#${t}</span>`).join("");
 
+    // ★ articleタグに id="card-ユーザーID" を付与
     const html = `
-      <article class="post-card" style="cursor: default; animation: fadeIn 0.5s ease;">
+      <article id="card-${user.uid}" class="post-card" style="cursor: default; animation: fadeIn 0.5s ease;">
         <div style="display:flex; align-items:center; margin-bottom:15px; border-bottom:1px solid #f1f5f9; padding-bottom:10px;">
              <img src="${icon}" style="width:45px; height:45px; border-radius:50%; margin-right:12px; object-fit:cover; border:1px solid #eee;">
              <div>
