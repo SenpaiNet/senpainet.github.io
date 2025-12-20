@@ -132,9 +132,11 @@
   </main>
 
   <script type="module" src="firebase.js"></script>
-  <script type="module" src="auth_header.js"></script> <script type="module">
-    import { db, auth } from "./firebase.js"; // firebase.jsから読み込む
-    import { doc, getDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  <script type="module" src="auth_header.js"></script> 
+  <script type="module">
+    import { db, auth } from "./firebase.js"; 
+    import { doc, getDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, updateDoc, increment, deleteDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('id');
@@ -145,7 +147,13 @@
         window.location.href = "archive.html";
     }
 
-    // 1. 質問表示
+    let currentUser = null;
+    onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        loadQuestion(); // ユーザー確定後に質問を再描画（削除ボタン判定用）
+    });
+
+    // 1. 質問表示 ＆ 削除機能
     async function loadQuestion() {
         const docRef = doc(db, "posts", postId);
         const docSnap = await getDoc(docRef);
@@ -161,12 +169,27 @@
             const dateStr = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : "日付不明";
             const icon = data.authorIcon || "https://placehold.co/30";
             
-            document.getElementById('qMeta').innerHTML = `
+            const metaContainer = document.getElementById('qMeta');
+            metaContainer.innerHTML = `
                 <img src="${icon}" style="width:30px; height:30px; border-radius:50%; margin-right:10px; object-fit:cover;">
                 <span>${data.authorName || '匿名'}</span>
                 <span style="margin: 0 10px;">|</span>
                 <span>📅 ${dateStr}</span>
             `;
+
+            // ▼ 追加: 投稿者本人なら削除ボタンを表示
+            if (currentUser && currentUser.uid === postAuthorId) {
+                const deleteBtn = document.createElement("button");
+                deleteBtn.textContent = "🗑️ 削除";
+                deleteBtn.style.cssText = "margin-left: auto; background: #ef4444; color: white; border: none; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; font-weight: bold;";
+                deleteBtn.onclick = async () => {
+                    if (confirm("本当にこの投稿を削除しますか？")) {
+                        await deleteDoc(docRef);
+                        window.location.href = "archive.html";
+                    }
+                };
+                metaContainer.appendChild(deleteBtn);
+            }
 
             if(data.tags && data.tags.length > 0) {
                 document.getElementById('qTags').innerHTML = data.tags.map(t => 
@@ -178,7 +201,7 @@
         }
     }
 
-    // 2. 回答一覧
+    // 2. 回答一覧 ＆ リアクション機能
     function loadAnswers() {
         const answersRef = collection(db, "posts", postId, "answers");
         const q = query(answersRef, orderBy("createdAt", "asc"));
@@ -192,10 +215,17 @@
                 return;
             }
 
-            snapshot.forEach((doc) => {
-                const ans = doc.data();
+            snapshot.forEach((docSnapshot) => {
+                const ans = docSnapshot.data();
+                const ansId = docSnapshot.id;
                 const dateStr = ans.createdAt ? ans.createdAt.toDate().toLocaleString() : "たった今";
                 const icon = ans.authorIcon || "https://placehold.co/30";
+
+                // ▼ 追加: いいね機能
+                const likes = ans.likes || [];
+                const likeCount = likes.length;
+                const isLiked = currentUser && likes.includes(currentUser.uid);
+                const heartColor = isLiked ? "#ff4757" : "#ccc"; // いいね済みなら赤
 
                 const html = `
                     <div class="answer-card">
@@ -207,12 +237,30 @@
                             <div class="answer-date">${dateStr}</div>
                         </div>
                         <div class="answer-body">${ans.content}</div>
+                        
+                        <div style="margin-top: 15px; display: flex; align-items: center;">
+                            <button onclick="toggleLike('${ansId}', ${isLiked})" style="background: transparent; border: 1px solid ${heartColor}; color: ${heartColor}; border-radius: 20px; padding: 4px 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; transition: 0.2s;">
+                                <span>♥</span> ${likeCount}
+                            </button>
+                        </div>
                     </div>
                 `;
                 container.insertAdjacentHTML('beforeend', html);
             });
         });
     }
+
+    // ▼ 追加: いいね切り替え処理をグローバル関数として登録
+    window.toggleLike = async (ansId, isLiked) => {
+        if (!currentUser) return alert("ログインが必要です。");
+        const ansRef = doc(db, "posts", postId, "answers", ansId);
+        
+        if (isLiked) {
+            await updateDoc(ansRef, { likes: arrayRemove(currentUser.uid) });
+        } else {
+            await updateDoc(ansRef, { likes: arrayUnion(currentUser.uid) });
+        }
+    };
 
     // 3. 回答送信
     document.getElementById('answerForm').addEventListener('submit', async (e) => {
@@ -247,7 +295,8 @@
                 authorId: user.uid,
                 authorName: isAnon ? "匿名希望" : (userName || "名無し"),
                 authorIcon: isAnon ? "https://placehold.co/30" : (userIcon || "https://placehold.co/30"),
-                createdAt: serverTimestamp()
+                createdAt: serverTimestamp(),
+                likes: [] // 初期値
             });
 
             await updateDoc(doc(db, "posts", postId), { replies: increment(1) });
