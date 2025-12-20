@@ -132,7 +132,6 @@
     }
     .cropper-image-wrapper img { max-width: 100%; display: block; }
 
-    /* ★追加: トリミング枠を円形に見せるCSS */
     .cropper-view-box,
     .cropper-face {
       border-radius: 50%;
@@ -223,6 +222,26 @@
               <button class="cancel-btn" id="basicInfoCancelBtn">キャンセル</button>
               <button class="save-btn" id="basicInfoSaveBtn">基本情報を保存</button>
           </div>
+      </div>
+    </section>
+
+    <section class="content-card">
+      <div class="card-header">
+        <div class="card-title"><span>📝</span>自己紹介・経歴</div>
+        <button id="bioEditBtn" class="edit-btn">編集する</button>
+      </div>
+      <div id="bioViewMode">
+        <p id="infoBio" style="white-space: pre-wrap; color: #333;">未設定</p>
+      </div>
+      <div class="edit-mode-area" id="bioEditArea">
+        <div class="form-group">
+          <label class="form-label">経歴・メッセージ</label>
+          <textarea id="editBio" class="form-input" rows="5" placeholder="例：〇〇大学〇〇学部在学中。AO入試の相談に乗れます。"></textarea>
+        </div>
+        <div class="action-buttons">
+          <button class="cancel-btn" id="bioCancelBtn">キャンセル</button>
+          <button class="save-btn" id="bioSaveBtn">保存</button>
+        </div>
       </div>
     </section>
 
