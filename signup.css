@@ -91,22 +91,34 @@ a:hover { text-decoration: underline; }
   background: #eff6ff; color: #2563eb; border-color: #3b82f6;
 }
 
+/* === ホームに戻るボタン（修正版） === */
 .back-to-home {
-    margin-top: 20px;
+    margin-top: 25px;
     text-align: center;
+    border-top: 2px solid #f1f5f9; /* 上に薄い区切り線 */
+    padding-top: 20px;
 }
 
 .btn-home {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #f0f0f0; /* 背景色 */
-    color: #333;               /* 文字色 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #64748b; /* 落ち着いたグレー */
+    font-size: 0.95rem;
+    font-weight: 600;
     text-decoration: none;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    transition: background-color 0.3s;
+    padding: 10px 20px;
+    border-radius: 12px;
+    transition: all 0.2s;
 }
 
 .btn-home:hover {
-    background-color: #e0e0e0; /* ホバー時の色 */
+    background-color: #f1f5f9; /* 控えめな背景色 */
+    color: #1e293b; /* 文字を少し濃く */
+    text-decoration: none; /* 下線を消す */
+}
+
+.btn-home svg {
+    opacity: 0.7;
 }
