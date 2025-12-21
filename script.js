@@ -148,4 +148,28 @@ if(searchBtn) {
     });
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  const numbers = document.querySelectorAll(".achievement-number");
+
+  numbers.forEach(num => {
+    const target = Number(num.dataset.target);
+    let current = 0;
+
+    const step = Math.max(1, Math.floor(target / 40));
+
+    const update = () => {
+      current += step;
+
+      if (current >= target) {
+        num.textContent = target;
+      } else {
+        num.textContent = current;
+        requestAnimationFrame(update);
+      }
+    };
+
+    update();
+  });
+});
+
 
