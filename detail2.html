@@ -180,7 +180,7 @@
             // 投稿者本人なら削除ボタンを表示
             if (currentUser && currentUser.uid === postAuthorId) {
                 const deleteBtn = document.createElement("button");
-                deleteBtn.textContent = "🗑️ 削除";
+                deleteBtn.textContent = "削除";
                 deleteBtn.style.cssText = "margin-left: auto; background: #ef4444; color: white; border: none; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; font-weight: bold;";
                 deleteBtn.onclick = async () => {
                     if (confirm("本当にこの投稿を削除しますか？")) {
