@@ -148,28 +148,45 @@ if(searchBtn) {
     });
 }
 
+//実績カウンター
 document.addEventListener("DOMContentLoaded", () => {
-  const numbers = document.querySelectorAll(".achievement-number");
+  const counters = document.querySelectorAll(".achievement-number");
 
-  numbers.forEach(num => {
-    const target = Number(num.dataset.target);
+  const startCount = (counter) => {
+    const target = +counter.dataset.target;
     let current = 0;
 
-    const step = Math.max(1, Math.floor(target / 40));
+    const increment = Math.max(1, Math.floor(target / 60));
 
     const update = () => {
-      current += step;
-
+      current += increment;
       if (current >= target) {
-        num.textContent = target;
+        counter.textContent = target;
       } else {
-        num.textContent = current;
+        counter.textContent = current;
         requestAnimationFrame(update);
       }
     };
 
     update();
-  });
+  };
+
+  // 画面に入ったらスタート（IntersectionObserver）
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          startCount(entry.target);
+          observer.unobserve(entry.target); // 1回だけ
+        }
+      });
+    },
+    { threshold: 0.6 }
+  );
+
+  counters.forEach((counter) => observer.observe(counter));
 });
+
+
 
 
