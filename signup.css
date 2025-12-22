@@ -1,28 +1,15 @@
-/* =========================
-   共通リセット（安全）
-========================= */
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: 'Noto Sans JP', sans-serif;
-}
-
-/* =========================
-   ナビゲーションバー
-========================= */
+/* === ナビゲーションバー === */
 .navbar {
   width: 100%;
   height: 70px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95); /* 少し透過させてモダンに */
+  backdrop-filter: blur(10px); /* すりガラス効果 */
   position: fixed;
   top: 0;
   left: 0;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* 影を柔らかく */
   z-index: 1000;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   padding: 0 40px;
@@ -37,183 +24,158 @@ body {
   align-items: center;
 }
 
-.navbar-logo a {
-  font-size: 24px;
+.navbar-logo {
+  font-size: 24px; /* 少し大きく */
   font-weight: 900;
-  text-decoration: none;
-  background: linear-gradient(90deg, #4da6ff, #2563eb);
+  background: linear-gradient(90deg, #4da6ff, #2563eb); /* ロゴ文字もグラデーション */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  line-height: 1;
 }
+.navbar-logo a { text-decoration: none; }
 
 .navbar-menu {
   display: flex;
-  gap: 30px;
+  align-items: center;
+  gap: 30px; /* 間隔を少し広げる */
 }
 
 .navbar-menu a {
   text-decoration: none;
   color: #475569;
   font-weight: 600;
+  transition: color 0.2s;
+  font-size: 0.95rem;
 }
 
 .navbar-menu a:hover {
   color: #2563eb;
 }
 
-/* =========================
-   login / signup 専用背景
-   ★ index.html には影響しない
-========================= */
-body.signup-page {
+
+/* === アカウント作成ページ === */
+.signup-page {
   background: linear-gradient(135deg, #c7d2fe, #e0f2fe, #e0ffe7);
-  min-height: 100vh;
-  padding-top: 70px; /* navbar分 */
+  display: flex; justify-content: center; align-items: center;
+  min-height: 100vh; font-family: 'Noto Sans JP', sans-serif;
+  padding: 20px; box-sizing: border-box;
 }
 
-/* =========================
-   中央寄せラッパー
-========================= */
-.signup-wrapper {
-  min-height: calc(100vh - 70px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
-
-/* =========================
-   カード本体
-========================= */
 .signup-card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 24px;
-  padding: 48px;
-  max-width: 480px;
-  width: 100%;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-  animation: fadeIn 0.4s ease;
+  padding: 50px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+  max-width: 480px; width: 100%;
+  animation: fadeIn 0.5s ease;
+  border: 1px solid white;
 }
 
-.signup-card h2 {
-  text-align: center;
-  margin-bottom: 28px;
-  color: #1e293b;
-  font-size: 1.8rem;
+.signup-card h2 { text-align: center; color: #1e293b; margin-bottom: 30px; font-size: 1.8rem; }
+
+label { font-weight: 700; color: #475569; display: block; margin-top: 20px; font-size: 0.9rem; }
+input, select {
+  width: 100%; border: 2px solid #e2e8f0; border-radius: 12px;
+  padding: 14px; margin-top: 8px; font-size: 1rem;
+  box-sizing: border-box; transition: all 0.2s; background: #f8fafc;
+}
+input:focus, select:focus {
+  border-color: #3b82f6; outline: none; background: white;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
-/* =========================
-   フォーム
-========================= */
-label {
-  font-weight: 700;
-  color: #475569;
-  display: block;
-  margin-top: 18px;
-  font-size: 0.9rem;
-}
+.user-type { display: flex; gap: 20px; margin-top: 10px; }
+.user-type label { margin-top: 0; display: flex; align-items: center; gap: 8px; cursor: pointer; }
 
-input {
-  width: 100%;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 14px;
-  margin-top: 8px;
-  font-size: 1rem;
-  background: #f8fafc;
-  transition: all 0.2s;
-}
-
-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
-}
-
-/* =========================
-   送信ボタン
-========================= */
+/* === かっこいい送信ボタン === */
 .submit-btn {
-  width: 100%;
-  margin-top: 28px;
+  width: 100%; margin-top: 30px;
   padding: 16px;
-  border: none;
-  border-radius: 14px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #fff;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(37,99,235,0.3);
-  transition: all 0.3s;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white; border: none; border-radius: 14px;
+  font-size: 1.1rem; font-weight: 700; cursor: pointer;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.03em;
 }
-
 .submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(37,99,235,0.4);
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
 
-/* =========================
-   Googleログイン
-========================= */
+/* === かっこいいGoogleボタン === */
 .google-btn {
-  width: 100%;
-  padding: 14px;
-  margin-bottom: 22px;
-  background: #fff;
-  border: 2px solid #e2e8f0;
-  border-radius: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  transition: all 0.2s;
+  width: 100%; padding: 14px; margin-bottom: 25px;
+  background-color: white; color: #1e293b;
+  border: 2px solid #e2e8f0; border-radius: 14px;
+  font-weight: 700; font-size: 1rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  gap: 12px; transition: all 0.2s;
 }
-
 .google-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background-color: #f8fafc; border-color: #cbd5e1;
+  transform: translateY(-1px);
 }
+.google-btn img { width: 20px; height: 20px; }
 
-.google-btn img {
-  width: 20px;
-}
-
-/* =========================
-   OR 区切り
-========================= */
+/* 区切り線 */
 .or-divider {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 18px 0;
-  color: #94a3b8;
-  font-size: 0.9rem;
-  font-weight: bold;
+  text-align: center; margin: 0 0 25px 0; color: #94a3b8; font-size: 0.9rem; font-weight: bold;
+  position: relative; display: flex; align-items: center; gap: 15px;
+}
+.or-divider::before, .or-divider::after {
+  content: ""; flex: 1; height: 2px; background: #f1f5f9;
 }
 
-.or-divider::before,
-.or-divider::after {
-  content: "";
-  flex: 1;
-  height: 2px;
-  background: #f1f5f9;
+/* リンク */
+a { color: #3b82f6; text-decoration: none; font-weight: 600; }
+a:hover { text-decoration: underline; }
+
+/* 隠しクラスなど */
+.hidden { display: none; }
+.tag-options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.tag-option {
+  background: #f1f5f9; color: #475569; padding: 8px 16px;
+  border-radius: 20px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+  border: 2px solid transparent; transition: all 0.2s;
+}
+.tag-option:hover { background: #e2e8f0; }
+.tag-option.selected {
+  background: #eff6ff; color: #2563eb; border-color: #3b82f6;
 }
 
-/* =========================
-   アニメーション
-========================= */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* === ホームに戻るボタン（修正版） === */
+.back-to-home {
+    margin-top: 25px;
+    text-align: center;
+    border-top: 2px solid #f1f5f9; /* 上に薄い区切り線 */
+    padding-top: 20px;
+}
+
+.btn-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #64748b; /* 落ち着いたグレー */
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.btn-home:hover {
+    background-color: #f1f5f9; /* 控えめな背景色 */
+    color: #1e293b; /* 文字を少し濃く */
+    text-decoration: none; /* 下線を消す */
+}
+
+.btn-home svg {
+    opacity: 0.7;
 }
