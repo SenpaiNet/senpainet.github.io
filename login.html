@@ -3,46 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>ログイン | SenpaiNet</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="signup.css">
 
-  <style>
-    /* Googleボタン用の追加スタイル */
-    .google-btn {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-weight: bold;
-      color: #555;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: background 0.2s;
-    }
-    .google-btn:hover { background-color: #f9f9f9; }
-    .or-divider {
-      text-align: center; margin: 15px 0; color: #aaa; font-size: 0.9rem;
-      position: relative;
-    }
-    .or-divider::before, .or-divider::after {
-      content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: #eee;
-    }
-    .or-divider::before { left: 0; }
-    .or-divider::after { right: 0; }
-  </style>
+  <!-- 共通CSS -->
+  <link rel="stylesheet" href="style.css">
+  <!-- ログイン用CSS -->
+  <link rel="stylesheet" href="signup.css">
 </head>
 <body class="signup-page">
 
+  <!-- ナビバー -->
   <header class="navbar fade-down">
-  <div class="navbar-container">
-    <div class="navbar-logo">SenpaiNet</div>
-
-  <header class="navbar">
     <div class="navbar-container">
       <div class="navbar-logo">
         <a href="index.html">SenpaiNet</a>
@@ -53,17 +23,18 @@
         <a href="archive.html">相談を見る</a>
         <a href="senpai.html">先輩一覧</a>
         <a href="form.html">お問い合わせ</a>
-        <a href="#" class="account-btn">ログイン</a>  
+        <a href="login.html" class="account-btn">ログイン</a>
       </nav>
     </div>
   </header>
 
+  <!-- ログイン画面 -->
   <div class="signup-wrapper">
     <div class="signup-card">
       <h2>🔑 ログイン</h2>
 
       <button id="googleLoginBtn" class="google-btn">
-        <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" alt="G" width="20">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G">
         Googleでログイン
       </button>
 
@@ -76,15 +47,17 @@
         <label for="password">パスワード</label>
         <input type="password" id="password" placeholder="パスワード" required>
 
-        <button type="submit" class="submit-btn">ログンして開始</button>
+        <button type="submit" class="submit-btn">ログインして開始</button>
       </form>
 
-      <div style="margin-top: 20px; text-align: center;">
-        <p>アカウントをお持ちでないですか？<br>
-        <a href="signup.html" style="color: #007bff;">新規登録はこちら</a></p>
-      </div>
+      <p style="margin-top: 20px; text-align: center;">
+        アカウントをお持ちでないですか？<br>
+        <a href="signup.html">新規登録はこちら</a>
+      </p>
+
     </div>
   </div>
+
   <script type="module" src="login.js"></script>
 </body>
 </html>
