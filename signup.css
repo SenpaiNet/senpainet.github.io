@@ -1,3 +1,7 @@
+body {
+  padding-top: 70px; /* navbar の高さ分 */
+}
+
 /* === ナビゲーションバー === */
 .navbar {
   width: 100%;
@@ -179,4 +183,5 @@ a:hover { text-decoration: underline; }
 .btn-home svg {
     opacity: 0.7;
 }
+
 
