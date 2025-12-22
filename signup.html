@@ -2,8 +2,27 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>アカウント作成 | 未来図プラットフォーム</title>
+  <title>アカウント作成 | SenpaiNet</title>
   <link rel="stylesheet" href="signup.css">
+  <style>
+    /* 追加スタイル: 用途説明のアコーディオンなど */
+    .usage-note {
+      font-size: 0.8rem; color: #64748b; margin-top: 5px; margin-bottom: 15px;
+      background: #f1f5f9; padding: 10px; border-radius: 8px;
+    }
+    .usage-note ul { margin: 5px 0 0 15px; padding: 0; }
+    .usage-note li { margin-bottom: 3px; }
+    
+    .checkbox-group {
+      margin: 15px 0; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;
+    }
+    .checkbox-item {
+      display: flex; align-items: start; gap: 10px; margin-bottom: 10px;
+      font-size: 0.9rem; color: #334155; cursor: pointer;
+    }
+    .checkbox-item:last-child { margin-bottom: 0; }
+    .checkbox-item input { width: auto; margin-top: 4px; }
+  </style>
 </head>
 <body class="signup-page">
 
@@ -19,20 +38,25 @@
           <label><input type="radio" name="userType" value="卒業生"> 卒業生</label>
         </div>
 
-        <label for="email">メールアドレス</label>
+        <label for="email">メールアドレス <span style="color:red">*</span></label>
         <input type="email" id="email" placeholder="example@email.com" required>
+        
+        <div class="usage-note">
+          <strong>📧 メールアドレスの用途：</strong>
+          <ul>
+            <li>ログイン時のIDとして使用します</li>
+            <li>パスワードを忘れた際の再設定に使用します</li>
+            <li>（希望者のみ）相談への回答があった際の通知に使用します</li>
+          </ul>
+        </div>
 
-        <label for="password">パスワード</label>
+        <label for="password">パスワード <span style="color:red">*</span></label>
         <input type="password" id="password" placeholder="6文字以上で入力" required minlength="6">
 
-        <label for="nickname">ニックネーム</label>
+        <label for="nickname">ニックネーム <span style="color:red">*</span></label>
         <input type="text" id="nickname" placeholder="個人名はお控えください" required>
 
         <label for="grade">何回生ですか？</label>
-        <label>アイコンを選択</label>
-        <div class="tag-options" id="iconSelection" style="margin-bottom: 20px;">
-        </div>
-        <input type="hidden" id="selectedIconUrl">
         <select id="grade" required>
           <option value="">選択してください</option>
           <option>13回生</option>
@@ -41,20 +65,55 @@
           <option>16回生</option>
         </select>
 
+        <label>アイコンを選択</label>
+        <div class="tag-options" id="iconSelection" style="margin-bottom: 20px;">
+          </div>
+        <input type="hidden" id="selectedIconUrl">
+
         <div id="alumniTags" class="tag-select hidden">
           <label>得意分野（最大3つ）</label>
           <div class="tag-options">
+            <span class="tag-option" data-tag="一般入試">#一般入試</span>
+            <span class="tag-option" data-tag="AO入試">#AO入試</span>
+            <span class="tag-option" data-tag="DP">#DP</span>
+            <span class="tag-option" data-tag="課外活動">#課外活動</span>
+            <span class="tag-option" data-tag="履修">#履修</span>
+            <span class="tag-option" data-tag="海外大学">#海外大学</span>
+            <span class="tag-option" data-tag="部活">#部活</span>
+            <span class="tag-option" data-tag="英検">#英検</span>
+            <span class="tag-option" data-tag="IELTS">#IELTS</span>
+            <span class="tag-option" data-tag="TOEFL">#TOEFL</span>
+            <span class="tag-option" data-tag="模試">#模試</span>
             <span class="tag-option" data-tag="教育">#教育</span>
             <span class="tag-option" data-tag="キャリア">#キャリア</span>
             <span class="tag-option" data-tag="AI">#AI</span>
             <span class="tag-option" data-tag="海外">#海外</span>
             <span class="tag-option" data-tag="テクノロジー">#テクノロジー</span>
+            <span class="tag-option" data-tag="理系">#理系</span>
+            <span class="tag-option" data-tag="文系">#文系</span>
             <span class="tag-option" data-tag="ボランティア">#ボランティア</span>
           </div>
         </div>
 
+        <div class="checkbox-group">
+          <label class="checkbox-item">
+            <input type="checkbox" id="termsCheck" required>
+            <span><a href="terms.html" target="_blank" style="text-decoration:underline;">利用規約</a>およびプライバシーポリシーに同意します（必須）</span>
+          </label>
+          
+          <label class="checkbox-item">
+            <input type="checkbox" id="emailNotifCheck">
+            <span>自分の投稿に回答があった際、メールで通知を受け取る（任意）</span>
+          </label>
+        </div>
+
         <button type="submit" class="submit-btn">🚀 アカウント作成</button>
       </form>
+
+      <div style="margin-top: 20px; text-align: center;">
+        <p>すでにアカウントをお持ちですか？<br>
+        <a href="login.html" style="color: #007bff;">ログインはこちら</a></p>
+      </div>
     </div>
   </div>
 
