@@ -359,3 +359,16 @@ function setupEventListeners() {
         });
     }
 }
+document.getElementById("deleteAccountBtn")?.addEventListener("click", async () => {
+    if (confirm("本当に退会しますか？この操作は取り消せません。")) {
+        const user = auth.currentUser;
+        try {
+            await deleteDoc(doc(db, "users", user.uid));
+            await user.delete();
+            alert("削除完了しました。");
+            window.location.href = "index.html";
+        } catch (e) {
+            alert("セキュリティ保護のため、一度再ログインしてから削除を実行してください。");
+        }
+    }
+});
