@@ -5,77 +5,52 @@
   <title>投稿一覧 | SenpaiNet</title>
   <link rel="stylesheet" href="archive.css">
   <link rel="stylesheet" href="style.css">
-   
+  
   <style>
-    /* 投稿リストの親要素をグリッド化 */
+    /* 既存のグリッドスタイル維持 */
     #postList {
       display: grid;
-      /* 幅300pxを基準に、画面幅に合わせて自動で列数を調整 */
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;       /* カード間の隙間 */
-      width: 100%;     /* 幅いっぱい */
-      padding: 20px;   /* 全体の余白 */
-      box-sizing: border-box;
+      gap: 24px; width: 100%; padding: 20px; box-sizing: border-box;
     }
-
-    /* JavaScriptで生成される各カード（div）へのスタイル */
     #postList > div {
-      background-color: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      
-      /* 高さを揃える設定 */
-      height: 100%; 
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-      
-      /* アニメーション（任意） */
-      transition: transform 0.2s;
+      background-color: var(--bg-card); /* 変数化 */
+      border-radius: 12px; padding: 20px;
+      box-shadow: var(--shadow-card); /* 変数化 */
+      height: 100%; display: flex; flex-direction: column; box-sizing: border-box;
+      transition: transform 0.2s; color: var(--text-main);
     }
-
-    #postList > div:hover {
-        transform: translateY(-3px);
-    }
-
-    #postList > div .card-footer {
-        margin-top: auto;
-    }
+    #postList > div:hover { transform: translateY(-3px); }
+    #postList > div .card-footer { margin-top: auto; }
     
-    /* レスポンシブ対応：スマホ時は隙間を少し狭く */
     @media (max-width: 600px) {
-        #postList {
-            gap: 15px;
-            padding: 10px;
-            grid-template-columns: 1fr; /* スマホは1列固定 */
-        }
+        #postList { gap: 15px; padding: 10px; grid-template-columns: 1fr; }
     }
 
-    /* 追加機能用のスタイル */
     .filter-controls {
         display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
     }
     .filter-select {
-        padding: 8px 12px; border-radius: 20px; border: 1px solid #e2e8f0; 
-        background: white; color: #334155; font-size: 0.9rem; cursor: pointer;
+        padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border-color); 
+        background: var(--bg-card); color: var(--text-main); font-size: 0.9rem; cursor: pointer;
     }
     .filter-checkbox-label {
-        background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0;
-        font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; color: #334155; user-select: none;
+        background: var(--bg-card); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color);
+        font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; color: var(--text-main);
     }
-    .filter-checkbox-label input { margin-right: 6px; }
-    .filter-checkbox-label:hover, .filter-select:hover { border-color: #4da6ff; background: #f0f9ff; }
+    
+    /* ローディングインジケータ (無限スクロール用) */
+    #scrollLoader {
+        text-align: center; padding: 20px; grid-column: 1 / -1; display: none; color: var(--text-sub);
+    }
+    #scrollLoader.active { display: block; }
   </style>
 </head>
 <body class="list-page">
 
   <header class="navbar">
     <div class="navbar-container">
-      <div class="navbar-logo">
-        <a href="index.html">SenpaiNet</a>
-      </div>
-
+      <div class="navbar-logo"><a href="index.html">SenpaiNet</a></div>
       <nav class="navbar-menu">
         <a href="post.html">相談する</a>
         <a href="archive.html">相談を見る</a>
@@ -85,6 +60,10 @@
       </nav>
     </div>
   </header>
+
+  <div class="breadcrumbs">
+      <a href="index.html">TOP</a> <span>&gt;</span> 相談一覧
+  </div>
 
   <main>
     <section class="header">
@@ -109,29 +88,12 @@
                 <input type="checkbox" id="bookmarkCheck"> ★ ブックマーク
             </label>
         </div>
+
         <div class="tag-filter" id="tagFilter">
           <span class="filter-tag" data-tag="一般入試">#一般入試</span>
           <span class="filter-tag" data-tag="AO入試">#AO入試</span>
-          <span class="filter-tag" data-tag="DP">#DP</span>
-          <span class="filter-tag" data-tag="課外活動">#課外活動</span>
-          <span class="filter-tag" data-tag="履修">#履修</span>
           <span class="filter-tag" data-tag="海外大学">#海外大学</span>
-          <span class="filter-tag" data-tag="部活">#部活</span>
-          <span class="filter-tag" data-tag="英検">#英検</span>
-          <span class="filter-tag" data-tag="IELTS">#IELTS</span>
-          <span class="filter-tag" data-tag="TOEFL">#TOEFL</span>
-          <span class="filter-tag" data-tag="模試">#模試</span>
-          <span class="filter-tag" data-tag="教育">#教育</span>
-          <span class="filter-tag" data-tag="キャリア">#キャリア</span>
-          <span class="filter-tag" data-tag="AI">#AI</span>
-          <span class="filter-tag" data-tag="海外">#海外</span>
-          <span class="filter-tag" data-tag="テクノロジー">#テクノロジー</span>
-          <span class="filter-tag" data-tag="理系">#理系</span>
-          <span class="filter-tag" data-tag="文系">#文系</span>
-          <span class="filter-tag" data-tag="ボランティア">#ボランティア</span>
-          <span class="filter-tag" data-tag="帰国生">#帰国生</span>
         </div>
-
         <div id="searchTagArea" class="search-tag-area"></div>
       </div>
 
@@ -139,7 +101,9 @@
     </section>
 
     <section class="post-list" id="postList">
-    </section>
+        </section>
+    
+    <div id="scrollLoader">読み込み中...</div>
   </main>
      
   <script type="module" src="firebase.js"></script>
