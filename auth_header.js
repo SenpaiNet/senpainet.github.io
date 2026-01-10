@@ -73,6 +73,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const authBtns = document.querySelectorAll('.account-btn, .account-link');
 
     if (user) {
+      // ▼▼▼ (82) 凍結チェック機能追加 ▼▼▼
+      try {
+        const currentUserDoc = await getDoc(doc(db, "users", user.uid));
+        if (currentUserDoc.exists() && currentUserDoc.data().isSuspended) {
+          await signOut(auth);
+          alert("このアカウントは規約違反のため凍結されています。");
+          window.location.href = "index.html";
+          return;
+        }
+      } catch(e) { console.error("Freeze check error", e); }
+      // ▲▲▲ 追加ここまで ▲▲▲
+
       localStorage.setItem("senpaiNet_hasAccount", "true");
 
       // Firestoreから最新のアイコンと名前を取得
@@ -80,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
       let userName = user.displayName || "ユーザー";
 
       try {
-        // ★重要: "Photo URL too long" エラー回避のため、Firestoreから画像を取得
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
             const data = userDoc.data();
