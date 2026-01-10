@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <title>相談詳細 | SenpaiNet</title>
   <link rel="stylesheet" href="archive.css">
-  <link rel="stylesheet" href="style.css">
-
+  
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
@@ -13,24 +12,159 @@
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
 
   <style>
-    .detail-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
-    .question-section { background: white; padding: 40px; border-radius: 20px; border: 1px solid #f1f5f9; margin-bottom: 40px; position:relative; }
+    /* 詳細ページ専用の上書きスタイル */
+    .detail-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
     
-    .post-actions { display: flex; gap: 15px; margin-top: 20px; border-top: 1px solid #f1f5f9; padding-top: 15px; align-items: center; }
+    /* 質問部分 */
+    .question-section {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      margin-bottom: 40px;
+      border: 1px solid #f1f5f9;
+      position: relative; /* バッジ配置用 */
+    }
+    .question-title { font-size: 1.8rem; margin-bottom: 15px; color: #1e3a8a; font-weight: 800; }
+    .question-meta {
+      display: flex; align-items: center; gap: 15px; color: #64748b; font-size: 0.9rem; margin-bottom: 25px;
+      padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;
+    }
+    .question-body { font-size: 1.1rem; line-height: 1.8; color: #334155; }
+
+    /* 回答エリア */
+    .answers-section h3 {
+      font-size: 1.4rem; color: #1e293b; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .answers-section h3::before {
+      content: ''; display: block; width: 6px; height: 24px;
+      background: #4da6ff; border-radius: 10px;
+    }
+    
+    .answer-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      padding: 25px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+      transition: all 0.3s;
+    }
+    .answer-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 15px;
+    }
+    .answer-author { display: flex; align-items: center; gap: 10px; font-weight: 700; color: #334155; }
+    .author-icon { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #eee; }
+    
+    .answer-date { font-size: 0.85rem; color: #94a3b8; }
+    .answer-body { color: #475569; line-height: 1.6; font-size: 1rem; }
+
+    /* フォームエリア */
+    .answer-form-area {
+      background: white; padding: 30px; border-radius: 20px;
+      border: 2px solid #e2e8f0; margin-top: 50px;
+    }
+    textarea {
+      width: 100%; height: 140px; padding: 15px;
+      border: 2px solid #e2e8f0; border-radius: 12px;
+      margin-bottom: 20px; font-size: 1rem; box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: #3b82f6; outline: none; }
+    
+    .form-controls {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .anon-check { display: flex; align-items: center; cursor: pointer; color: #64748b; font-weight: 600; }
+    
+    .submit-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white; border: none; padding: 12px 30px;
+      border-radius: 50px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+      transition: transform 0.2s;
+    }
+    .submit-btn:hover { transform: translateY(-2px); }
+
+    /* 通報・ブロックリンク */
+    .action-links { margin-left: auto; font-size: 0.8rem; }
+    .action-link { color: #94a3b8; cursor: pointer; margin-left: 8px; text-decoration: none; }
+    .action-link:hover { color: #ef4444; text-decoration: underline; }
+
+    /* ▼▼▼ 追加スタイル (機能拡張用) ▼▼▼ */
+    /* Markdown & 数式用スタイル */
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+      border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3em; margin-top: 1.5em; margin-bottom: 16px; font-size:1.2em;
+    }
+    .markdown-body p { margin-bottom: 1em; white-space: normal; }
+    .markdown-body blockquote {
+      border-left: 4px solid #cbd5e1; color: #64748b; padding-left: 1em; margin: 0; background:#f8fafc; padding:8px;
+    }
+    .markdown-body code {
+      background-color: #f1f5f9; padding: 0.2em 0.4em; border-radius: 4px; font-family: monospace; font-size: 0.9em;
+    }
+    .markdown-body pre {
+      background-color: #1e293b; color: #f8fafc; padding: 1em; border-radius: 8px; overflow-x: auto;
+    }
+    .markdown-body pre code { background-color: transparent; padding: 0; color: inherit; }
+    .markdown-body img { max-width: 100%; border-radius: 8px; margin: 10px 0; border: 1px solid #e2e8f0; }
+
+    /* 解決済みバッジ */
+    .status-badge {
+      display: inline-block; padding: 4px 12px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: bold; margin-bottom: 8px;
+    }
+    .status-solved { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .status-open { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+
+    /* ベストアンサー */
+    .best-answer-card {
+      border: 2px solid #fbbf24 !important; background: #fffbeb !important; position: relative;
+    }
+    .best-answer-badge {
+      position: absolute; top: -12px; right: 20px;
+      background: #fbbf24; color: #92400e; font-weight: bold;
+      padding: 4px 12px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-size: 0.85rem; display: flex; align-items: center; gap: 4px;
+    }
+
+    /* スレッド形式 (ネスト) */
+    .nested-reply {
+      margin-left: 40px; border-left: 3px solid #e2e8f0; background: #f8fafc; width: auto;
+    }
+    @media (max-width: 600px) { .nested-reply { margin-left: 15px; } }
+
+    /* ブックマークボタン */
+    .bookmark-btn {
+      background: transparent; border: none; cursor: pointer; color: #cbd5e1;
+      transition: all 0.2s; font-size: 1.5rem; line-height:1; margin-left:auto;
+    }
+    .bookmark-btn.active { color: #fbbf24; transform: scale(1.2); }
+
+    /* アクションバー */
+    .post-actions { display: flex; gap: 15px; margin-top: 20px; border-top: 1px solid #f1f5f9; padding-top: 15px; align-items: center; font-size:0.9rem;}
     .action-btn { background: none; border: none; cursor: pointer; color: #64748b; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
     .action-btn:hover { color: #3b82f6; }
-    .answer-card { margin-bottom: 20px; transition: all 0.3s; }
   </style>
 </head>
 <body class="list-page">
 
   <header class="navbar">
     <div class="navbar-container">
-      <div class="navbar-logo"><a href="index.html">SenpaiNet</a></div>
+      <div class="navbar-logo">
+        <a href="index.html">SenpaiNet</a>
+      </div>
       <nav class="navbar-menu">
         <a href="post.html">相談する</a>
         <a href="archive.html" class="active">相談を見る</a>
         <a href="senpai.html">先輩一覧</a>
+        <a href="form.html">お問い合わせ</a>
         <a href="#" class="account-btn">ログイン</a>
       </nav>
     </div>
@@ -40,11 +174,12 @@
     <div class="detail-container">
         <section class="question-section" id="qSection">
             <div id="statusBadgeArea"></div>
+            
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                 <h1 id="qTitle" class="question-title">読み込み中...</h1>
                 <button id="bookmarkBtn" class="bookmark-btn" title="ブックマーク">★</button>
             </div>
-            
+
             <div id="qMeta" class="question-meta"></div>
             <div id="qTags" style="margin-bottom:20px; display:flex; gap:8px;"></div>
             
@@ -53,7 +188,8 @@
             <div class="post-actions">
                <span id="viewCountArea" style="margin-right:auto; color:#94a3b8; font-size:0.85rem;">👀 0 views</span>
                <button class="action-btn" onclick="quoteReply('qBody')">↩ 引用返信</button>
-               <div id="ownerActions" style="display:none; gap:10px;"></div>
+               <div id="ownerActions" style="display:none; gap:10px;">
+                   </div>
             </div>
         </section>
 
@@ -67,10 +203,10 @@
                 <h3 style="margin:0;">回答する</h3>
                 <span id="replyTargetDisplay" style="font-size:0.85rem; color:#64748b; display:none;">
                     返信先: <span id="replyTargetName"></span> 
-                    <button onclick="cancelReply()" style="border:none; background:none; color:red; cursor:pointer;">✕ 解除</button>
+                    <button onclick="cancelReply()" style="border:none; background:none; color:#ef4444; cursor:pointer;">✕ 解除</button>
                 </span>
             </div>
-            
+
             <form id="answerForm">
                 <textarea id="answerInput" placeholder="Markown記法が使えます。&#10;数式は $...$ で囲んでください。" required></textarea>
                 <div class="form-controls">
@@ -97,13 +233,18 @@
 
     let currentUser = null;
     let postData = null;
-    let replyParentId = null;
+    let blockedUsers = [];
+    let replyParentId = null; // スレッド返信先ID
 
+    // Markdownレンダリング関数
     function renderContent(text, elementId) {
         const el = document.getElementById(elementId);
+        // Markdown -> HTML
         let html = marked.parse(text);
+        // サニタイズ(XSS対策)
         html = DOMPurify.sanitize(html);
         el.innerHTML = html;
+        // 数式レンダリング (KaTeX)
         renderMathInElement(el, {
             delimiters: [
                 {left: "$$", right: "$$", display: true},
@@ -115,21 +256,281 @@
     onAuthStateChanged(auth, async (user) => {
         currentUser = user;
         if(user) {
-            updateDoc(doc(db, "posts", postId), { viewCount: increment(1) }).catch(()=>{});
-            checkBookmark();
+            try {
+                const uDoc = await getDoc(doc(db, "users", user.uid));
+                if(uDoc.exists()) {
+                    const ud = uDoc.data();
+                    blockedUsers = ud.blocked || [];
+                    // ブックマーク状態確認
+                    if(ud.bookmarks && ud.bookmarks.includes(postId)) {
+                        document.getElementById("bookmarkBtn").classList.add("active");
+                    }
+                }
+                // 閲覧数カウントアップ
+                updateDoc(doc(db, "posts", postId), { viewCount: increment(1) }).catch(()=>{});
+            } catch(e) {}
         }
         loadQuestion(); 
     });
 
-    async function checkBookmark() {
-        if(!currentUser) return;
-        const uDoc = await getDoc(doc(db, "users", currentUser.uid));
-        if(uDoc.exists()) {
-            const bks = uDoc.data().bookmarks || [];
-            if(bks.includes(postId)) document.getElementById("bookmarkBtn").classList.add("active");
-        }
+    // 1. 質問表示
+    async function loadQuestion() {
+        const docRef = doc(db, "posts", postId);
+        
+        // リアルタイムリスナーに変更 (解決済みバッジ等の即時反映のため)
+        onSnapshot(docRef, (docSnap) => {
+            if (!docSnap.exists()) {
+                document.querySelector('.detail-container').innerHTML = "<p>投稿が見つかりません。</p>";
+                return;
+            }
+
+            postData = docSnap.data();
+            
+            // ブロック判定
+            if(blockedUsers.includes(postData.authorId)) {
+                document.getElementById('qSection').innerHTML = "<p style='color:#999; text-align:center;'>ブロックしたユーザーの投稿です。</p>";
+                return;
+            }
+
+            document.getElementById('qTitle').textContent = postData.title;
+            // Markdownとして描画
+            renderContent(postData.content, 'qBody');
+            
+            // 解決済みバッジ
+            const badgeArea = document.getElementById("statusBadgeArea");
+            if(postData.isSolved) {
+                badgeArea.innerHTML = `<span class="status-badge status-solved">✓ 解決済み</span>`;
+            } else {
+                badgeArea.innerHTML = `<span class="status-badge status-open">回答募集中</span>`;
+            }
+
+            // 閲覧数
+            document.getElementById("viewCountArea").textContent = `👀 ${postData.viewCount || 0} views`;
+
+            const dateStr = postData.createdAt ? postData.createdAt.toDate().toLocaleDateString() : "日付不明";
+            const icon = postData.authorIcon || "https://placehold.co/30";
+            
+            // メタ情報＆操作ボタン
+            const metaContainer = document.getElementById('qMeta');
+            let actionsHtml = "";
+            
+            if (currentUser && currentUser.uid !== postData.authorId) {
+                actionsHtml = `
+                    <div class="action-links">
+                        <span class="action-link" onclick="reportUser('${postData.authorId}', 'post', '${postId}')">通報</span>
+                        <span class="action-link" onclick="blockUser('${postData.authorId}')">ブロック</span>
+                    </div>
+                `;
+            }
+
+            metaContainer.innerHTML = `
+                <img src="${icon}" style="width:30px; height:30px; border-radius:50%; margin-right:10px; object-fit:cover;">
+                <span>${postData.authorName || '匿名'}</span>
+                <span style="margin: 0 10px;">|</span>
+                <span>📅 ${dateStr}</span>
+                ${actionsHtml}
+            `;
+
+            // タグ
+            if(postData.tags && postData.tags.length > 0) {
+                document.getElementById('qTags').innerHTML = postData.tags.map(t => 
+                    `<span style="background:#e0f2fe; color:#0284c7; padding:4px 10px; border-radius:20px; font-size:0.85rem; font-weight:600;">#${t}</span>`
+                ).join("");
+            }
+
+            // 投稿者メニュー (削除、解決済みにする)
+            const ownerActions = document.getElementById("ownerActions");
+            if(currentUser && currentUser.uid === postData.authorId) {
+                ownerActions.style.display = "flex";
+                let btns = "";
+                
+                // 解決ボタン
+                if(!postData.isSolved) {
+                    btns += `<button class="action-btn" onclick="markAsSolved()">✓ 解決済みにする</button>`;
+                }
+                
+                // 削除ボタン
+                btns += `<button class="action-btn" onclick="deleteMyPost()" style="color:#ef4444;">🗑 削除</button>`;
+                
+                ownerActions.innerHTML = btns;
+            }
+        });
     }
 
+    // 2. 回答一覧 (スレッド対応)
+    function loadAnswers() {
+        const answersRef = collection(db, "posts", postId, "answers");
+        const q = query(answersRef, orderBy("createdAt", "asc"));
+
+        onSnapshot(q, (snapshot) => {
+            const container = document.getElementById('answersList');
+            container.innerHTML = "";
+
+            if(snapshot.empty) {
+                container.innerHTML = "<p style='color:#888; padding:20px; text-align:center;'>まだ回答はありません。最初の回答者になりましょう！</p>";
+                return;
+            }
+
+            const answers = [];
+            snapshot.forEach(d => answers.push({id: d.id, ...d.data()}));
+
+            // スレッド表示: 親を持たない回答を描画 -> その子を描画
+            const rootAnswers = answers.filter(a => !a.parentId);
+            
+            rootAnswers.forEach(ans => {
+                if(blockedUsers.includes(ans.authorId)) return;
+                renderAnswerCard(ans, container, false); // 親
+
+                // 子を探す
+                const children = answers.filter(a => a.parentId === ans.id);
+                children.forEach(child => {
+                    if(blockedUsers.includes(child.authorId)) return;
+                    renderAnswerCard(child, container, true); // 子 (インデントあり)
+                });
+            });
+        });
+    }
+
+    function renderAnswerCard(ans, container, isNested) {
+        const isBest = (postData && postData.bestAnswerId === ans.id);
+        const div = document.createElement("div");
+        div.className = `answer-card ${isNested ? "nested-reply" : ""} ${isBest ? "best-answer-card" : ""}`;
+        
+        const bestBadge = isBest ? `<div class="best-answer-badge">👑 ベストアンサー</div>` : "";
+        const dateStr = ans.createdAt ? ans.createdAt.toDate().toLocaleString() : "たった今";
+        const icon = ans.authorIcon || "https://placehold.co/30";
+        const likes = ans.likes || [];
+        const likeCount = likes.length;
+        const isLiked = currentUser && likes.includes(currentUser.uid);
+        const heartColor = isLiked ? "#ff4757" : "#ccc";
+
+        // ベストアンサー選択ボタン (投稿者かつ未解決の場合)
+        let baButton = "";
+        if(postData && !postData.isSolved && currentUser && currentUser.uid === postData.authorId) {
+            baButton = `<button onclick="selectBestAnswer('${ans.id}')" style="font-size:0.8rem; background:#fbbf24; border:none; border-radius:12px; padding:4px 8px; cursor:pointer;">👑 ベストアンサーにする</button>`;
+        }
+
+        let ansActions = "";
+        if(currentUser && currentUser.uid !== ans.authorId) {
+            ansActions = `
+                <span class="action-link" onclick="reportUser('${ans.authorId}', 'answer', '${ans.id}')">通報</span>
+                <span class="action-link" onclick="blockUser('${ans.authorId}')">ブロック</span>
+            `;
+        }
+
+        const bodyId = `ansBody-${ans.id}`;
+
+        div.innerHTML = `
+            ${bestBadge}
+            <div class="answer-header">
+                <div class="answer-author">
+                    <img src="${icon}" class="author-icon">
+                    <span>${ans.authorName}</span>
+                </div>
+                <div class="answer-date">${dateStr}</div>
+            </div>
+            
+            <div id="${bodyId}" class="answer-body markdown-body"></div>
+            
+            <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button onclick="toggleLike('${ans.id}', ${isLiked})" style="background: transparent; border: 1px solid ${heartColor}; color: ${heartColor}; border-radius: 20px; padding: 4px 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; transition: 0.2s;">
+                    <span>♥</span> ${likeCount}
+                </button>
+                <button class="action-btn" onclick="setReplyTarget('${ans.id}', '${ans.authorName}')">↩ 返信</button>
+                ${baButton}
+                <div style="margin-left:auto; font-size:0.8rem;">${ansActions}</div>
+            </div>
+        `;
+        container.appendChild(div);
+        
+        // Markdown描画
+        renderContent(ans.content, bodyId);
+    }
+
+
+    // === グローバル関数 (windowに登録) ===
+    window.toggleLike = async (ansId, isLiked) => {
+        if (!currentUser) return alert("ログインが必要です。");
+        const ansRef = doc(db, "posts", postId, "answers", ansId);
+        if (isLiked) {
+            await updateDoc(ansRef, { likes: arrayRemove(currentUser.uid) });
+        } else {
+            await updateDoc(ansRef, { likes: arrayUnion(currentUser.uid) });
+        }
+    };
+
+    window.markAsSolved = async () => {
+        if(confirm("解決済みにしますか？")) {
+            await updateDoc(doc(db, "posts", postId), { isSolved: true });
+        }
+    };
+
+    window.selectBestAnswer = async (ansId) => {
+        if(confirm("この回答をベストアンサーに決定しますか？\n（解決済みになります）")) {
+            await updateDoc(doc(db, "posts", postId), { 
+                bestAnswerId: ansId,
+                isSolved: true 
+            });
+        }
+    };
+
+    window.quoteReply = (elementId) => {
+        const text = document.getElementById(elementId).innerText;
+        const input = document.getElementById("answerInput");
+        const lines = text.split("\n").map(l => `> ${l}`).join("\n");
+        input.value += `\n${lines}\n\n`;
+        input.focus();
+        document.getElementById("answerFormArea").scrollIntoView({behavior:"smooth"});
+    };
+
+    window.setReplyTarget = (pid, name) => {
+        replyParentId = pid;
+        document.getElementById("replyTargetDisplay").style.display = "inline-block";
+        document.getElementById("replyTargetName").textContent = name;
+        document.getElementById("answerFormArea").scrollIntoView({behavior:"smooth"});
+    };
+
+    window.cancelReply = () => {
+        replyParentId = null;
+        document.getElementById("replyTargetDisplay").style.display = "none";
+    };
+
+    window.deleteMyPost = async () => {
+        if (confirm("本当にこの投稿を削除しますか？")) {
+            await deleteDoc(doc(db, "posts", postId));
+            window.location.href = "archive.html";
+        }
+    };
+
+    window.blockUser = async (targetUid) => {
+        if(!confirm("このユーザーをブロックしますか？")) return;
+        try {
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                blocked: arrayUnion(targetUid)
+            });
+            alert("ブロックしました。");
+            window.location.reload();
+        } catch(e) { alert("エラー: " + e.message); }
+    };
+
+    window.reportUser = async (targetUid, type, contentId) => {
+        const reason = prompt("通報の理由を入力してください:");
+        if(!reason) return;
+        try {
+            await addDoc(collection(db, "reports"), {
+                reporterId: currentUser.uid,
+                targetUserId: targetUid,
+                contentType: type,
+                contentId: contentId,
+                reason: reason,
+                createdAt: serverTimestamp()
+            });
+            alert("通報を受け付けました。");
+        } catch(e) { alert("エラー: " + e.message); }
+    };
+
+
+    // ブックマーク処理
     document.getElementById("bookmarkBtn").addEventListener("click", async () => {
         if(!currentUser) return alert("ログインが必要です");
         const btn = document.getElementById("bookmarkBtn");
@@ -145,182 +546,59 @@
         }
     });
 
-    async function loadQuestion() {
-        const docRef = doc(db, "posts", postId);
-        onSnapshot(docRef, (docSnap) => {
-            if (!docSnap.exists()) return;
-            postData = docSnap.data();
-            
-            document.getElementById('qTitle').textContent = postData.title;
-            renderContent(postData.content, 'qBody');
-            
-            const badgeArea = document.getElementById("statusBadgeArea");
-            if(postData.isSolved) {
-                badgeArea.innerHTML = `<span class="status-badge status-solved">✓ 解決済み</span>`;
-            } else {
-                badgeArea.innerHTML = `<span class="status-badge status-open">回答募集中</span>`;
-            }
 
-            document.getElementById("viewCountArea").textContent = `👀 ${postData.viewCount || 0} views`;
-
-            const dateStr = postData.createdAt ? postData.createdAt.toDate().toLocaleDateString() : "-";
-            const updateStr = postData.lastUpdatedAt ? postData.lastUpdatedAt.toDate().toLocaleDateString() : dateStr;
-            const icon = postData.authorIcon || "https://placehold.co/30";
-            
-            document.getElementById('qMeta').innerHTML = `
-                <img src="${icon}" style="width:30px; height:30px; border-radius:50%; margin-right:10px;">
-                <span>${postData.authorName}</span> | 📅 ${dateStr} (🔄 ${updateStr})
-            `;
-            
-            if(postData.tags) {
-                document.getElementById('qTags').innerHTML = postData.tags.map(t => 
-                    `<span class="tag" style="background:#e0f2fe; padding:4px 8px; border-radius:12px;">#${t}</span>`
-                ).join("");
-            }
-
-            if(currentUser && currentUser.uid === postData.authorId) {
-                const actions = document.getElementById("ownerActions");
-                actions.style.display = "flex";
-                if(!postData.isSolved) {
-                    actions.innerHTML = `<button class="action-btn" onclick="markAsSolved()">✓ 解決済みにする</button>`;
-                } else {
-                    actions.innerHTML = "";
-                }
-            }
-        });
-    }
-
-    function loadAnswers() {
-        const answersRef = collection(db, "posts", postId, "answers");
-        const q = query(answersRef, orderBy("createdAt", "asc"));
-
-        onSnapshot(q, (snapshot) => {
-            const container = document.getElementById('answersList');
-            container.innerHTML = "";
-            
-            const answers = [];
-            snapshot.forEach(d => answers.push({id: d.id, ...d.data()}));
-
-            const rootAnswers = answers.filter(a => !a.parentId);
-            
-            rootAnswers.forEach(ans => {
-                renderAnswerCard(ans, container, false);
-                const children = answers.filter(a => a.parentId === ans.id);
-                children.forEach(child => {
-                    renderAnswerCard(child, container, true);
-                });
-            });
-        });
-    }
-
-    function renderAnswerCard(ans, container, isNested) {
-        const isBest = (postData && postData.bestAnswerId === ans.id);
-        const div = document.createElement("div");
-        div.className = `answer-card ${isNested ? "nested-reply" : ""} ${isBest ? "best-answer-card" : ""}`;
-        
-        const bestBadge = isBest ? `<div class="best-answer-badge">👑 ベストアンサー</div>` : "";
-        const icon = ans.authorIcon || "https://placehold.co/30";
-        const dateStr = ans.createdAt ? ans.createdAt.toDate().toLocaleString() : "";
-        
-        let baButton = "";
-        if(postData && !postData.isSolved && currentUser && currentUser.uid === postData.authorId) {
-            baButton = `<button onclick="selectBestAnswer('${ans.id}')" style="font-size:0.8rem; background:#fbbf24; border:none; border-radius:12px; padding:4px 8px; cursor:pointer;">👑 ベストアンサーにする</button>`;
-        }
-
-        const bodyId = `ansBody-${ans.id}`;
-
-        div.innerHTML = `
-            ${bestBadge}
-            <div class="answer-header">
-                <div class="answer-author">
-                    <img src="${icon}" class="author-icon"> <span>${ans.authorName}</span>
-                </div>
-                <div style="font-size:0.8rem; color:#999;">${dateStr}</div>
-            </div>
-            <div id="${bodyId}" class="answer-body markdown-body"></div>
-            
-            <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
-                 <button onclick="toggleLike('${ans.id}')" style="background:none; border:1px solid #ccc; border-radius:20px; padding:2px 10px; font-size:0.8rem; cursor:pointer;">
-                    ❤️ ありがとう ${(ans.likes||[]).length}
-                 </button>
-                 <button class="action-btn" onclick="setReplyTarget('${ans.id}', '${ans.authorName}')">↩ 返信</button>
-                 ${baButton}
-            </div>
-        `;
-        container.appendChild(div);
-        
-        renderContent(ans.content, bodyId);
-    }
-
-    window.markAsSolved = async () => {
-        if(confirm("解決済みにしますか？")) {
-            await updateDoc(doc(db, "posts", postId), { isSolved: true });
-        }
-    };
-    window.selectBestAnswer = async (ansId) => {
-        if(confirm("この回答をベストアンサーに決定しますか？\n（解決済みになります）")) {
-            await updateDoc(doc(db, "posts", postId), { 
-                bestAnswerId: ansId,
-                isSolved: true 
-            });
-        }
-    };
-    window.quoteReply = (elementId) => {
-        const text = document.getElementById(elementId).innerText;
-        const input = document.getElementById("answerInput");
-        const lines = text.split("\n").map(l => `> ${l}`).join("\n");
-        input.value += `\n${lines}\n\n`;
-        input.focus();
-        document.getElementById("answerFormArea").scrollIntoView({behavior:"smooth"});
-    };
-    window.setReplyTarget = (pid, name) => {
-        replyParentId = pid;
-        document.getElementById("replyTargetDisplay").style.display = "inline-block";
-        document.getElementById("replyTargetName").textContent = name;
-        document.getElementById("answerFormArea").scrollIntoView({behavior:"smooth"});
-    };
-    window.cancelReply = () => {
-        replyParentId = null;
-        document.getElementById("replyTargetDisplay").style.display = "none";
-    };
-
-    window.toggleLike = async (ansId) => {
-        if (!currentUser) return alert("ログインが必要です。");
-        const ansRef = doc(db, "posts", postId, "answers", ansId);
-        // ここでは簡易的に「押すたびに自分のUIDを追加/削除」するトグルを想定
-        const docSnap = await getDoc(ansRef);
-        if(!docSnap.exists()) return;
-        const likes = docSnap.data().likes || [];
-        if(likes.includes(currentUser.uid)) {
-            await updateDoc(ansRef, { likes: arrayRemove(currentUser.uid) });
-        } else {
-            await updateDoc(ansRef, { likes: arrayUnion(currentUser.uid) });
-        }
-    };
-
+    // 3. 回答送信
     document.getElementById('answerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (!currentUser) return alert("ログインが必要です");
+        const user = auth.currentUser;
+        if (!user) { alert("回答するにはログインが必要です。"); return; }
         const content = document.getElementById('answerInput').value;
         const isAnon = document.getElementById('anonCheck').checked;
+        if (!content.trim()) return;
 
         try {
+            let userIcon = user.photoURL;
+            let userName = user.displayName;
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if(userDoc.exists()) {
+                    const ud = userDoc.data();
+                    userIcon = ud.iconUrl || userIcon;
+                    userName = ud.nickname || userName;
+                }
+            } catch(e){}
+
             await addDoc(collection(db, "posts", postId, "answers"), {
                 content: content,
-                authorId: currentUser.uid,
-                authorName: isAnon ? "匿名希望" : (currentUser.displayName || "名無し"),
-                authorIcon: isAnon ? "https://placehold.co/30" : (currentUser.photoURL || null),
+                authorId: user.uid,
+                authorName: isAnon ? "匿名希望" : (userName || "名無し"),
+                authorIcon: isAnon ? "https://placehold.co/30" : (userIcon || "https://placehold.co/30"),
                 createdAt: serverTimestamp(),
                 likes: [],
-                parentId: replyParentId
+                parentId: replyParentId // スレッドID
             });
+
             await updateDoc(doc(db, "posts", postId), { 
                 replies: increment(1),
-                lastUpdatedAt: serverTimestamp()
+                lastUpdatedAt: serverTimestamp() // 更新順用
             });
-            document.getElementById('answerInput').value = "";
+
+            // 通知処理
+            if (postData.authorId && postData.authorId !== user.uid) {
+                await addDoc(collection(db, "users", postData.authorId, "notifications"), {
+                    type: "reply",
+                    postId: postId,
+                    postTitle: postData.title,
+                    fromName: isAnon ? "匿名" : (userName || "誰か"),
+                    fromIcon: isAnon ? null : userIcon,
+                    isRead: false,
+                    createdAt: serverTimestamp()
+                });
+            }
+            
+            document.getElementById('answerInput').value = ""; 
             cancelReply();
-        } catch(e) { alert("エラー: " + e.message); }
+        } catch (error) { console.error("Error:", error); alert("送信失敗: " + error.message); }
     });
 
     loadAnswers();
