@@ -5,92 +5,28 @@
   <title>相談詳細 | SenpaiNet</title>
   <link rel="stylesheet" href="archive.css">
   <style>
-    /* 詳細ページ専用の上書きスタイル */
-    .detail-container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-    
-    /* 質問部分 */
-    .question-section {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-      margin-bottom: 40px;
-      border: 1px solid #f1f5f9;
-    }
+    .detail-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .question-section { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 40px; border: 1px solid #f1f5f9; }
     .question-title { font-size: 1.8rem; margin-bottom: 15px; color: #1e3a8a; font-weight: 800; }
-    .question-meta {
-      display: flex; align-items: center; gap: 15px; color: #64748b; font-size: 0.9rem; margin-bottom: 25px;
-      padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;
-    }
+    .question-meta { display: flex; align-items: center; gap: 15px; color: #64748b; font-size: 0.9rem; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0; }
     .question-body { font-size: 1.1rem; line-height: 1.8; color: #334155; white-space: pre-wrap; }
-
-    /* 回答エリア */
-    .answers-section h3 {
-      font-size: 1.4rem; color: #1e293b; margin-bottom: 20px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .answers-section h3::before {
-      content: ''; display: block; width: 6px; height: 24px;
-      background: #4da6ff; border-radius: 10px;
-    }
-    
-    .answer-card {
-      background: white;
-      border: 1px solid #e2e8f0;
-      padding: 25px;
-      border-radius: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-    }
-    .answer-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 15px;
-    }
+    .answer-card { background: white; border: 1px solid #e2e8f0; padding: 25px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+    .answer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
     .answer-author { display: flex; align-items: center; gap: 10px; font-weight: 700; color: #334155; }
     .author-icon { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #eee; }
-    
-    .answer-date { font-size: 0.85rem; color: #94a3b8; }
     .answer-body { color: #475569; line-height: 1.6; font-size: 1rem; }
-
-    /* フォームエリア */
-    .answer-form-area {
-      background: white; padding: 30px; border-radius: 20px;
-      border: 2px solid #e2e8f0; margin-top: 50px;
-    }
-    textarea {
-      width: 100%; height: 140px; padding: 15px;
-      border: 2px solid #e2e8f0; border-radius: 12px;
-      margin-bottom: 20px; font-size: 1rem; box-sizing: border-box;
-      transition: border-color 0.2s;
-    }
-    textarea:focus { border-color: #3b82f6; outline: none; }
+    .submit-btn { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    textarea { width: 100%; height: 140px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px; font-size: 1rem; box-sizing: border-box; }
     
-    .form-controls {
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .anon-check { display: flex; align-items: center; cursor: pointer; color: #64748b; font-weight: 600; }
-    
-    .submit-btn {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      color: white; border: none; padding: 12px 30px;
-      border-radius: 50px; font-weight: 700; cursor: pointer;
-      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-      transition: transform 0.2s;
-    }
-    .submit-btn:hover { transform: translateY(-2px); }
+    /* アクションメニューのスタイル */
+    .action-link { font-size: 0.8rem; color: #94a3b8; cursor: pointer; margin-left: 10px; text-decoration: none; }
+    .action-link:hover { color: #ef4444; }
   </style>
 </head>
 <body class="list-page">
-
   <header class="navbar">
     <div class="navbar-container">
-      <div class="navbar-logo">
-        <a href="index.html">SenpaiNet</a>
-      </div>
+      <div class="navbar-logo"><a href="index.html">SenpaiNet</a></div>
       <nav class="navbar-menu">
         <a href="post.html">相談する</a>
         <a href="archive.html" class="active">相談を見る</a>
@@ -116,14 +52,10 @@
         </section>
 
         <section class="answer-form-area">
-            <h3 style="margin-top:0;">回答する</h3>
             <form id="answerForm">
                 <textarea id="answerInput" placeholder="先輩としてアドバイスを送ろう..." required></textarea>
-                <div class="form-controls">
-                    <label class="anon-check">
-                        <input type="checkbox" id="anonCheck">
-                        <span style="margin-left: 8px;">匿名で投稿</span>
-                    </label>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="cursor:pointer; color:#64748b;"><input type="checkbox" id="anonCheck"> 匿名で投稿</label>
                     <button type="submit" class="submit-btn">回答を送信</button>
                 </div>
             </form>
@@ -131,215 +63,89 @@
     </div>
   </main>
 
-  <script type="module" src="firebase.js"></script>
-  <script type="module" src="auth_header.js"></script> 
   <script type="module">
     import { db, auth } from "./firebase.js"; 
-    import { doc, getDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, updateDoc, increment, deleteDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { doc, getDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, updateDoc, increment, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const postId = urlParams.get('id');
-    let postAuthorId = null;
-    let postTitle = "";
-
-    if (!postId) {
-        window.location.href = "archive.html";
-    }
-
+    const postId = new URLSearchParams(window.location.search).get('id');
     let currentUser = null;
-    onAuthStateChanged(auth, (user) => {
+    let blockedUsers = [];
+
+    onAuthStateChanged(auth, async (user) => {
         currentUser = user;
-        loadQuestion(); // ユーザー確定後に質問を再描画（削除ボタン判定用）
+        if(user) {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            blockedUsers = userDoc.data()?.blockedUsers || [];
+        }
+        loadQuestion();
+        loadAnswers();
     });
 
-    // 1. 質問表示 ＆ 削除機能
     async function loadQuestion() {
-        const docRef = doc(db, "posts", postId);
-        const docSnap = await getDoc(docRef);
-
+        const docSnap = await getDoc(doc(db, "posts", postId));
         if (docSnap.exists()) {
             const data = docSnap.data();
-            postAuthorId = data.authorId;
-            postTitle = data.title;
-
             document.getElementById('qTitle').textContent = data.title;
             document.getElementById('qBody').textContent = data.content;
-            
-            const dateStr = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : "日付不明";
-            const icon = data.authorIcon || "https://placehold.co/30";
-            
-            const metaContainer = document.getElementById('qMeta');
-            metaContainer.innerHTML = `
-                <img src="${icon}" style="width:30px; height:30px; border-radius:50%; margin-right:10px; object-fit:cover;">
-                <span>${data.authorName || '匿名'}</span>
-                <span style="margin: 0 10px;">|</span>
-                <span>📅 ${dateStr}</span>
-            `;
-
-            // 投稿者本人なら削除ボタンを表示
-            if (currentUser && currentUser.uid === postAuthorId) {
-                const deleteBtn = document.createElement("button");
-                deleteBtn.textContent = "削除";
-                deleteBtn.style.cssText = "margin-left: auto; background: #ef4444; color: white; border: none; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; font-weight: bold;";
-                deleteBtn.onclick = async () => {
-                    if (confirm("本当にこの投稿を削除しますか？")) {
-                        await deleteDoc(docRef);
-                        window.location.href = "archive.html";
-                    }
-                };
-                metaContainer.appendChild(deleteBtn);
+            document.getElementById('qMeta').innerHTML = `<span>👤 ${data.authorName}</span> | <span>📅 ${data.createdAt?.toDate().toLocaleDateString()}</span>`;
+            if (currentUser?.uid === data.authorId) {
+                const del = document.createElement("button");
+                del.textContent = "削除"; del.style.cssText = "margin-left:auto; background:#ef4444; color:white; border:none; padding:5px 15px; border-radius:20px; cursor:pointer;";
+                del.onclick = async () => { if(confirm("削除しますか？")) { await deleteDoc(doc(db, "posts", postId)); window.location.href="archive.html"; }};
+                document.getElementById('qMeta').appendChild(del);
             }
-
-            if(data.tags && data.tags.length > 0) {
-                document.getElementById('qTags').innerHTML = data.tags.map(t => 
-                    `<span style="background:#e0f2fe; color:#0284c7; padding:4px 10px; border-radius:20px; font-size:0.85rem; font-weight:600;">#${t}</span>`
-                ).join("");
-            }
-        } else {
-            document.querySelector('.detail-container').innerHTML = "<p>投稿が見つかりません。</p>";
         }
     }
 
-    // 2. 回答一覧 ＆ リアクション機能
     function loadAnswers() {
-        const answersRef = collection(db, "posts", postId, "answers");
-        const q = query(answersRef, orderBy("createdAt", "asc"));
-
-        onSnapshot(q, (snapshot) => {
-            const container = document.getElementById('answersList');
-            container.innerHTML = "";
-
-            if(snapshot.empty) {
-                container.innerHTML = "<p style='color:#888; padding:20px; text-align:center;'>まだ回答はありません。最初の回答者になりましょう！</p>";
-                return;
-            }
-
-            snapshot.forEach((docSnapshot) => {
-                const ans = docSnapshot.data();
-                const ansId = docSnapshot.id;
-                const dateStr = ans.createdAt ? ans.createdAt.toDate().toLocaleString() : "たった今";
-                const icon = ans.authorIcon || "https://placehold.co/30";
-
-                // いいね機能
-                const likes = ans.likes || [];
-                const likeCount = likes.length;
-                const isLiked = currentUser && likes.includes(currentUser.uid);
-                const heartColor = isLiked ? "#ff4757" : "#ccc"; // いいね済みなら赤
-
+        onSnapshot(query(collection(db, "posts", postId, "answers"), orderBy("createdAt", "asc")), (snap) => {
+            const list = document.getElementById('answersList');
+            list.innerHTML = "";
+            snap.forEach((d) => {
+                const ans = d.data();
+                if (blockedUsers.includes(ans.authorId)) return; // ブロック済みユーザーを非表示
                 const html = `
                     <div class="answer-card">
                         <div class="answer-header">
-                            <div class="answer-author">
-                                <img src="${icon}" class="author-icon">
-                                <span>${ans.authorName}</span>
+                            <div class="answer-author"><img src="${ans.authorIcon || 'https://placehold.co/30'}" class="author-icon"><span>${ans.authorName}</span></div>
+                            <div>
+                                <span style="font-size:0.8rem; color:#94a3b8;">${ans.createdAt?.toDate().toLocaleString()}</span>
+                                <a href="javascript:void(0)" onclick="reportContent('${d.id}', '${ans.authorId}')" class="action-link">🚩通報</a>
+                                <a href="javascript:void(0)" onclick="blockUser('${ans.authorId}')" class="action-link">🚫ブロック</a>
                             </div>
-                            <div class="answer-date">${dateStr}</div>
                         </div>
                         <div class="answer-body">${ans.content}</div>
-                        
-                        <div style="margin-top: 15px; display: flex; align-items: center;">
-                            <button onclick="toggleLike('${ansId}', ${isLiked})" style="background: transparent; border: 1px solid ${heartColor}; color: ${heartColor}; border-radius: 20px; padding: 4px 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; transition: 0.2s;">
-                                <span>♥</span> ${likeCount}
-                            </button>
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', html);
+                    </div>`;
+                list.insertAdjacentHTML('beforeend', html);
             });
         });
     }
 
-    // いいね切り替え処理をグローバル関数として登録
-    window.toggleLike = async (ansId, isLiked) => {
-        if (!currentUser) return alert("ログインが必要です。");
-        const ansRef = doc(db, "posts", postId, "answers", ansId);
-        
-        if (isLiked) {
-            await updateDoc(ansRef, { likes: arrayRemove(currentUser.uid) });
-        } else {
-            await updateDoc(ansRef, { likes: arrayUnion(currentUser.uid) });
+    window.reportContent = async (ansId, targetUid) => {
+        if(!currentUser) return alert("ログインしてください");
+        if(confirm("通報しますか？")) {
+            await addDoc(collection(db, "reports"), { reporter: currentUser.uid, target: targetUid, answerId: ansId, createdAt: serverTimestamp() });
+            alert("通報しました");
         }
     };
 
-    // 3. 回答送信
-    document.getElementById('answerForm').addEventListener('submit', async (e) => {
+    window.blockUser = async (targetUid) => {
+        if(!currentUser) return alert("ログインしてください");
+        if(confirm("このユーザーをブロックしますか？")) {
+            await updateDoc(doc(db, "users", currentUser.uid), { blockedUsers: arrayUnion(targetUid) });
+            location.reload();
+        }
+    };
+
+    document.getElementById('answerForm').onsubmit = async (e) => {
         e.preventDefault();
-        
-        const user = auth.currentUser;
-        if (!user) {
-            alert("回答するにはログインが必要です。");
-            return;
-        }
-
         const content = document.getElementById('answerInput').value;
-        const isAnon = document.getElementById('anonCheck').checked;
-
-        if (!content.trim()) return;
-
-        try {
-            // ユーザー情報をFirestoreから取得（最新のアイコンなど）
-            let userIcon = user.photoURL;
-            let userName = user.displayName;
-            try {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if(userDoc.exists()) {
-                    const ud = userDoc.data();
-                    userIcon = ud.iconUrl || userIcon;
-                    userName = ud.nickname || userName;
-                }
-            } catch(e){}
-
-            await addDoc(collection(db, "posts", postId, "answers"), {
-                content: content,
-                authorId: user.uid,
-                authorName: isAnon ? "匿名希望" : (userName || "名無し"),
-                authorIcon: isAnon ? "https://placehold.co/30" : (userIcon || "https://placehold.co/30"),
-                createdAt: serverTimestamp(),
-                likes: [] // 初期値
-            });
-
-            await updateDoc(doc(db, "posts", postId), { replies: increment(1) });
-
-            // 1. サイト内通知
-            if (postAuthorId && postAuthorId !== user.uid) {
-                await addDoc(collection(db, "users", postAuthorId, "notifications"), {
-                    type: "reply",
-                    postId: postId,
-                    postTitle: postTitle,
-                    fromName: isAnon ? "匿名" : (userName || "誰か"),
-                    fromIcon: isAnon ? null : userIcon,
-                    isRead: false,
-                    createdAt: serverTimestamp()
-                });
-
-                // ▼▼▼ 2. メール通知 (GAS呼び出し) ▼▼▼
-                const GAS_URL = "https://script.google.com/macros/s/AKfycby_E9sdKqXmZFU7NyV2y8Gb7gN97SETeVl7cWLwt9JqcmBkTDv4qOHDeOaSoeBA44U8/exec";
-
-                // GASに通知リクエストを送信 (no-corsモード)
-                fetch(GAS_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        targetUserId: postAuthorId,
-                        postTitle: postTitle,
-                        postId: postId
-                    })
-                }).catch(err => console.log("Mail trigger sent (ignore error for no-cors)"));
-                // ▲▲▲ 追加ここまで ▲▲▲
-            }
-
-            document.getElementById('answerInput').value = ""; 
-            
-        } catch (error) {
-            console.error("Error:", error);
-            alert("送信失敗: " + error.message);
-        }
-    });
-
-    loadQuestion();
-    loadAnswers();
+        if(!currentUser || !content.trim()) return;
+        await addDoc(collection(db, "posts", postId, "answers"), { content, authorId: currentUser.uid, authorName: document.getElementById('anonCheck').checked ? "匿名" : currentUser.displayName, authorIcon: currentUser.photoURL, createdAt: serverTimestamp() });
+        await updateDoc(doc(db, "posts", postId), { replies: increment(1) });
+        document.getElementById('answerInput').value = "";
+    };
   </script>
 </body>
 </html>
