@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ページが見つかりません | SenpaiNet</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .error-container {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 80vh; text-align: center; padding: 20px;
+    }
+    .error-code {
+      font-size: 8rem; font-weight: 900; color: #e2e8f0; line-height: 1;
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .error-title {
+      font-size: 2rem; color: var(--text-accent); margin-bottom: 20px; font-weight: bold;
+    }
+    .error-text {
+      color: var(--text-sub); margin-bottom: 40px; font-size: 1.1rem;
+    }
+    .home-btn {
+      padding: 15px 40px; font-size: 1.1rem;
+      background: var(--primary-gradient); color: white; border-radius: 50px;
+      text-decoration: none; font-weight: bold; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+      transition: transform 0.2s;
+    }
+    .home-btn:hover { transform: translateY(-3px); }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-logo"><a href="index.html">SenpaiNet</a></div>
+    </div>
+  </header>
+
+  <main class="error-container">
+    <div class="error-code">404</div>
+    <div class="error-title">ページが見つかりません</div>
+    <p class="error-text">
+      お探しのページは削除されたか、URLが間違っている可能性があります。<br>
+      トップページへ戻って、もう一度探してみてください。
+    </p>
+    <a href="index.html" class="home-btn">トップページに戻る</a>
+  </main>
+  
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="auth_header.js"></script>
+</body>
+</html>
