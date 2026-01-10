@@ -67,15 +67,9 @@
 
     .current-tags { display: flex; flex-wrap: wrap; gap: 10px; }
     
-    /* ▼ デザイン修正箇所：表示用タグ ▼ */
     .tag-badge {
-      background-color: #e6f0ff; /* 薄い水色 */
-      color: #5a8dee;            /* 青文字 */
-      padding: 8px 16px;
-      border-radius: 24px;
-      font-size: 1rem;
-      font-weight: bold;
-      border: none;              /* 枠線を削除 */
+      background-color: #e6f0ff; color: #5a8dee; padding: 8px 16px;
+      border-radius: 24px; font-size: 1rem; font-weight: bold; border: none;
     }
 
     /* 編集エリア */
@@ -112,29 +106,13 @@
     .selection-option.selected { border-color: #4da6ff; box-shadow: 0 0 0 4px rgba(77, 166, 255, 0.3); }
     .icon-option { width: 60px; height: 60px; border-radius: 50%; padding: 4px; background: white; border: 2px solid #eee; }
     
-    /* ▼ デザイン修正箇所：編集モードのタグ選択ボタン ▼ */
     .tag-option-btn {
-      background-color: #e6f0ff; /* 未選択時は他のタグと同じ見た目 */
-      color: #5a8dee;
-      border: none;
-      padding: 8px 16px; 
-      border-radius: 24px; 
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
+      background-color: #e6f0ff; color: #5a8dee; border: none; padding: 8px 16px; 
+      border-radius: 24px; font-weight: bold; cursor: pointer; transition: background 0.2s, transform 0.1s;
     }
-    .tag-option-btn:hover {
-        background-color: #d0e1ff;
-        transform: translateY(-1px);
-    }
-    /* 選択された時は濃い青にして反転させる */
-    .tag-option-btn.selected { 
-        background: #5a8dee; 
-        color: white; 
-        box-shadow: 0 4px 10px rgba(90, 141, 238, 0.3);
-    }
+    .tag-option-btn:hover { background-color: #d0e1ff; transform: translateY(-1px); }
+    .tag-option-btn.selected { background: #5a8dee; color: white; box-shadow: 0 4px 10px rgba(90, 141, 238, 0.3); }
 
-    /* ファイルアップロードボタン */
     .file-upload-btn {
       display: inline-block; padding: 10px 20px; background: #fff; color: #333;
       border: 2px solid #ddd; border-radius: 8px; cursor: pointer; font-weight: bold;
@@ -158,10 +136,18 @@
     }
     .cropper-image-wrapper img { max-width: 100%; display: block; }
 
-    .cropper-view-box,
-    .cropper-face {
-      border-radius: 50%;
+    .cropper-view-box, .cropper-face { border-radius: 50%; }
+    
+    /* ▼▼▼ 危険エリア（アカウント削除） ▼▼▼ */
+    .danger-zone {
+      border: 2px solid #fee2e2; background: #fef2f2;
     }
+    .danger-zone .card-title { color: #ef4444; }
+    .delete-account-btn {
+      background: #ef4444; color: white; border: none; padding: 10px 24px; border-radius: 8px;
+      font-weight: bold; cursor: pointer; transition: background 0.3s; margin-top: 10px;
+    }
+    .delete-account-btn:hover { background: #dc2626; }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
@@ -320,16 +306,20 @@
             <input type="checkbox" id="emailNotifToggle" style="width: 20px; height: 20px; cursor: pointer;">
             <span>自分の投稿に回答がついたらメールで通知する</span>
         </label>
-        <p style="font-size: 0.85rem; color: #64748b; margin-left: 32px; margin-top: 5px;">
-            ※オフにすると、サイト上の通知（ベルマーク）のみになります。
-        </p>
       </div>
     </section>
-    <section class="content-card" style="border:1px solid #fee2e2; background:#fffafb; margin-top:50px;">
-      <div class="card-header"><div class="card-title" style="color:#ef4444;"><span>⚠️</span>アカウントの削除</div></div>
-      <p style="font-size:0.85rem; color:#64748b; margin:15px 0;">退会するとデータは完全に削除され、復元できません。</p>
-      <button id="deleteAccountBtn" style="background:#ef4444; color:white; border:none; padding:12px 24px; border-radius:8px; font-weight:bold; cursor:pointer;">アカウントを完全に削除する</button>
+    
+    <section class="content-card danger-zone">
+      <div class="card-header" style="border-color: #fecaca;">
+        <div class="card-title"><span>⚠️</span>アカウント削除</div>
+      </div>
+      <p style="color:#7f1d1d; font-size:0.9rem; margin:10px 0;">
+        アカウントを削除すると、プロフィール情報や設定はすべて失われます。<br>
+        この操作は取り消せません。
+      </p>
+      <button id="deleteAccountBtn" class="delete-account-btn">アカウントを完全に削除する</button>
     </section>
+
   </main>
 
   <div class="cropper-modal-overlay" id="cropperModal">
@@ -348,6 +338,3 @@
   <script type="module" src="profile.js"></script>
 </body>
 </html>
-
-
-
