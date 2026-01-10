@@ -1,5 +1,6 @@
-import { db } from "./firebase.js";
-import { collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { db, auth } from "./firebase.js"; // authを追加
+import { collection, query, orderBy, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 const postList = document.getElementById("postList");
 const keywordInput = document.getElementById("keywordInput");
@@ -8,14 +9,31 @@ const searchTagArea = document.getElementById("searchTagArea");
 const tagFilterContainer = document.getElementById("tagFilter");
 
 let allPostsData = [];
+let blockedUsers = []; // ブロックリスト
 
-// ▼ 修正箇所: 統一タグリスト
+// 統一タグリスト
 const searchTags = [
   "一般入試", "AO入試", "DP", "課外活動", "履修", "海外大学", 
   "部活", "英検", "IELTS", "TOEFL", "模試", 
   "教育", "キャリア", "AI", "海外", "テクノロジー",
   "理系", "文系", "ボランティア"
 ];
+
+// === 0. ブロックリスト取得と初期化 ===
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        try {
+            const uDoc = await getDoc(doc(db, "users", user.uid));
+            if(uDoc.exists()) {
+                blockedUsers = uDoc.data().blocked || [];
+            }
+        } catch(e) { console.error(e); }
+    } else {
+        blockedUsers = [];
+    }
+    // ブロックリスト取得後にデータを読み込む（または再表示）
+    performSearch(keywordInput ? keywordInput.value : "");
+});
 
 // === 1. データ読み込み ===
 const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
@@ -32,14 +50,18 @@ onSnapshot(q, (snapshot) => {
 
 // === 2. 検索実行ロジック ===
 function performSearch(keyword) {
+  // ▼▼▼ ブロックフィルタリング ▼▼▼
+  let activePosts = allPostsData.filter(p => !blockedUsers.includes(p.authorId));
+  // ▲▲▲ ここまで ▲▲▲
+
   if (!keyword || keyword.trim() === "") {
-    renderPosts(allPostsData);
+    renderPosts(activePosts);
     return;
   }
 
   const lowerKey = keyword.toLowerCase().trim();
   
-  const filtered = allPostsData.filter(post => {
+  const filtered = activePosts.filter(post => {
     const inTitle = post.title && post.title.toLowerCase().includes(lowerKey);
     const inContent = post.content && post.content.toLowerCase().includes(lowerKey);
     
@@ -105,17 +127,14 @@ function renderPosts(posts) {
 }
 
 // === 4. タグ検索UIの制御 ===
-
 // (A) 検索バー直下のタグフィルター（ボタン）クリック時
 if (tagFilterContainer) {
     tagFilterContainer.addEventListener("click", (e) => {
         if (e.target.classList.contains("filter-tag")) {
             const tag = e.target.dataset.tag;
-            // 既存のactiveクラスを削除して、クリックされたものに追加
             document.querySelectorAll(".filter-tag").forEach(el => el.classList.remove("active"));
             e.target.classList.add("active");
             
-            // 検索実行
             keywordInput.value = tag;
             performSearch(tag);
         }
@@ -125,40 +144,32 @@ if (tagFilterContainer) {
 // (B) 検索バー入力時のポップアップタグ制御
 function renderSearchTags() {
   if (!searchTagArea) return;
-  
   searchTagArea.innerHTML = "";
   searchTags.forEach(tag => {
     const chip = document.createElement("div");
     chip.className = "search-tag-chip";
     chip.textContent = "#" + tag;
-    
-    // タグクリック時
     chip.addEventListener("click", (e) => {
       e.stopPropagation();
       keywordInput.value = tag; 
       performSearch(tag);       
       searchTagArea.classList.remove("active");
     });
-    
     searchTagArea.appendChild(chip);
   });
 }
 
-// 検索バーをクリックしたらタグを表示
 if (keywordInput) {
     keywordInput.addEventListener("click", (e) => {
         e.stopPropagation();
         renderSearchTags();
         if(searchTagArea) searchTagArea.classList.add("active");
     });
-
-    // リアルタイム検索
     keywordInput.addEventListener("input", () => {
         performSearch(keywordInput.value);
     });
 }
 
-// 検索ボタンクリック
 if (searchBtn) {
     searchBtn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -171,7 +182,6 @@ if (searchBtn) {
     });
 }
 
-// 画面外クリックでタグを閉じる
 document.addEventListener("click", (e) => {
     if (searchTagArea && !searchTagArea.contains(e.target) && e.target !== keywordInput && e.target !== searchBtn) {
         searchTagArea.classList.remove("active");
