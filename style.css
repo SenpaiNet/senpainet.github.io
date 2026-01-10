@@ -1,86 +1,19 @@
-/* =========================================
-   1. テーマ変数定義 (Dark Mode / Font Size)
-   ========================================= */
-:root {
-  /* --- ライトモード (ご提示のデザインをベースに定義) --- */
-  --bg-body: linear-gradient(135deg, #e1f3ff, #f6fbff);
-  --bg-navbar: rgba(255, 255, 255, 0.95);
-  --bg-card: #ffffff;
-  --bg-section-light: #f7fafc;
-  
-  --text-main: #1e293b; /* 見出しなど */
-  --text-body: #334155; /* 本文 */
-  --text-sub: #64748b;  /* 補足・薄い文字 */
-  --text-accent: #1e3a8a; /* 強調 */
-  
-  --primary-color: #2563eb;
-  --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  --secondary-gradient: linear-gradient(135deg, #38bdf8, #0ea5e9);
-  
-  --border-color: #e2e8f0;
-  --border-input: rgba(0,0,0,0.15);
-  
-  /* シャドウ系 */
-  --shadow-nav: 0 4px 20px rgba(0,0,0,0.03);
-  --shadow-btn-main: 0 4px 15px rgba(37, 99, 235, 0.3);
-  --shadow-card: 0 6px 16px rgba(0,0,0,0.08);
-  
-  /* フォントサイズ基準 */
-  --base-size: 16px;
-}
-
-/* --- ダークモード定義 --- */
-[data-theme="dark"] {
-  --bg-body: linear-gradient(135deg, #0f172a, #1e293b);
-  --bg-navbar: rgba(15, 23, 42, 0.95);
-  --bg-card: #1e293b;
-  --bg-section-light: #111827;
-  
-  --text-main: #f8fafc;
-  --text-body: #cbd5e1;
-  --text-sub: #94a3b8;
-  --text-accent: #60a5fa;
-  
-  --primary-color: #60a5fa;
-  --border-color: #334155;
-  --border-input: #334155;
-  
-  /* ダークモード時のシャドウは控えめ、または背景同化を防ぐ */
-  --shadow-nav: 0 4px 20px rgba(0,0,0,0.3);
-  --shadow-btn-main: 0 4px 15px rgba(37, 99, 235, 0.5);
-  --shadow-card: 0 6px 16px rgba(0,0,0,0.3);
-}
-
-/* --- フォントサイズ変更 --- */
-[data-font-size="large"] { --base-size: 18px; }
-[data-font-size="small"] { --base-size: 14px; }
-
-html { font-size: var(--base-size); }
-
-/* =========================================
-   2. ベーススタイル
-   ========================================= */
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: var(--bg-body);
-  color: var(--text-body);
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #e1f3ff, #f6fbff);
   padding-top: 70px; /* ヘッダー固定分の余白 */
-  transition: background 0.3s, color 0.3s;
 }
 
-/* =========================================
-   3. ナビゲーションバー
-   ========================================= */
+/* === ナビゲーションバー === */
 .navbar {
   width: 100%; height: 70px;
-  background: var(--bg-navbar); backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
   position: fixed; top: 0; left: 0;
-  box-shadow: var(--shadow-nav);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
   z-index: 1000; box-sizing: border-box;
   display: flex; align-items: center; padding: 0 40px;
-  border-bottom: 1px solid var(--border-color); /* 追加: ダークモード時の境界線用 */
 }
 .navbar-container {
   width: 100%; max-width: 1200px; margin: 0 auto;
@@ -95,14 +28,14 @@ body {
 .navbar-logo a { text-decoration: none; }
 .navbar-menu { display: flex; align-items: center; gap: 30px; }
 .navbar-menu a {
-  text-decoration: none; color: var(--text-sub); font-weight: 600;
+  text-decoration: none; color: #475569; font-weight: 600;
   transition: 0.2s; font-size: 0.95rem;
 }
 .navbar-menu a:hover { color: #2563eb; }
 
 /* ★★★ かっこいいアカウントボタン ★★★ */
 .account-btn {
-  background: var(--primary-gradient); /* 深みのある青グラデーション */
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); /* 深みのある青グラデーション */
   color: white !important;
   padding: 10px 24px !important; /* 横長にしてスタイリッシュに */
   border-radius: 50px !important; /* 完全な丸み（ピル型） */
@@ -113,10 +46,9 @@ body {
   box-sizing: border-box;
   font-weight: 700 !important;
   letter-spacing: 0.03em;
-  box-shadow: var(--shadow-btn-main); /* 青い発光のような影 */
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); /* 青い発光のような影 */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   border: 1px solid rgba(255,255,255,0.2);
-  -webkit-text-fill-color: initial; /* ロゴの継承を打ち消し */
 }
 
 .account-btn:hover {
@@ -125,9 +57,7 @@ body {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
 
-/* =========================================
-   4. HEROセクション & LP要素
-   ========================================= */
+/* === HEROセクション === */
 .hero {
   display: flex;
   justify-content: space-between;
@@ -141,7 +71,7 @@ body {
   flex: 1; margin-left: 60px;
 }
 .hero-left { max-width: 45%; }
-.hero-left h1 { font-size: 48px; margin-bottom: 24px; line-height: 1.3; color: var(--text-main); }
+.hero-left h1 { font-size: 48px; margin-bottom: 24px; line-height: 1.3; color: #1e293b; }
 
 .accent {
   color: #2563eb;
@@ -154,7 +84,7 @@ body {
   background: rgba(77, 166, 255, 0.2); z-index: -1; border-radius: 4px;
 }
 
-.subtxt { font-size: 18px; margin-bottom: 40px; color: var(--text-sub); line-height: 1.6; }
+.subtxt { font-size: 18px; margin-bottom: 40px; color: #64748b; line-height: 1.6; }
 .btn-group { margin-bottom: 28px; display: flex; gap: 15px; }
 
 /* ヒーローエリアのボタン */
@@ -165,26 +95,39 @@ body {
 }
 .main {
   background: #2563eb; color: white;
-  box-shadow: var(--shadow-btn-main);
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 .main:hover {
   background: #1d4ed8; transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
 }
 .sub {
-  background: var(--bg-card); color: var(--text-body); border: 2px solid var(--border-color);
+  background: white; color: #334155; border: 2px solid #e2e8f0;
 }
 .sub:hover {
-  border-color: #cbd5e1; background: var(--bg-section-light); transform: translateY(-3px);
+  border-color: #cbd5e1; background: #f8fafc; transform: translateY(-3px);
 }
-.email { color: var(--text-sub); font-size: 0.9rem;}
+.email { color: #94a3b8; font-size: 0.9rem;}
 
-.section { padding: 70px 0; }
-.section-light { background: var(--bg-section-light); }
-.section-lead { color: var(--text-sub); max-width: 650px; }
-.container { width: min(1100px, 100% - 32px); margin: 0 auto; }
+.section {
+  padding: 70px 0;
+}
 
-/* アニメーション */
+.section-light {
+  background: #f7fafc;
+}
+
+.section-lead {
+  color: #4b5563;
+  max-width: 650px;
+}
+
+.container {
+  width: min(1100px, 100% - 32px);
+  margin: 0 auto;
+}
+
+/* その他 */
 .hero-right img { width: 350px; animation: float 4s ease-in-out infinite; }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 .slide-left { opacity: 0; animation: slideLeft .9s ease forwards; }
@@ -193,29 +136,39 @@ body {
 @keyframes slideLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes slideRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-
-footer { text-align: center; margin: 80px 0 40px; color: var(--text-sub); }
-
+footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
 .about { padding: 100px 80px; text-align: center; }
-.about h2 { font-size: 32px; margin-bottom: 20px; color: var(--text-main); }
-.about-text { max-width: 760px; margin: 0 auto; font-size: 18px; line-height: 1.8; color: var(--text-sub); }
+.about h2 { font-size: 32px; margin-bottom: 20px; color: #1e293b; }
+.about-text { max-width: 760px; margin: 0 auto; font-size: 18px; line-height: 1.8; color: #475569; }
 .fade-up { opacity: 0; animation: fadeUp 1s ease forwards; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Quick actions */
+/* -------------------
+   Quick actions
+------------------- */
 .quick-actions {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
 }
+
 .qa-card {
-  background: var(--bg-card); border-radius: 18px; padding: 20px 18px;
-  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px 18px;
+  border: 1px solid rgba(0,0,0,0.08);
   box-shadow: 0 12px 28px rgba(0,0,0,0.08);
 }
-.qa-card p { color: var(--text-sub); }
+
+.qa-card p {
+  color: #4b5563;
+}
+
 
 /* ★可愛い水色グラデのボタン★ */
 .btn-main {
-  background: var(--secondary-gradient); color: #ffffff; border:none;
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: #ffffff;
   box-shadow: 0 14px 30px rgba(56, 189, 248, 0.35);
 }
 .btn-main:hover {
@@ -224,116 +177,89 @@ footer { text-align: center; margin: 80px 0 40px; color: var(--text-sub); }
 }
 
 .btn-outline {
-  background: var(--bg-card); border: 1px solid #9ca3af; color: var(--text-main);
+  background: #ffffff;
+  border: 1px solid #9ca3af;
+  color: #1f2937;
 }
 .btn-outline:hover {
-  border-color: #0ea5e9; background: #e0f7ff; color: #0ea5e9;
+  border-color: #0ea5e9;
+  background: #e0f7ff;
+  color: #0ea5e9;
 }
 
-/* Contact form */
-.contact-form { display: grid; gap: 12px; max-width: 520px; }
-.contact-form input, .contact-form textarea {
-  padding: 10px 12px; border-radius: 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-input);
-  font: inherit; color: var(--text-main);
+/* -------------------
+   Contact form
+------------------- */
+.contact-form {
+  display: grid;
+  gap: 12px;
+  max-width: 520px;
 }
-.contact-form textarea { min-height: 140px; }
 
-/* 実績セクション */
-.achievements { padding: 100px 80px; text-align: center; }
-.achievements h2 { font-size: 32px; margin-bottom: 50px; color: var(--text-main); }
+.contact-form input,
+.contact-form textarea {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.15);
+  font: inherit;
+}
+
+.contact-form textarea {
+  min-height: 140px;
+}
+
+/* ▼ 実績セクション */
+.achievements {
+  padding: 100px 80px;
+  text-align: center;
+}
+
+.achievements h2 {
+  font-size: 32px;
+  margin-bottom: 50px;
+  color: #333;
+}
+
 .achievement-cards {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 24px; max-width: 900px; margin: 0 auto 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto 40px;
 }
+
 .achievement-card {
-  background: var(--bg-card); padding: 32px 20px; border-radius: 16px;
-  box-shadow: var(--shadow-card); transition: 0.25s;
-}
-.achievement-card:hover { transform: translateY(-6px); }
-.achievement-number { font-size: 36px; font-weight: 800; color: #4da6ff; margin-bottom: 10px; }
-.achievement-label { font-size: 16px; color: var(--text-body); }
-.achievement-note { font-size: 18px; color: var(--text-sub); margin-top: 20px; }
-
-/* =========================================
-   5. 新機能用スタイル (機能追加分)
-   ========================================= */
-
-/* (70) レスポンシブ対応強化 */
-@media (max-width: 768px) {
-  .navbar { padding: 0 20px; }
-  .navbar-menu { gap: 15px; }
-  /* スマホではアカウントボタン以外を隠す（またはハンバーガーメニュー化） */
-  .navbar-menu a:not(.account-btn) { display: none; }
-  
-  .hero { flex-direction: column-reverse; padding: 40px 20px; text-align: center; }
-  .hero-right { margin: 0 0 30px 0; justify-content: center; }
-  .hero-left { max-width: 100%; }
-  .hero-left h1 { font-size: 32px; }
-  .btn-group { justify-content: center; }
-  
-  .achievements, .about { padding: 60px 20px; }
-  .breadcrumbs { padding: 0 20px; }
+  background: white;
+  padding: 32px 20px;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  transition: 0.25s;
 }
 
-/* (72) ローディングアニメーション */
-.loader-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: var(--bg-card); z-index: 9999;
-  display: flex; flex-direction: column; justify-content: center; align-items: center;
-  transition: opacity 0.5s;
+.achievement-card:hover {
+  transform: translateY(-6px);
 }
-.spinner {
-  width: 40px; height: 40px;
-  border: 4px solid var(--border-color);
-  border-top: 4px solid var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+
+.achievement-number {
+  font-size: 36px;
+  font-weight: 800;
+  color: #4da6ff;
+  margin-bottom: 10px;
 }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* (73) パンくずリスト */
-.breadcrumbs {
-  max-width: 1200px; margin: 20px auto 0; padding: 0 40px;
-  font-size: 0.85rem; color: var(--text-sub);
+.achievement-label {
+  font-size: 16px;
+  color: #555;
 }
-.breadcrumbs a { text-decoration: none; color: var(--text-sub); }
-.breadcrumbs a:hover { color: var(--primary-color); text-decoration: underline; }
-.breadcrumbs span { margin: 0 8px; color: var(--border-color); }
 
-/* (78) オフライン表示 */
-#offline-toast {
-  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-  background: #333; color: white; padding: 12px 24px; border-radius: 50px;
-  font-size: 0.9rem; z-index: 10000; display: none;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+.achievement-note {
+  font-size: 18px;
+  color: #666;
+  margin-top: 20px;
 }
-#offline-toast.show { display: block; animation: fadeInUp 0.3s; }
-@keyframes fadeInUp { from { opacity:0; transform:translate(-50%, 20px); } to { opacity:1; transform:translate(-50%, 0); } }
 
-/* (24) Markdown & 数式用 */
-.markdown-body { color: var(--text-main); line-height: 1.8; }
-.markdown-body h1, .markdown-body h2 { border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; margin-top: 1.5em; }
-.markdown-body p { margin-bottom: 1em; }
-.markdown-body blockquote { border-left: 4px solid #cbd5e1; color: var(--text-sub); padding-left: 1em; margin: 0; background: rgba(0,0,0,0.03); }
-.markdown-body code { background-color: rgba(0,0,0,0.05); padding: 0.2em 0.4em; border-radius: 4px; font-family: monospace; color: var(--text-accent); }
-.markdown-body pre { background-color: #1e293b; color: #f8fafc; padding: 1em; border-radius: 8px; overflow-x: auto; }
-.markdown-body img { max-width: 100%; border-radius: 8px; margin: 10px 0; border: 1px solid var(--border-color); }
 
-/* (22) 解決済みバッジ */
-.status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 8px; }
-.status-solved { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-.status-open { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
 
-/* (21) ベストアンサー */
-.best-answer-card { border: 2px solid #fbbf24 !important; background: #fffbeb !important; position: relative; }
-.best-answer-badge { position: absolute; top: -12px; right: 20px; background: #fbbf24; color: #92400e; font-weight: bold; padding: 4px 12px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 0.85rem; display: flex; align-items: center; gap: 4px; }
 
-/* (28) スレッド形式 (ネスト) */
-.nested-reply { margin-left: 40px; border-left: 3px solid var(--border-color); background: var(--bg-section-light); width: auto; }
-@media (max-width: 600px) { .nested-reply { margin-left: 15px; } }
 
-/* (30) ブックマークボタン */
-.bookmark-btn { background: transparent; border: none; cursor: pointer; color: #cbd5e1; transition: all 0.2s; font-size: 1.5rem; }
-.bookmark-btn.active { color: #fbbf24; transform: scale(1.2); }
