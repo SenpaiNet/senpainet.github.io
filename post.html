@@ -4,74 +4,63 @@
   <meta charset="UTF-8">
   <title>相談を投稿｜SenpaiNet</title>
   <link rel="stylesheet" href="post.css">
-  </head>
+  <link rel="stylesheet" href="style.css">
+</head>
 
 <body class="post-page">
-
-  <div id="global-loader" style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: white;
-      z-index: 9999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      transition: opacity 0.5s ease;
-  ">
+  <div id="global-loader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; transition: opacity 0.5s ease;">
       <div style="font-size: 2rem; margin-bottom: 10px;">⏳</div>
-      <p style="color: #666; font-family: sans-serif;">認証情報を確認中...</p>
+      <p style="color: #666;">認証情報を確認中...</p>
   </div>
+
   <div class="post-wrapper">
     <div class="post-card">
       <h2>💬 新しい相談を投稿する</h2>
-      <p class="subtitle">あなたの悩み・質問をシェアしてみよう</p>
+      <p class="subtitle">Markdown記法・数式($LaTeX$)に対応しています</p>
 
       <form id="postForm">
         <div class="form-group">
           <label for="title">タイトル</label>
-          <input type="text" id="title" placeholder="例：AO入試で使える課外活動について" required>
+          <input type="text" id="title" placeholder="例：数学IIIの微分の問題について" required>
         </div>
 
         <div class="form-group">
-          <label for="content">内容</label>
-          <textarea id="content" rows="6" placeholder="個人情報は記入しないでください。誹謗中傷などに十分注意してください。" required></textarea>
+          <label for="content">
+             内容
+             <span style="font-size:0.8rem; color:#64748b; font-weight:normal; float:right;">Markdown対応</span>
+          </label>
+          <textarea id="content" rows="8" placeholder="質問内容を入力...&#10;数式は $ x^2 $ のように囲んでください。" required></textarea>
+          
+          <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 8px;">
+             <div style="display: flex; gap: 8px;">
+                <button type="button" id="saveDraftBtn" style="background:none; border:none; color:#64748b; cursor:pointer; font-size:0.9rem; text-decoration:underline;">下書き保存</button>
+                <button type="button" id="loadDraftBtn" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-size:0.9rem; text-decoration:underline;">復元</button>
+             </div>
+          </div>
         </div>
 
         <div class="form-group">
-          <label>タグを選択（回答を得られやすくなります）</label>
+          <label>タグを選択</label>
           <div id="tagSelect" class="tag-select">
             <span class="tag-option" data-tag="一般入試">#一般入試</span>
             <span class="tag-option" data-tag="AO入試">#AO入試</span>
+            <span class="tag-option" data-tag="数学">#数学</span>
+            <span class="tag-option" data-tag="英語">#英語</span>
+            <span class="tag-option" data-tag="理科">#理科</span>
             <span class="tag-option" data-tag="DP">#DP</span>
             <span class="tag-option" data-tag="課外活動">#課外活動</span>
-            <span class="tag-option" data-tag="履修">#履修</span>
             <span class="tag-option" data-tag="海外大学">#海外大学</span>
-            <span class="tag-option" data-tag="部活">#部活</span>
-            <span class="tag-option" data-tag="英検">#英検</span>
-            <span class="tag-option" data-tag="IELTS">#IELTS</span>
             <span class="tag-option" data-tag="TOEFL">#TOEFL</span>
-            <span class="tag-option" data-tag="模試">#模試</span>
-            <span class="tag-option" data-tag="理系">#理系</span>
-            <span class="tag-option" data-tag="文系">#文系</span>
-            <span class="tag-option" data-tag="ボランティア">#ボランティア</span>
           </div>
         </div>
 
         <button type="submit" class="submit-btn">🚀 投稿する</button>
       </form>
-
-      <a href="index.html" class="back-link">← ホームに戻る</a>
+      <a href="archive.html" class="back-link">← 一覧に戻る</a>
     </div>
   </div>
+
 <script type="module" src="firebase.js"></script>
 <script type="module" src="post.js"></script>
-<script type="module" src="auth_header.js"></script>
 </body>
 </html>
-
-
-
