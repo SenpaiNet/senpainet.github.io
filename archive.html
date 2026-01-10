@@ -5,7 +5,7 @@
   <title>投稿一覧 | SenpaiNet</title>
   <link rel="stylesheet" href="archive.css">
   <link rel="stylesheet" href="style.css">
-  
+   
   <style>
     /* 投稿リストの親要素をグリッド化 */
     #postList {
@@ -39,7 +39,6 @@
         transform: translateY(-3px);
     }
 
-    /* もしカード内にクラス .card-footer がある場合、底に固定する */
     #postList > div .card-footer {
         margin-top: auto;
     }
@@ -52,6 +51,21 @@
             grid-template-columns: 1fr; /* スマホは1列固定 */
         }
     }
+
+    /* 追加機能用のスタイル */
+    .filter-controls {
+        display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .filter-select {
+        padding: 8px 12px; border-radius: 20px; border: 1px solid #e2e8f0; 
+        background: white; color: #334155; font-size: 0.9rem; cursor: pointer;
+    }
+    .filter-checkbox-label {
+        background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0;
+        font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; color: #334155; user-select: none;
+    }
+    .filter-checkbox-label input { margin-right: 6px; }
+    .filter-checkbox-label:hover, .filter-select:hover { border-color: #4da6ff; background: #f0f9ff; }
   </style>
 </head>
 <body class="list-page">
@@ -77,11 +91,24 @@
       <h1>🌐 みんなの相談一覧</h1>
       
       <div class="search-container" style="position: relative; max-width: 600px; margin: 0 auto 20px;">
-        <div class="search-bar" style="margin-bottom: 0;">
+        <div class="search-bar" style="margin-bottom: 15px;">
           <input type="text" id="keywordInput" placeholder="キーワードまたはタグを選択" autocomplete="off">
           <button id="searchBtn">検索</button>
         </div>
         
+        <div class="filter-controls">
+            <select id="sortSelect" class="filter-select">
+                <option value="newest">📅 新着順</option>
+                <option value="popular">🔥 人気順 (閲覧数)</option>
+                <option value="updated">🔄 更新順</option>
+            </select>
+            <label class="filter-checkbox-label">
+                <input type="checkbox" id="unansweredCheck"> 💬 回答募集中
+            </label>
+            <label class="filter-checkbox-label">
+                <input type="checkbox" id="bookmarkCheck"> ★ ブックマーク
+            </label>
+        </div>
         <div class="tag-filter" id="tagFilter">
           <span class="filter-tag" data-tag="一般入試">#一般入試</span>
           <span class="filter-tag" data-tag="AO入試">#AO入試</span>
@@ -114,10 +141,9 @@
     <section class="post-list" id="postList">
     </section>
   </main>
-    
+     
   <script type="module" src="firebase.js"></script>
   <script type="module" src="auth_header.js"></script> 
   <script type="module" src="archive.js"></script>
 </body>
 </html>
-
