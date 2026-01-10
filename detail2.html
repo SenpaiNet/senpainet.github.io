@@ -4,103 +4,33 @@
   <meta charset="UTF-8">
   <title>相談詳細 | SenpaiNet</title>
   <link rel="stylesheet" href="archive.css">
+  <link rel="stylesheet" href="style.css">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+
   <style>
-    /* 詳細ページ専用の上書きスタイル */
-    .detail-container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
+    .detail-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .question-section { background: white; padding: 40px; border-radius: 20px; border: 1px solid #f1f5f9; margin-bottom: 40px; position:relative; }
     
-    /* 質問部分 */
-    .question-section {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-      margin-bottom: 40px;
-      border: 1px solid #f1f5f9;
-    }
-    .question-title { font-size: 1.8rem; margin-bottom: 15px; color: #1e3a8a; font-weight: 800; }
-    .question-meta {
-      display: flex; align-items: center; gap: 15px; color: #64748b; font-size: 0.9rem; margin-bottom: 25px;
-      padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;
-    }
-    .question-body { font-size: 1.1rem; line-height: 1.8; color: #334155; white-space: pre-wrap; }
-
-    /* 回答エリア */
-    .answers-section h3 {
-      font-size: 1.4rem; color: #1e293b; margin-bottom: 20px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .answers-section h3::before {
-      content: ''; display: block; width: 6px; height: 24px;
-      background: #4da6ff; border-radius: 10px;
-    }
-    
-    .answer-card {
-      background: white;
-      border: 1px solid #e2e8f0;
-      padding: 25px;
-      border-radius: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-    }
-    .answer-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 15px;
-    }
-    .answer-author { display: flex; align-items: center; gap: 10px; font-weight: 700; color: #334155; }
-    .author-icon { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #eee; }
-    
-    .answer-date { font-size: 0.85rem; color: #94a3b8; }
-    .answer-body { color: #475569; line-height: 1.6; font-size: 1rem; }
-
-    /* フォームエリア */
-    .answer-form-area {
-      background: white; padding: 30px; border-radius: 20px;
-      border: 2px solid #e2e8f0; margin-top: 50px;
-    }
-    textarea {
-      width: 100%; height: 140px; padding: 15px;
-      border: 2px solid #e2e8f0; border-radius: 12px;
-      margin-bottom: 20px; font-size: 1rem; box-sizing: border-box;
-      transition: border-color 0.2s;
-    }
-    textarea:focus { border-color: #3b82f6; outline: none; }
-    
-    .form-controls {
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .anon-check { display: flex; align-items: center; cursor: pointer; color: #64748b; font-weight: 600; }
-    
-    .submit-btn {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      color: white; border: none; padding: 12px 30px;
-      border-radius: 50px; font-weight: 700; cursor: pointer;
-      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-      transition: transform 0.2s;
-    }
-    .submit-btn:hover { transform: translateY(-2px); }
-
-    /* 通報・ブロックリンク */
-    .action-links { margin-left: auto; font-size: 0.8rem; }
-    .action-link { color: #94a3b8; cursor: pointer; margin-left: 8px; text-decoration: none; }
-    .action-link:hover { color: #ef4444; text-decoration: underline; }
+    .post-actions { display: flex; gap: 15px; margin-top: 20px; border-top: 1px solid #f1f5f9; padding-top: 15px; align-items: center; }
+    .action-btn { background: none; border: none; cursor: pointer; color: #64748b; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
+    .action-btn:hover { color: #3b82f6; }
+    .answer-card { margin-bottom: 20px; transition: all 0.3s; }
   </style>
 </head>
 <body class="list-page">
 
   <header class="navbar">
     <div class="navbar-container">
-      <div class="navbar-logo">
-        <a href="index.html">SenpaiNet</a>
-      </div>
+      <div class="navbar-logo"><a href="index.html">SenpaiNet</a></div>
       <nav class="navbar-menu">
         <a href="post.html">相談する</a>
         <a href="archive.html" class="active">相談を見る</a>
         <a href="senpai.html">先輩一覧</a>
-        <a href="form.html">お問い合わせ</a>
         <a href="#" class="account-btn">ログイン</a>
       </nav>
     </div>
@@ -109,10 +39,22 @@
   <main>
     <div class="detail-container">
         <section class="question-section" id="qSection">
-            <h1 id="qTitle" class="question-title">読み込み中...</h1>
+            <div id="statusBadgeArea"></div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <h1 id="qTitle" class="question-title">読み込み中...</h1>
+                <button id="bookmarkBtn" class="bookmark-btn" title="ブックマーク">★</button>
+            </div>
+            
             <div id="qMeta" class="question-meta"></div>
             <div id="qTags" style="margin-bottom:20px; display:flex; gap:8px;"></div>
-            <div id="qBody" class="question-body"></div>
+            
+            <div id="qBody" class="question-body markdown-body"></div>
+
+            <div class="post-actions">
+               <span id="viewCountArea" style="margin-right:auto; color:#94a3b8; font-size:0.85rem;">👀 0 views</span>
+               <button class="action-btn" onclick="quoteReply('qBody')">↩ 引用返信</button>
+               <div id="ownerActions" style="display:none; gap:10px;"></div>
+            </div>
         </section>
 
         <section class="answers-section">
@@ -120,10 +62,17 @@
             <div id="answersList"></div>
         </section>
 
-        <section class="answer-form-area">
-            <h3 style="margin-top:0;">回答する</h3>
+        <section class="answer-form-area" id="answerFormArea">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0;">回答する</h3>
+                <span id="replyTargetDisplay" style="font-size:0.85rem; color:#64748b; display:none;">
+                    返信先: <span id="replyTargetName"></span> 
+                    <button onclick="cancelReply()" style="border:none; background:none; color:red; cursor:pointer;">✕ 解除</button>
+                </span>
+            </div>
+            
             <form id="answerForm">
-                <textarea id="answerInput" placeholder="先輩としてアドバイスを送ろう..." required></textarea>
+                <textarea id="answerInput" placeholder="Markown記法が使えます。&#10;数式は $...$ で囲んでください。" required></textarea>
                 <div class="form-controls">
                     <label class="anon-check">
                         <input type="checkbox" id="anonCheck">
@@ -143,96 +92,104 @@
     import { doc, getDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, updateDoc, increment, deleteDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const postId = urlParams.get('id');
-    let postAuthorId = null;
-    let postTitle = "";
-    
-    let blockedUsers = []; // ブロック済みユーザーIDリスト
-
-    if (!postId) {
-        window.location.href = "archive.html";
-    }
+    const postId = new URL(location.href).searchParams.get('id');
+    if (!postId) window.location.href = "archive.html";
 
     let currentUser = null;
+    let postData = null;
+    let replyParentId = null;
+
+    function renderContent(text, elementId) {
+        const el = document.getElementById(elementId);
+        let html = marked.parse(text);
+        html = DOMPurify.sanitize(html);
+        el.innerHTML = html;
+        renderMathInElement(el, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false}
+            ]
+        });
+    }
+
     onAuthStateChanged(auth, async (user) => {
         currentUser = user;
         if(user) {
-            // ブロックリスト取得
-            try {
-                const uDoc = await getDoc(doc(db, "users", user.uid));
-                if(uDoc.exists()) {
-                    blockedUsers = uDoc.data().blocked || [];
-                }
-            } catch(e) {}
+            updateDoc(doc(db, "posts", postId), { viewCount: increment(1) }).catch(()=>{});
+            checkBookmark();
         }
         loadQuestion(); 
     });
 
-    // 1. 質問表示
-    async function loadQuestion() {
-        const docRef = doc(db, "posts", postId);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            postAuthorId = data.authorId;
-            postTitle = data.title;
-            
-            // ブロック判定
-            if(blockedUsers.includes(postAuthorId)) {
-                document.getElementById('qSection').innerHTML = "<p style='color:#999; text-align:center;'>ブロックしたユーザーの投稿です。</p>";
-                return;
-            }
-
-            document.getElementById('qTitle').textContent = data.title;
-            document.getElementById('qBody').textContent = data.content;
-            
-            const dateStr = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : "日付不明";
-            const icon = data.authorIcon || "https://placehold.co/30";
-            
-            const metaContainer = document.getElementById('qMeta');
-            let actionsHtml = "";
-            
-            if (currentUser && currentUser.uid !== postAuthorId) {
-                actionsHtml = `
-                    <div class="action-links">
-                        <span class="action-link" onclick="reportUser('${postAuthorId}', 'post', '${postId}')">通報</span>
-                        <span class="action-link" onclick="blockUser('${postAuthorId}')">ブロック</span>
-                    </div>
-                `;
-            } else if (currentUser && currentUser.uid === postAuthorId) {
-                actionsHtml = `<button id="delPostBtn" style="margin-left: auto; background: #ef4444; color: white; border: none; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; font-weight: bold;">削除</button>`;
-            }
-
-            metaContainer.innerHTML = `
-                <img src="${icon}" style="width:30px; height:30px; border-radius:50%; margin-right:10px; object-fit:cover;">
-                <span>${data.authorName || '匿名'}</span>
-                <span style="margin: 0 10px;">|</span>
-                <span>📅 ${dateStr}</span>
-                ${actionsHtml}
-            `;
-
-            if(document.getElementById("delPostBtn")) {
-                document.getElementById("delPostBtn").onclick = async () => {
-                    if (confirm("本当にこの投稿を削除しますか？")) {
-                        await deleteDoc(docRef);
-                        window.location.href = "archive.html";
-                    }
-                };
-            }
-
-            if(data.tags && data.tags.length > 0) {
-                document.getElementById('qTags').innerHTML = data.tags.map(t => 
-                    `<span style="background:#e0f2fe; color:#0284c7; padding:4px 10px; border-radius:20px; font-size:0.85rem; font-weight:600;">#${t}</span>`
-                ).join("");
-            }
-        } else {
-            document.querySelector('.detail-container').innerHTML = "<p>投稿が見つかりません。</p>";
+    async function checkBookmark() {
+        if(!currentUser) return;
+        const uDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if(uDoc.exists()) {
+            const bks = uDoc.data().bookmarks || [];
+            if(bks.includes(postId)) document.getElementById("bookmarkBtn").classList.add("active");
         }
     }
 
-    // 2. 回答一覧
+    document.getElementById("bookmarkBtn").addEventListener("click", async () => {
+        if(!currentUser) return alert("ログインが必要です");
+        const btn = document.getElementById("bookmarkBtn");
+        const isActive = btn.classList.contains("active");
+        const ref = doc(db, "users", currentUser.uid);
+        
+        if(isActive) {
+            await updateDoc(ref, { bookmarks: arrayRemove(postId) });
+            btn.classList.remove("active");
+        } else {
+            await updateDoc(ref, { bookmarks: arrayUnion(postId) });
+            btn.classList.add("active");
+        }
+    });
+
+    async function loadQuestion() {
+        const docRef = doc(db, "posts", postId);
+        onSnapshot(docRef, (docSnap) => {
+            if (!docSnap.exists()) return;
+            postData = docSnap.data();
+            
+            document.getElementById('qTitle').textContent = postData.title;
+            renderContent(postData.content, 'qBody');
+            
+            const badgeArea = document.getElementById("statusBadgeArea");
+            if(postData.isSolved) {
+                badgeArea.innerHTML = `<span class="status-badge status-solved">✓ 解決済み</span>`;
+            } else {
+                badgeArea.innerHTML = `<span class="status-badge status-open">回答募集中</span>`;
+            }
+
+            document.getElementById("viewCountArea").textContent = `👀 ${postData.viewCount || 0} views`;
+
+            const dateStr = postData.createdAt ? postData.createdAt.toDate().toLocaleDateString() : "-";
+            const updateStr = postData.lastUpdatedAt ? postData.lastUpdatedAt.toDate().toLocaleDateString() : dateStr;
+            const icon = postData.authorIcon || "https://placehold.co/30";
+            
+            document.getElementById('qMeta').innerHTML = `
+                <img src="${icon}" style="width:30px; height:30px; border-radius:50%; margin-right:10px;">
+                <span>${postData.authorName}</span> | 📅 ${dateStr} (🔄 ${updateStr})
+            `;
+            
+            if(postData.tags) {
+                document.getElementById('qTags').innerHTML = postData.tags.map(t => 
+                    `<span class="tag" style="background:#e0f2fe; padding:4px 8px; border-radius:12px;">#${t}</span>`
+                ).join("");
+            }
+
+            if(currentUser && currentUser.uid === postData.authorId) {
+                const actions = document.getElementById("ownerActions");
+                actions.style.display = "flex";
+                if(!postData.isSolved) {
+                    actions.innerHTML = `<button class="action-btn" onclick="markAsSolved()">✓ 解決済みにする</button>`;
+                } else {
+                    actions.innerHTML = "";
+                }
+            }
+        });
+    }
+
     function loadAnswers() {
         const answersRef = collection(db, "posts", postId, "answers");
         const q = query(answersRef, orderBy("createdAt", "asc"));
@@ -240,149 +197,130 @@
         onSnapshot(q, (snapshot) => {
             const container = document.getElementById('answersList');
             container.innerHTML = "";
+            
+            const answers = [];
+            snapshot.forEach(d => answers.push({id: d.id, ...d.data()}));
 
-            if(snapshot.empty) {
-                container.innerHTML = "<p style='color:#888; padding:20px; text-align:center;'>まだ回答はありません。最初の回答者になりましょう！</p>";
-                return;
-            }
-
-            snapshot.forEach((docSnapshot) => {
-                const ans = docSnapshot.data();
-                const ansId = docSnapshot.id;
-                
-                // ブロック判定
-                if(blockedUsers.includes(ans.authorId)) return; // 表示しない
-
-                const dateStr = ans.createdAt ? ans.createdAt.toDate().toLocaleString() : "たった今";
-                const icon = ans.authorIcon || "https://placehold.co/30";
-
-                const likes = ans.likes || [];
-                const likeCount = likes.length;
-                const isLiked = currentUser && likes.includes(currentUser.uid);
-                const heartColor = isLiked ? "#ff4757" : "#ccc";
-
-                let ansActions = "";
-                if(currentUser && currentUser.uid !== ans.authorId) {
-                    ansActions = `
-                        <div style="font-size:0.8rem;">
-                            <span class="action-link" onclick="reportUser('${ans.authorId}', 'answer', '${ansId}')">通報</span>
-                            <span class="action-link" onclick="blockUser('${ans.authorId}')">ブロック</span>
-                        </div>
-                    `;
-                }
-
-                const html = `
-                    <div class="answer-card">
-                        <div class="answer-header">
-                            <div class="answer-author">
-                                <img src="${icon}" class="author-icon">
-                                <span>${ans.authorName}</span>
-                            </div>
-                            <div class="answer-date">${dateStr}</div>
-                        </div>
-                        <div class="answer-body">${ans.content}</div>
-                        
-                        <div style="margin-top: 15px; display: flex; align-items: center; justify-content: space-between;">
-                            <button onclick="toggleLike('${ansId}', ${isLiked})" style="background: transparent; border: 1px solid ${heartColor}; color: ${heartColor}; border-radius: 20px; padding: 4px 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; transition: 0.2s;">
-                                <span>♥</span> ${likeCount}
-                            </button>
-                            ${ansActions}
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', html);
+            const rootAnswers = answers.filter(a => !a.parentId);
+            
+            rootAnswers.forEach(ans => {
+                renderAnswerCard(ans, container, false);
+                const children = answers.filter(a => a.parentId === ans.id);
+                children.forEach(child => {
+                    renderAnswerCard(child, container, true);
+                });
             });
         });
     }
 
-    // グローバル関数定義
-    window.toggleLike = async (ansId, isLiked) => {
+    function renderAnswerCard(ans, container, isNested) {
+        const isBest = (postData && postData.bestAnswerId === ans.id);
+        const div = document.createElement("div");
+        div.className = `answer-card ${isNested ? "nested-reply" : ""} ${isBest ? "best-answer-card" : ""}`;
+        
+        const bestBadge = isBest ? `<div class="best-answer-badge">👑 ベストアンサー</div>` : "";
+        const icon = ans.authorIcon || "https://placehold.co/30";
+        const dateStr = ans.createdAt ? ans.createdAt.toDate().toLocaleString() : "";
+        
+        let baButton = "";
+        if(postData && !postData.isSolved && currentUser && currentUser.uid === postData.authorId) {
+            baButton = `<button onclick="selectBestAnswer('${ans.id}')" style="font-size:0.8rem; background:#fbbf24; border:none; border-radius:12px; padding:4px 8px; cursor:pointer;">👑 ベストアンサーにする</button>`;
+        }
+
+        const bodyId = `ansBody-${ans.id}`;
+
+        div.innerHTML = `
+            ${bestBadge}
+            <div class="answer-header">
+                <div class="answer-author">
+                    <img src="${icon}" class="author-icon"> <span>${ans.authorName}</span>
+                </div>
+                <div style="font-size:0.8rem; color:#999;">${dateStr}</div>
+            </div>
+            <div id="${bodyId}" class="answer-body markdown-body"></div>
+            
+            <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
+                 <button onclick="toggleLike('${ans.id}')" style="background:none; border:1px solid #ccc; border-radius:20px; padding:2px 10px; font-size:0.8rem; cursor:pointer;">
+                    ❤️ ありがとう ${(ans.likes||[]).length}
+                 </button>
+                 <button class="action-btn" onclick="setReplyTarget('${ans.id}', '${ans.authorName}')">↩ 返信</button>
+                 ${baButton}
+            </div>
+        `;
+        container.appendChild(div);
+        
+        renderContent(ans.content, bodyId);
+    }
+
+    window.markAsSolved = async () => {
+        if(confirm("解決済みにしますか？")) {
+            await updateDoc(doc(db, "posts", postId), { isSolved: true });
+        }
+    };
+    window.selectBestAnswer = async (ansId) => {
+        if(confirm("この回答をベストアンサーに決定しますか？\n（解決済みになります）")) {
+            await updateDoc(doc(db, "posts", postId), { 
+                bestAnswerId: ansId,
+                isSolved: true 
+            });
+        }
+    };
+    window.quoteReply = (elementId) => {
+        const text = document.getElementById(elementId).innerText;
+        const input = document.getElementById("answerInput");
+        const lines = text.split("\n").map(l => `> ${l}`).join("\n");
+        input.value += `\n${lines}\n\n`;
+        input.focus();
+        document.getElementById("answerFormArea").scrollIntoView({behavior:"smooth"});
+    };
+    window.setReplyTarget = (pid, name) => {
+        replyParentId = pid;
+        document.getElementById("replyTargetDisplay").style.display = "inline-block";
+        document.getElementById("replyTargetName").textContent = name;
+        document.getElementById("answerFormArea").scrollIntoView({behavior:"smooth"});
+    };
+    window.cancelReply = () => {
+        replyParentId = null;
+        document.getElementById("replyTargetDisplay").style.display = "none";
+    };
+
+    window.toggleLike = async (ansId) => {
         if (!currentUser) return alert("ログインが必要です。");
         const ansRef = doc(db, "posts", postId, "answers", ansId);
-        if (isLiked) {
+        // ここでは簡易的に「押すたびに自分のUIDを追加/削除」するトグルを想定
+        const docSnap = await getDoc(ansRef);
+        if(!docSnap.exists()) return;
+        const likes = docSnap.data().likes || [];
+        if(likes.includes(currentUser.uid)) {
             await updateDoc(ansRef, { likes: arrayRemove(currentUser.uid) });
         } else {
             await updateDoc(ansRef, { likes: arrayUnion(currentUser.uid) });
         }
     };
 
-    window.blockUser = async (targetUid) => {
-        if(!confirm("このユーザーをブロックしますか？\n今後このユーザーの投稿や回答は表示されなくなります。")) return;
-        try {
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                blocked: arrayUnion(targetUid)
-            });
-            alert("ブロックしました。");
-            window.location.reload();
-        } catch(e) {
-            alert("エラー: " + e.message);
-        }
-    };
-
-    window.reportUser = async (targetUid, type, contentId) => {
-        const reason = prompt("通報の理由を入力してください:");
-        if(!reason) return;
-        try {
-            await addDoc(collection(db, "reports"), {
-                reporterId: currentUser.uid,
-                targetUserId: targetUid,
-                contentType: type, // post or answer
-                contentId: contentId,
-                reason: reason,
-                createdAt: serverTimestamp()
-            });
-            alert("通報を受け付けました。ご協力ありがとうございます。");
-        } catch(e) {
-            alert("エラー: " + e.message);
-        }
-    };
-
-    // 3. 回答送信
     document.getElementById('answerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const user = auth.currentUser;
-        if (!user) { alert("回答するにはログインが必要です。"); return; }
+        if (!currentUser) return alert("ログインが必要です");
         const content = document.getElementById('answerInput').value;
         const isAnon = document.getElementById('anonCheck').checked;
-        if (!content.trim()) return;
 
         try {
-            let userIcon = user.photoURL;
-            let userName = user.displayName;
-            try {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if(userDoc.exists()) {
-                    const ud = userDoc.data();
-                    userIcon = ud.iconUrl || userIcon;
-                    userName = ud.nickname || userName;
-                }
-            } catch(e){}
-
             await addDoc(collection(db, "posts", postId, "answers"), {
                 content: content,
-                authorId: user.uid,
-                authorName: isAnon ? "匿名希望" : (userName || "名無し"),
-                authorIcon: isAnon ? "https://placehold.co/30" : (userIcon || "https://placehold.co/30"),
+                authorId: currentUser.uid,
+                authorName: isAnon ? "匿名希望" : (currentUser.displayName || "名無し"),
+                authorIcon: isAnon ? "https://placehold.co/30" : (currentUser.photoURL || null),
                 createdAt: serverTimestamp(),
-                likes: [] 
+                likes: [],
+                parentId: replyParentId
             });
-
-            await updateDoc(doc(db, "posts", postId), { replies: increment(1) });
-
-            if (postAuthorId && postAuthorId !== user.uid) {
-                await addDoc(collection(db, "users", postAuthorId, "notifications"), {
-                    type: "reply",
-                    postId: postId,
-                    postTitle: postTitle,
-                    fromName: isAnon ? "匿名" : (userName || "誰か"),
-                    fromIcon: isAnon ? null : userIcon,
-                    isRead: false,
-                    createdAt: serverTimestamp()
-                });
-                // GASメール通知等は省略（既存コード同様）
-            }
-            document.getElementById('answerInput').value = ""; 
-        } catch (error) { console.error("Error:", error); alert("送信失敗: " + error.message); }
+            await updateDoc(doc(db, "posts", postId), { 
+                replies: increment(1),
+                lastUpdatedAt: serverTimestamp()
+            });
+            document.getElementById('answerInput').value = "";
+            cancelReply();
+        } catch(e) { alert("エラー: " + e.message); }
     });
 
     loadAnswers();
