@@ -320,6 +320,144 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
 }
 .bookmark-btn.active { color: #fbbf24; transform: scale(1.2); }
 
+/* === CSS変数の定義 (テーマ管理) === */
+:root {
+  /* ライトモード (デフォルト) */
+  --bg-body: linear-gradient(135deg, #e1f3ff, #f6fbff);
+  --bg-card: #ffffff;
+  --bg-navbar: rgba(255, 255, 255, 0.95);
+  --text-main: #334155;
+  --text-sub: #64748b;
+  --text-accent: #1e3a8a;
+  --border-color: #f1f5f9;
+  --primary-color: #3b82f6;
+  --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  --shadow-card: 0 4px 6px rgba(0,0,0,0.05);
+  
+  /* フォントサイズ基準 */
+  --base-size: 16px;
+}
+
+/* (69) ダークモード定義 */
+[data-theme="dark"] {
+  --bg-body: linear-gradient(135deg, #0f172a, #1e293b);
+  --bg-card: #1e293b;
+  --bg-navbar: rgba(15, 23, 42, 0.95);
+  --text-main: #f1f5f9;
+  --text-sub: #94a3b8;
+  --text-accent: #60a5fa;
+  --border-color: #334155;
+  --shadow-card: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+/* (76) フォントサイズ変更定義 */
+[data-font-size="large"] { --base-size: 18px; }
+[data-font-size="small"] { --base-size: 14px; }
+
+html { font-size: var(--base-size); }
+
+body {
+  margin: 0; padding: 0;
+  font-family: 'Inter', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: var(--bg-body);
+  color: var(--text-main);
+  padding-top: 70px;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* === ナビゲーションバー === */
+.navbar {
+  width: 100%; height: 70px;
+  background: var(--bg-navbar); backdrop-filter: blur(10px);
+  position: fixed; top: 0; left: 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  z-index: 1000; display: flex; align-items: center; padding: 0 40px; box-sizing: border-box;
+  border-bottom: 1px solid var(--border-color);
+}
+.navbar-container {
+  width: 100%; max-width: 1200px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.navbar-logo {
+  font-size: 1.5rem; font-weight: 900;
+  background: linear-gradient(90deg, #4da6ff, #2563eb);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.navbar-logo a { text-decoration: none; }
+
+.navbar-menu { display: flex; align-items: center; gap: 30px; }
+.navbar-menu a {
+  text-decoration: none; color: var(--text-sub); font-weight: 600;
+  transition: 0.2s; font-size: 0.95rem;
+}
+.navbar-menu a:hover { color: var(--primary-color); }
+
+/* アカウントボタン */
+.account-btn {
+  background: var(--primary-gradient);
+  color: white !important; padding: 10px 24px; border-radius: 50px;
+  font-weight: 700; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  -webkit-text-fill-color: initial; /* ロゴの継承打ち消し */
+}
+
+/* (73) パンくずリスト */
+.breadcrumbs {
+  max-width: 1200px; margin: 20px auto 0; padding: 0 20px;
+  font-size: 0.85rem; color: var(--text-sub);
+}
+.breadcrumbs a { text-decoration: none; color: var(--text-sub); }
+.breadcrumbs a:hover { color: var(--primary-color); text-decoration: underline; }
+.breadcrumbs span { margin: 0 8px; color: var(--border-color); }
+
+/* (72) ローディングアニメーション */
+.loader-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--bg-card); z-index: 9999;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  transition: opacity 0.5s;
+}
+.spinner {
+  width: 40px; height: 40px;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* (78) オフライン表示 */
+#offline-toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #333; color: white; padding: 12px 24px; border-radius: 50px;
+  font-size: 0.9rem; z-index: 10000; display: none;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+#offline-toast.show { display: block; animation: fadeInUp 0.3s; }
+
+@keyframes fadeInUp { from { opacity:0; transform:translate(-50%, 20px); } to { opacity:1; transform:translate(-50%, 0); } }
+
+/* (70) レスポンシブ対応強化 */
+@media (max-width: 768px) {
+  .navbar { padding: 0 20px; }
+  .navbar-menu { gap: 15px; }
+  .navbar-menu a:not(.account-btn) { display: none; } /* スマホでは一部メニュー省略 */
+  /* 必要に応じてハンバーガーメニュー化も検討可能ですが、今回はシンプルに重要項目のみ表示 */
+}
+
+/* Markdown等のダークモード対応 */
+.markdown-body { color: var(--text-main); }
+.markdown-body h1, .markdown-body h2 { border-color: var(--border-color); }
+.markdown-body blockquote { background: rgba(0,0,0,0.1); color: var(--text-sub); border-color: var(--text-sub); }
+.markdown-body code { background: rgba(100,100,100,0.1); color: var(--text-accent); }
+.markdown-body pre { background: #0f172a; }
+
+/* 入力フォームのダークモード対応 */
+input, textarea, select {
+  background: var(--bg-card); color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+::placeholder { color: var(--text-sub); opacity: 0.7; }
 
 
 
