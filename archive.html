@@ -14,11 +14,11 @@
       gap: 24px; width: 100%; padding: 20px; box-sizing: border-box;
     }
     #postList > div {
-      background-color: var(--bg-card); /* 変数化 */
+      background-color: var(--bg-card, white); 
       border-radius: 12px; padding: 20px;
-      box-shadow: var(--shadow-card); /* 変数化 */
+      box-shadow: var(--shadow-card, 0 4px 6px rgba(0,0,0,0.05)); 
       height: 100%; display: flex; flex-direction: column; box-sizing: border-box;
-      transition: transform 0.2s; color: var(--text-main);
+      transition: transform 0.2s; color: var(--text-main, #333);
     }
     #postList > div:hover { transform: translateY(-3px); }
     #postList > div .card-footer { margin-top: auto; }
@@ -31,27 +31,27 @@
         display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
     }
     .filter-select {
-        padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border-color); 
-        background: var(--bg-card); color: var(--text-main); font-size: 0.9rem; cursor: pointer;
+        padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border-color, #ccc); 
+        background: var(--bg-card, white); color: var(--text-main, #333); font-size: 0.9rem; cursor: pointer;
     }
     .filter-checkbox-label {
-        background: var(--bg-card); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color);
-        font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; color: var(--text-main);
+        background: var(--bg-card, white); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color, #ccc);
+        font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; color: var(--text-main, #333);
     }
     
-    /* ローディングインジケータ (無限スクロール用) */
+    /* ローディングインジケータ */
     #scrollLoader {
-        text-align: center; padding: 20px; grid-column: 1 / -1; display: none; color: var(--text-sub);
+        text-align: center; padding: 20px; grid-column: 1 / -1; display: none; color: var(--text-sub, #666);
     }
     #scrollLoader.active { display: block; }
 
-    /* タグフィルターのスタイル調整 */
+    /* タグフィルター */
     .tag-filter {
       max-width: 900px;
       margin: 20px auto 10px;
       display: flex;
       flex-wrap: wrap;
-      justify-content: center; /* 中央寄せ */
+      justify-content: center;
       gap: 8px;
     }
     .filter-tag {
@@ -65,9 +65,7 @@
       transition: 0.2s;
       border: 1px solid transparent;
     }
-    .filter-tag:hover {
-      background: #cfe6ff;
-    }
+    .filter-tag:hover { background: #cfe6ff; }
     .filter-tag.active {
       background: #3b82f6;
       color: white;
@@ -148,7 +146,7 @@
     </section>
 
     <section class="post-list" id="postList">
-        </section>
+    </section>
     
     <div id="scrollLoader">読み込み中...</div>
   </main>
