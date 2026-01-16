@@ -1,6 +1,6 @@
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { collection, query, orderBy, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // === CSS動的追加 (設定メニュー & オフライン通知用) ===
 const style = document.createElement('style');
@@ -12,11 +12,12 @@ style.innerHTML = `
     padding: 6px 12px; border-radius: 50px;
     transition: background 0.2s ease;
     text-decoration: none; color: inherit;
+    border: 1px solid transparent;
   }
   .user-info-btn:hover { background: rgba(0,0,0,0.05); }
   
   .user-name-disp {
-    font-weight: 700; font-size: 0.95rem; color: #334155;
+    font-weight: 700; font-size: 0.95rem; color: var(--text-main, #334155);
     max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
@@ -30,47 +31,48 @@ style.innerHTML = `
 
   /* ドロップダウンメニュー */
   .nav-dropdown {
-    position: absolute; top: 110%; right: 0; width: 260px;
-    background: white; border-radius: 12px;
+    position: absolute; top: 120%; right: 0; width: 280px;
+    background: var(--bg-card, white); border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--border-color, #f1f5f9);
     display: none; flex-direction: column; z-index: 9999; overflow: hidden;
-    color: #334155; transform-origin: top right;
+    color: var(--text-main, #334155); transform-origin: top right;
+    animation: dropdownFadeIn 0.2s ease forwards;
   }
-  .nav-dropdown.show { display: flex; animation: dropdownFadeIn 0.2s ease forwards; }
+  .nav-dropdown.show { display: flex; }
 
   @keyframes dropdownFadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
   
   .dropdown-header {
-    padding: 15px; border-bottom: 1px solid #f1f5f9;
-    display: flex; align-items: center; gap: 10px; background: #f8fafc;
+    padding: 15px; border-bottom: 1px solid var(--border-color, #f1f5f9);
+    display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.02);
   }
   
   .dropdown-section-title {
-    padding: 10px 16px; background: #f8fafc; font-size: 0.75rem;
-    font-weight: bold; color: #94a3b8; border-bottom: 1px solid #f1f5f9;
+    padding: 10px 16px; background: rgba(0,0,0,0.02); font-size: 0.75rem;
+    font-weight: bold; color: var(--text-sub, #94a3b8); border-bottom: 1px solid var(--border-color, #f1f5f9);
     letter-spacing: 0.05em;
   }
   .menu-link {
-    display: block; padding: 12px 16px; color: #334155; text-decoration: none;
-    font-size: 0.9rem; border-bottom: 1px solid #f1f5f9; transition: background 0.2s;
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; color: var(--text-main, #334155); text-decoration: none;
+    font-size: 0.95rem; border-bottom: 1px solid var(--border-color, #f1f5f9); transition: background 0.2s;
   }
-  .menu-link:hover { background: #f0f9ff; color: #3b82f6; }
+  .menu-link:hover { background: rgba(59, 130, 246, 0.05); color: #3b82f6; }
   .menu-link:last-child { border-bottom: none; }
 
   /* 設定トグル */
   .setting-row {
     padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid #f1f5f9; font-size: 0.9rem;
+    border-bottom: 1px solid var(--border-color, #f1f5f9); font-size: 0.9rem;
   }
   .setting-btn-group { display: flex; gap: 5px; }
   .setting-btn {
-    padding: 4px 10px; border: 1px solid #e2e8f0; border-radius: 6px;
-    background: white; color: #64748b; cursor: pointer; font-size: 0.8rem;
+    padding: 4px 10px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 6px;
+    background: transparent; color: var(--text-sub, #64748b); cursor: pointer; font-size: 0.8rem;
     transition: all 0.2s;
   }
   .setting-btn:hover { border-color: #cbd5e1; }
@@ -91,13 +93,13 @@ style.innerHTML = `
 `;
 document.head.appendChild(style);
 
-// === (78) オフライン表示用Toast ===
+// === オフライン表示用Toast ===
 const offlineToast = document.createElement("div");
 offlineToast.id = "offline-toast";
 offlineToast.innerHTML = "<span>📡</span> オフラインです。通信環境を確認してください。";
 document.body.appendChild(offlineToast);
 
-// 状態監視関数
+// 状態監視関数 (即時実行対応)
 const updateOnlineStatus = () => {
   if (navigator.onLine) {
     offlineToast.classList.remove('show');
@@ -106,10 +108,11 @@ const updateOnlineStatus = () => {
   }
 };
 
+// イベントリスナー登録
 window.addEventListener('offline', updateOnlineStatus);
 window.addEventListener('online', updateOnlineStatus);
-// 初期ロード時にもチェック
-document.addEventListener("DOMContentLoaded", updateOnlineStatus);
+// ★スクリプト読み込み時にも即座にチェック
+updateOnlineStatus(); 
 
 
 // === 初期設定ロード ===
@@ -123,7 +126,8 @@ applyLanguage(savedLang);
 
 document.addEventListener("DOMContentLoaded", () => {
   onAuthStateChanged(auth, async (user) => {
-    const authBtns = document.querySelectorAll('.account-btn, .account-link');
+    // ログアウトボタン以外の account-btn を対象にする
+    const authBtns = document.querySelectorAll('.account-btn:not(#logoutBtn), .account-link');
 
     if (user) {
       // ユーザー情報取得
@@ -139,14 +143,12 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch(e){}
 
       authBtns.forEach(btn => {
-        if (btn.id === 'logoutBtn') return; 
-
-        // ボタン置き換え (既存のボタンを置き換えてドロップダウン機能付きにする)
+        // ボタン置き換え (ドロップダウン機能付きにする)
         const parent = btn.parentNode;
         const wrapper = document.createElement("div");
         wrapper.className = "account-btn-wrapper";
         
-        // 表示部分
+        // ヘッダー表示部分 (アイコン + 名前)
         const userInfoBtn = document.createElement("div");
         userInfoBtn.className = "user-info-btn";
         userInfoBtn.innerHTML = `
@@ -156,19 +158,19 @@ document.addEventListener("DOMContentLoaded", () => {
           <span style="font-size: 0.8rem; color: #94a3b8;">▼</span>
         `;
         
-        // 設定メニュー付きドロップダウン
+        // ドロップダウンメニュー
         const dropdown = document.createElement("div");
         dropdown.className = "nav-dropdown";
         dropdown.innerHTML = `
           <div class="dropdown-header">
              <img src="${userIcon}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
              <div style="flex:1; min-width:0;">
-                <div style="font-weight:bold; font-size:0.9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${userName}</div>
+                <div style="font-weight:bold; font-size:0.95rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${userName}</div>
                 <div style="font-size:0.75rem; color:#94a3b8;">ログイン中</div>
              </div>
           </div>
 
-          <a href="profile.html" class="menu-link" data-i18n="mypage">
+          <a href="profile.html" class="menu-link" style="font-weight:bold; color:#3b82f6;">
             <span>👤</span> マイページを表示
           </a>
           
@@ -191,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
 
-          <a href="#" class="menu-link logout" id="headerLogoutBtn" style="color:#ef4444; border-top:1px solid #f1f5f9; margin-top:5px;">
+          <a href="#" class="menu-link logout" id="headerLogoutBtn" style="color:#ef4444; border-top:1px solid var(--border-color, #f1f5f9); margin-top:5px;">
             <span>🚪</span> ログアウト
           </a>
         `;
@@ -200,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.appendChild(dropdown);
         parent.replaceChild(wrapper, btn);
 
-        // クリックイベント
+        // クリックイベント (ドロップダウン開閉)
         wrapper.addEventListener("click", (e) => {
           e.preventDefault(); e.stopPropagation();
           dropdown.classList.toggle("show");
@@ -224,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else {
        authBtns.forEach(btn => {
-           // まだログインしていない場合の処理（必要に応じて）
+           // まだログインしていない場合の処理（必要に応じて元に戻す）
            // btn.textContent = "ログイン";
            // btn.href = "login.html";
        });
@@ -251,8 +253,7 @@ window.setLang = (lang) => {
 };
 
 function updateSettingBtns() {
-    // 簡易リロード（設定反映のため）
-    // UIのみの更新も可能ですが、確実に反映させるためリロード推奨
+    // 設定反映のためリロード
     location.reload();
 }
 
@@ -278,11 +279,8 @@ function applyLanguage(lang) {
     const dict = i18nData[lang] || i18nData.ja;
     const navLinks = document.querySelectorAll('.navbar-menu a');
     if(navLinks.length >= 4) {
-        // ナビゲーションのテキスト置換（インデックス依存のため注意）
-        // ※HTML構造が変わらない前提
         if(navLinks[0]) navLinks[0].textContent = dict["nav.ask"];
         if(navLinks[1]) navLinks[1].textContent = dict["nav.archive"];
         if(navLinks[2]) navLinks[2].textContent = dict["nav.senpai"];
-        // navLinks[3] はお問い合わせなど
     }
 }
