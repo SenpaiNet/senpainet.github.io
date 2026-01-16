@@ -21,7 +21,9 @@ style.innerHTML = `
 
   /* ドロップダウンメニュー */
   .nav-dropdown {
-    position: absolute; top: 110%; right: 0; width: 340px;
+    position: absolute; top: 120%; right: 0; 
+    width: 300px; /* デフォルト幅 */
+    max-width: 90vw; /* スマホでは画面幅の90%まで */
     background: white; border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.15);
     border: 1px solid #f1f5f9;
@@ -30,6 +32,14 @@ style.innerHTML = `
   }
   .nav-dropdown.show { display: flex; animation: fadeIn 0.2s ease-out; }
 
+  /* スマホ対応: ドロップダウンの位置調整 */
+  @media (max-width: 480px) {
+    .nav-dropdown {
+       right: -10px; /* 少し右寄せにして画面内に収める */
+       width: 280px;
+    }
+  }
+
   /* メニュー項目 */
   .dropdown-section-title {
     padding: 12px 16px; background: #f8fafc; font-size: 0.85rem;
@@ -37,7 +47,7 @@ style.innerHTML = `
   }
 
   /* 通知リスト */
-  .notif-list { max-height: 350px; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
+  .notif-list { max-height: 300px; overflow-y: auto; padding: 0; margin: 0; list-style: none; -webkit-overflow-scrolling: touch; }
   .notif-item {
     padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
     cursor: pointer; transition: background 0.2s; display: flex; gap: 12px;
@@ -69,6 +79,7 @@ style.innerHTML = `
     box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 10000;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
     opacity: 0; pointer-events: none;
+    width: max-content; max-width: 90%; /* スマホ対応 */
   }
   #offline-toast.show {
     transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto;
@@ -107,7 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (user) {
       localStorage.setItem("senpaiNet_hasAccount", "true");
 
-      // Firestoreから最新のアイコンと名前を取得
       let userIcon = user.photoURL || defaultFallbackIcon;
       let userName = user.displayName || "ユーザー";
 
@@ -121,26 +131,25 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (e) { console.error("ユーザー情報取得エラー", e); }
 
       authBtns.forEach(btn => {
-        if (btn.id === 'logoutBtn') return; // 既存ログアウトボタンは無視
+        if (btn.id === 'logoutBtn') return;
 
-        // === ボタンを書き換え ===
         const parent = btn.parentNode;
         const wrapper = document.createElement("div");
         wrapper.className = "account-btn-wrapper";
         
-        // 新しいボタン
         const newBtn = document.createElement("a");
         newBtn.href = "#"; 
         newBtn.className = btn.className; 
         newBtn.setAttribute("style", btn.getAttribute("style")); 
         
+        // スマホでは名前を非表示にしてアイコンのみにする（スペース節約）
+        // ただしCSSで制御するため、HTMLには名前を含めておく
         newBtn.innerHTML = `
           <img src="${userIcon}" style="width:28px; height:28px; border-radius:50%; vertical-align:middle; margin-right:8px; border:2px solid rgba(255,255,255,0.8); object-fit:cover;">
-          <span style="vertical-align:middle;">${userName}</span>
+          <span style="vertical-align:middle;" class="user-name-label">${userName}</span>
           <span class="notification-dot" id="headerNotifDot"></span>
         `;
         
-        // ドロップダウンメニュー
         const dropdown = document.createElement("div");
         dropdown.className = "nav-dropdown";
         dropdown.innerHTML = `
@@ -158,14 +167,11 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.appendChild(dropdown);
         parent.replaceChild(wrapper, btn);
 
-        // === イベント設定 ===
-        // 開閉
         newBtn.addEventListener("click", (e) => {
           e.preventDefault(); e.stopPropagation();
           dropdown.classList.toggle("show");
         });
 
-        // ログアウト
         wrapper.querySelector("#headerLogoutBtn").addEventListener("click", (e) => {
           e.preventDefault();
           if(confirm("ログアウトしますか？")) {
@@ -176,17 +182,14 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
 
-        // 閉じる処理
         document.addEventListener("click", (e) => {
           if (!wrapper.contains(e.target)) dropdown.classList.remove("show");
         });
 
-        // 通知監視
         setupNotificationObserver(user, wrapper);
       });
 
     } else {
-      // 未ログイン時
       authBtns.forEach(btn => {
         if (btn.id === 'logoutBtn') {
              btn.innerHTML = "🔑 ログイン";
@@ -200,7 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// === 通知ロジック ===
 function setupNotificationObserver(user, wrapper) {
   const dot = wrapper.querySelector("#headerNotifDot");
   const list = wrapper.querySelector("#headerNotifList");
@@ -220,11 +222,9 @@ function setupNotificationObserver(user, wrapper) {
       if (!data.isRead) unreadCount++;
     });
 
-    // 赤丸制御
     if (unreadCount > 0) dot.classList.add("active");
     else dot.classList.remove("active");
 
-    // リスト描画
     if (notifications.length === 0) {
       list.innerHTML = '<li class="notif-empty">お知らせはありません</li>';
     } else {
@@ -246,7 +246,6 @@ function setupNotificationObserver(user, wrapper) {
           </div>
         `;
 
-        // クリックで詳細ページへ
         li.addEventListener("click", async () => {
            if(!n.isRead) {
              try {
