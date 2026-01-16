@@ -1,6 +1,6 @@
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { doc, getDoc, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // === CSS動的追加 (設定メニュー & オフライン通知用) ===
 const style = document.createElement('style');
@@ -31,7 +31,7 @@ style.innerHTML = `
 
   /* ドロップダウンメニュー */
   .nav-dropdown {
-    position: absolute; top: 120%; right: 0; width: 280px;
+    position: absolute; top: 120%; right: 0; width: 240px; /* 少し幅を調整 */
     background: var(--bg-card, white); border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.15);
     border: 1px solid var(--border-color, #f1f5f9);
@@ -45,38 +45,16 @@ style.innerHTML = `
     from { opacity: 0; transform: scale(0.95) translateY(-10px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
   }
-  
-  .dropdown-header {
-    padding: 15px; border-bottom: 1px solid var(--border-color, #f1f5f9);
-    display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.02);
-  }
-  
-  .dropdown-section-title {
-    padding: 10px 16px; background: rgba(0,0,0,0.02); font-size: 0.75rem;
-    font-weight: bold; color: var(--text-sub, #94a3b8); border-bottom: 1px solid var(--border-color, #f1f5f9);
-    letter-spacing: 0.05em;
-  }
+
   .menu-link {
-    display: flex; align-items: center; gap: 10px;
-    padding: 12px 16px; color: var(--text-main, #334155); text-decoration: none;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px; color: var(--text-main, #334155); text-decoration: none;
     font-size: 0.95rem; border-bottom: 1px solid var(--border-color, #f1f5f9); transition: background 0.2s;
   }
   .menu-link:hover { background: rgba(59, 130, 246, 0.05); color: #3b82f6; }
   .menu-link:last-child { border-bottom: none; }
-
-  /* 設定トグル */
-  .setting-row {
-    padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid var(--border-color, #f1f5f9); font-size: 0.9rem;
-  }
-  .setting-btn-group { display: flex; gap: 5px; }
-  .setting-btn {
-    padding: 4px 10px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 6px;
-    background: transparent; color: var(--text-sub, #64748b); cursor: pointer; font-size: 0.8rem;
-    transition: all 0.2s;
-  }
-  .setting-btn:hover { border-color: #cbd5e1; }
-  .setting-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+  
+  .menu-icon { font-size: 1.1rem; width: 24px; text-align: center; }
 
   /* オフライン通知 (トースト) */
   #offline-toast {
@@ -111,9 +89,7 @@ const updateOnlineStatus = () => {
 // イベントリスナー登録
 window.addEventListener('offline', updateOnlineStatus);
 window.addEventListener('online', updateOnlineStatus);
-// ★スクリプト読み込み時にも即座にチェック
 updateOnlineStatus(); 
-
 
 // === 初期設定ロード ===
 const savedTheme = localStorage.getItem('theme') || 'light';
@@ -142,6 +118,20 @@ document.addEventListener("DOMContentLoaded", () => {
           }
       } catch(e){}
 
+      // 通知チェック (未読があるか監視)
+      let hasUnread = false;
+      try {
+        const notifQ = query(collection(db, "users", user.uid, "notifications"), where("isRead", "==", false));
+        onSnapshot(notifQ, (snap) => {
+            hasUnread = !snap.empty;
+            // ヘッダー内のすべてのドットを更新
+            document.querySelectorAll('.notification-dot').forEach(dot => {
+                if(hasUnread) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
+        });
+      } catch(e) { console.log("通知チェックエラー:", e); }
+
       authBtns.forEach(btn => {
         // ボタン置き換え (ドロップダウン機能付きにする)
         const parent = btn.parentNode;
@@ -152,49 +142,26 @@ document.addEventListener("DOMContentLoaded", () => {
         const userInfoBtn = document.createElement("div");
         userInfoBtn.className = "user-info-btn";
         userInfoBtn.innerHTML = `
-          <img src="${userIcon}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+          <div style="position:relative;">
+             <img src="${userIcon}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.1); display:block;">
+             <span class="notification-dot" id="headerNotifDot"></span>
+          </div>
           <span class="user-name-disp">${userName}</span>
-          <span class="notification-dot" id="headerNotifDot"></span>
           <span style="font-size: 0.8rem; color: #94a3b8;">▼</span>
         `;
         
-        // ドロップダウンメニュー
+        // ドロップダウンメニュー (3項目のみ)
         const dropdown = document.createElement("div");
         dropdown.className = "nav-dropdown";
         dropdown.innerHTML = `
-          <div class="dropdown-header">
-             <img src="${userIcon}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-             <div style="flex:1; min-width:0;">
-                <div style="font-weight:bold; font-size:0.95rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${userName}</div>
-                <div style="font-size:0.75rem; color:#94a3b8;">ログイン中</div>
-             </div>
-          </div>
-
-          <a href="profile.html" class="menu-link" style="font-weight:bold; color:#3b82f6;">
-            <span>👤</span> マイページを表示
+          <a href="#" class="menu-link" id="navNotifBtn">
+            <span class="menu-icon">🔔</span> 通知
           </a>
-          
-          <div class="dropdown-section-title">⚙️ 表示設定</div>
-          
-          <div class="setting-row">
-            <span>🌙 テーマ</span>
-            <div class="setting-btn-group">
-               <button class="setting-btn ${savedTheme==='light'?'active':''}" onclick="setTheme('light')">☀</button>
-               <button class="setting-btn ${savedTheme==='dark'?'active':''}" onclick="setTheme('dark')">🌙</button>
-            </div>
-          </div>
-          
-          <div class="setting-row">
-            <span>Aa 文字サイズ</span>
-            <div class="setting-btn-group">
-               <button class="setting-btn ${savedFontSize==='small'?'active':''}" onclick="setFont('small')">小</button>
-               <button class="setting-btn ${savedFontSize==='medium'?'active':''}" onclick="setFont('medium')">中</button>
-               <button class="setting-btn ${savedFontSize==='large'?'active':''}" onclick="setFont('large')">大</button>
-            </div>
-          </div>
-
-          <a href="#" class="menu-link logout" id="headerLogoutBtn" style="color:#ef4444; border-top:1px solid var(--border-color, #f1f5f9); margin-top:5px;">
-            <span>🚪</span> ログアウト
+          <a href="profile.html" class="menu-link">
+            <span class="menu-icon">👤</span> マイページ
+          </a>
+          <a href="#" class="menu-link" id="headerLogoutBtn" style="color:#ef4444;">
+            <span class="menu-icon">🚪</span> ログアウト
           </a>
         `;
 
@@ -207,6 +174,20 @@ document.addEventListener("DOMContentLoaded", () => {
           e.preventDefault(); e.stopPropagation();
           dropdown.classList.toggle("show");
         });
+
+        // 通知ボタン処理
+        const notifBtn = wrapper.querySelector("#navNotifBtn");
+        if(notifBtn) {
+            notifBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                if(hasUnread) {
+                    alert("未読の通知があります！（通知一覧ページは準備中です）");
+                } else {
+                    alert("新しい通知はありません。");
+                }
+                // 将来的には window.location.href = "notifications.html"; などに変更
+            });
+        }
 
         // ログアウト処理
         const logoutBtn = wrapper.querySelector("#headerLogoutBtn");
@@ -225,10 +206,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
     } else {
+       // 未ログイン時はそのまま
        authBtns.forEach(btn => {
-           // まだログインしていない場合の処理（必要に応じて元に戻す）
-           // btn.textContent = "ログイン";
-           // btn.href = "login.html";
+           // 既存のログインボタンとして機能させるため何もしない
        });
     }
   });
@@ -238,24 +218,17 @@ document.addEventListener("DOMContentLoaded", () => {
 window.setTheme = (mode) => {
     document.documentElement.setAttribute('data-theme', mode);
     localStorage.setItem('theme', mode);
-    updateSettingBtns();
 };
 
 window.setFont = (size) => {
     document.documentElement.setAttribute('data-font-size', size);
     localStorage.setItem('fontSize', size);
-    updateSettingBtns();
 };
 
 window.setLang = (lang) => {
     localStorage.setItem('lang', lang);
     location.reload(); 
 };
-
-function updateSettingBtns() {
-    // 設定反映のためリロード
-    location.reload();
-}
 
 // === 多言語対応 (簡易版) ===
 const i18nData = {
