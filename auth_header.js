@@ -3,6 +3,7 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // === CSSを動的に追加 ===
+// head要素は読み込み初期から存在するため、ここで追加しても安全です
 const style = document.createElement('style');
 style.innerHTML = `
   /* アカウントボタン周り */
@@ -97,8 +98,9 @@ function applyLanguage(lang) {
     }
 }
 
+// === メイン処理 ===
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. オフライン通知の初期化
+  // 1. オフライン通知の初期化 (bodyが存在することが確定してから追加)
   const offlineToast = document.createElement("div");
   offlineToast.id = "offline-toast";
   offlineToast.innerHTML = "<span>📡</span> オフラインです。通信環境を確認してください。";
@@ -272,7 +274,6 @@ function setupNotificationObserver(user, wrapper) {
                await updateDoc(doc(db, "users", user.uid, "notifications", n.id), { isRead: true });
              } catch(e) { console.error(e); }
            }
-           // 詳細ページへ遷移 (detail2.htmlを使用)
            window.location.href = `detail2.html?id=${n.postId}`;
         });
 
