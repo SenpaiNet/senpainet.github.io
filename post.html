@@ -5,9 +5,50 @@
   <title>相談を投稿｜SenpaiNet</title>
   <link rel="stylesheet" href="post.css">
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* 追加: 左上の戻るボタン */
+    .fixed-back-btn {
+      position: fixed;
+      top: 30px;
+      left: 30px;
+      background-color: rgba(255, 255, 255, 0.95); /* 背景を白くして視認性アップ */
+      backdrop-filter: blur(5px);
+      padding: 12px 24px;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      color: #3b82f6; /* サイトのメインカラー */
+      text-decoration: none;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      z-index: 1000; /* 他の要素より手前に */
+      border: 1px solid #e0f2fe;
+    }
+    .fixed-back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.25);
+      color: #2563eb;
+    }
+    
+    /* スマホ画面での調整 */
+    @media (max-width: 600px) {
+      .fixed-back-btn {
+        top: 15px;
+        left: 15px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
 
 <body class="post-page">
+  <a href="archive.html" class="fixed-back-btn">
+    <span>←</span> 一覧に戻る
+  </a>
+
   <div id="global-loader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; transition: opacity 0.5s ease;">
       <div style="font-size: 2rem; margin-bottom: 10px;">⏳</div>
       <p style="color: #666;">認証情報を確認中...</p>
@@ -16,6 +57,8 @@
   <div class="post-wrapper">
     <div class="post-card">
       <h2>💬 新しい相談を投稿する</h2>
+      <div style="margin-bottom: 25px;"></div>
+
       <form id="postForm">
         <div class="form-group">
           <label for="title">タイトル</label>
