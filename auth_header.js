@@ -3,7 +3,6 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // === CSSを動的に追加 ===
-// head要素は読み込み初期から存在するため、ここで追加しても安全です
 const style = document.createElement('style');
 style.innerHTML = `
   /* アカウントボタン周り */
@@ -82,25 +81,9 @@ document.head.appendChild(style);
 
 const defaultFallbackIcon = `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#cccccc"/></svg>')}`;
 
-// === 言語設定データ ===
-const i18nData = {
-    ja: { "nav.ask":"相談する", "nav.archive":"相談を見る", "nav.senpai":"先輩一覧", "nav.contact":"お問い合わせ" },
-    en: { "nav.ask":"Ask Question", "nav.archive":"Archives", "nav.senpai":"Senpai List", "nav.contact":"Contact" }
-};
-
-function applyLanguage(lang) {
-    const dict = i18nData[lang] || i18nData.ja;
-    const navLinks = document.querySelectorAll('.navbar-menu a');
-    if(navLinks.length >= 4) {
-        if(navLinks[0]) navLinks[0].textContent = dict["nav.ask"];
-        if(navLinks[1]) navLinks[1].textContent = dict["nav.archive"];
-        if(navLinks[2]) navLinks[2].textContent = dict["nav.senpai"];
-    }
-}
-
 // === メイン処理 ===
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. オフライン通知の初期化 (bodyが存在することが確定してから追加)
+  // 1. オフライン通知の初期化
   const offlineToast = document.createElement("div");
   offlineToast.id = "offline-toast";
   offlineToast.innerHTML = "<span>📡</span> オフラインです。通信環境を確認してください。";
@@ -117,11 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener('online', updateOnlineStatus);
   updateOnlineStatus(); // 初期チェック
 
-  // 2. 言語設定の適用
-  const savedLang = localStorage.getItem('lang') || 'ja';
-  applyLanguage(savedLang);
-
-  // 3. 認証状態の監視
+  // 2. 認証状態の監視
   onAuthStateChanged(auth, async (user) => {
     const authBtns = document.querySelectorAll('.account-btn, .account-link');
 
