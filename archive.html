@@ -44,6 +44,35 @@
         text-align: center; padding: 20px; grid-column: 1 / -1; display: none; color: var(--text-sub);
     }
     #scrollLoader.active { display: block; }
+
+    /* タグフィルターのスタイル調整 */
+    .tag-filter {
+      max-width: 900px;
+      margin: 20px auto 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center; /* 中央寄せ */
+      gap: 8px;
+    }
+    .filter-tag {
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: #e6f2ff;
+      color: #3b82f6;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.2s;
+      border: 1px solid transparent;
+    }
+    .filter-tag:hover {
+      background: #cfe6ff;
+    }
+    .filter-tag.active {
+      background: #3b82f6;
+      color: white;
+      box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+    }
   </style>
 </head>
 <body class="list-page">
@@ -93,6 +122,24 @@
           <span class="filter-tag" data-tag="一般入試">#一般入試</span>
           <span class="filter-tag" data-tag="AO入試">#AO入試</span>
           <span class="filter-tag" data-tag="海外大学">#海外大学</span>
+          <span class="filter-tag" data-tag="指定校推薦">#指定校推薦</span>
+          <span class="filter-tag" data-tag="数学">#数学</span>
+          <span class="filter-tag" data-tag="英語">#英語</span>
+          <span class="filter-tag" data-tag="理科">#理科</span>
+          <span class="filter-tag" data-tag="国語">#国語</span>
+          <span class="filter-tag" data-tag="DP">#DP</span>
+          <span class="filter-tag" data-tag="MYP">#MYP</span>
+          <span class="filter-tag" data-tag="部活">#部活</span>
+          <span class="filter-tag" data-tag="課外活動">#課外活動</span>
+          <span class="filter-tag" data-tag="英検">#英検</span>
+          <span class="filter-tag" data-tag="TOEFL">#TOEFL</span>
+          <span class="filter-tag" data-tag="IELTS">#IELTS</span>
+          <span class="filter-tag" data-tag="模試">#模試</span>
+          <span class="filter-tag" data-tag="理系">#理系</span>
+          <span class="filter-tag" data-tag="文系">#文系</span>
+          <span class="filter-tag" data-tag="ボランティア">#ボランティア</span>
+          <span class="filter-tag" data-tag="教育">#教育</span>
+          <span class="filter-tag" data-tag="進路">#進路</span>
         </div>
         <div id="searchTagArea" class="search-tag-area"></div>
       </div>
