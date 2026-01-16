@@ -16,12 +16,10 @@
   <div class="post-wrapper">
     <div class="post-card">
       <h2>💬 新しい相談を投稿する</h2>
-      <p class="subtitle">Markdown記法・数式($LaTeX$)に対応しています</p>
-
       <form id="postForm">
         <div class="form-group">
           <label for="title">タイトル</label>
-          <input type="text" id="title" placeholder="例：数学IIIの微分の問題について" required>
+          <input type="text" id="title" placeholder="例：進路についての相談、学校生活の悩みなど" required>
         </div>
 
         <div class="form-group">
@@ -29,7 +27,7 @@
              内容
              <span style="font-size:0.8rem; color:#64748b; font-weight:normal; float:right;">Markdown対応</span>
           </label>
-          <textarea id="content" rows="8" placeholder="質問内容を入力...&#10;数式は $ x^2 $ のように囲んでください。" required></textarea>
+          <textarea id="content" rows="8" placeholder="質問や相談したい内容を詳しく入力してください。&#10;数式は $ x^2 $ のように囲むと表示できます。" required></textarea>
           
           <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 8px;">
              <div style="display: flex; gap: 8px;">
@@ -44,13 +42,24 @@
           <div id="tagSelect" class="tag-select">
             <span class="tag-option" data-tag="一般入試">#一般入試</span>
             <span class="tag-option" data-tag="AO入試">#AO入試</span>
+            <span class="tag-option" data-tag="海外大学">#海外大学</span>
+            <span class="tag-option" data-tag="指定校推薦">#指定校推薦</span>
             <span class="tag-option" data-tag="数学">#数学</span>
             <span class="tag-option" data-tag="英語">#英語</span>
             <span class="tag-option" data-tag="理科">#理科</span>
+            <span class="tag-option" data-tag="国語">#国語</span>
+            <span class="tag-option" data-tag="社会">#社会</span>
             <span class="tag-option" data-tag="DP">#DP</span>
+            <span class="tag-option" data-tag="MYP">#MYP</span>
             <span class="tag-option" data-tag="課外活動">#課外活動</span>
-            <span class="tag-option" data-tag="海外大学">#海外大学</span>
+            <span class="tag-option" data-tag="部活">#部活</span>
             <span class="tag-option" data-tag="TOEFL">#TOEFL</span>
+            <span class="tag-option" data-tag="IELTS">#IELTS</span>
+            <span class="tag-option" data-tag="英検">#英検</span>
+            <span class="tag-option" data-tag="模試">#模試</span>
+            <span class="tag-option" data-tag="進路">#進路</span>
+            <span class="tag-option" data-tag="学校生活">#学校生活</span>
+            <span class="tag-option" data-tag="その他">#その他</span>
           </div>
         </div>
 
