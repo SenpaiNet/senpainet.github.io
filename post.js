@@ -50,7 +50,6 @@ document.getElementById("loadDraftBtn").addEventListener("click", () => {
 // 初期状態のスタイル設定（任意）
     submitBtn.style.opacity = "0.5";
     submitBtn.style.cursor = "not-allowed";
-</script>
 
 // === 投稿処理 ===
 if (postForm) {
