@@ -209,3 +209,76 @@ input:focus, textarea:focus {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+/* 注意事項エリアの枠組み */
+#precautions-area {
+    background-color: #fff9e6; /* 薄い注意を促す黄色系 */
+    border: 1px solid #ffe58f;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* 注意事項のタイトル */
+#precautions-area p {
+    color: #856404;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* リストの調整 */
+#precautions-area ul {
+    list-style-type: "⚠️"; /* 箇条書きの点を警告アイコンに */
+    padding-left: 25px;
+    margin-bottom: 15px;
+    color: #555;
+    line-height: 1.6;
+}
+
+#precautions-area li {
+    padding-left: 10px;
+}
+
+/* チェックボックス部分 */
+.agree-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+
+.agree-label:hover {
+    background-color: #f0f0f0;
+}
+
+/* チェックボックス自体のサイズを少し大きく */
+#agree-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* 投稿ボタンのスタイル（無効時） */
+#submit-btn {
+    padding: 10px 25px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+#submit-btn:disabled {
+    background-color: #ccc !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none !important;
+}
+
