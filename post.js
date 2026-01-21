@@ -47,27 +47,7 @@ document.getElementById("loadDraftBtn").addEventListener("click", () => {
     }
 });
 
-// === 投稿注意点 ===
-<script>
-    const agreeCheckbox = document.getElementById('agree-checkbox');
-    const submitBtn = document.getElementById('submit-btn');
-
-    // チェックボックスの状態が変わるたびに実行
-    agreeCheckbox.addEventListener('change', function() {
-        if (this.checked) {
-            // チェックされていればボタンを有効化
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = "1"; // 見た目を活性化
-            submitBtn.style.cursor = "pointer";
-        } else {
-            // チェックが外れていればボタンを無効化
-            submitBtn.disabled = true;
-            submitBtn.style.opacity = "0.5"; // 見た目を半透明に
-            submitBtn.style.cursor = "not-allowed";
-        }
-    });
-
-    // 初期状態のスタイル設定（任意）
+// 初期状態のスタイル設定（任意）
     submitBtn.style.opacity = "0.5";
     submitBtn.style.cursor = "not-allowed";
 </script>
