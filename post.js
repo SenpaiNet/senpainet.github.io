@@ -92,36 +92,3 @@ if (postForm) {
 document.querySelectorAll(".tag-option").forEach(tag => {
     tag.addEventListener("click", () => tag.classList.toggle("selected"));
 });
-
-<script>
-    // ページ読み込み完了時に実行
-    window.addEventListener('load', function() {
-        const checkbox = document.getElementById('agree-checkbox');
-        const submitBtn = document.getElementById('submit-btn'); // 投稿ボタンのIDに合わせてください
-
-        if (checkbox && submitBtn) {
-            // 最初はボタンを無効化
-            submitBtn.disabled = true;
-
-            // チェックボックスの変更を監視
-            checkbox.addEventListener('change', function() {
-                submitBtn.disabled = !this.checked;
-            });
-        }
-    });
-</script>
-<script>
-    const checkbox = document.getElementById('agree-checkbox');
-    const button = document.getElementById('submit-btn');
-
-    // チェック状態に合わせてボタンの状態を切り替える関数
-    function toggleButton() {
-        button.disabled = !checkbox.checked;
-    }
-
-    // ページを読み込んだ瞬間に実行（初期状態の反映）
-    toggleButton();
-
-    // チェックボックスがクリックされるたびに実行
-    checkbox.addEventListener('change', toggleButton);
-</script>
