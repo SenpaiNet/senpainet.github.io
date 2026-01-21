@@ -114,23 +114,21 @@
           </div>
         </div>
         
-        <!-- 投稿前の注意事項 -->
-        <div class="post-notice">
-          <h3>投稿する前にご確認ください</h3>
-          <ul>
-            <li>個人が特定できる情報（本名・住所・電話番号など）は書かないでください</li>
-            <li>誹謗中傷・差別的な表現は禁止です</li>
-            <li>緊急性の高い内容（命・犯罪等）は専門機関に相談してください</li>
-            <li>投稿内容は運営が確認・削除する場合があります</li>
-          </ul>
-        
-          <label class="agree-check">
-            <input type="checkbox" id="agreeCheckbox">
-            以上の内容を理解しました
-          </label>
+        <div id="precautions-area" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; background-color: #f9f9f9; border-radius: 5px;">
+            <p style="font-weight: bold; margin-top: 0;">【投稿に関する注意事項】</p>
+            <ul style="font-size: 0.9em; margin-bottom: 15px;">
+                <li>他人を誹謗中傷する内容や不適切な表現は控えてください。</li>
+                <li>個人情報（本名、住所、電話番号など）を書き込まないでください。</li>
+                <li>一度投稿した内容は削除できない場合があります。</li>
+                <li>公序良俗に反する投稿は、管理者の判断で削除されることがあります。</li>
+            </ul>
+            
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="agree-checkbox">
+                <span>以上の内容を理解しました</span>
+            </label>
         </div>
-
-
+        
         <button type="submit" class="submit-btn">🚀 投稿する</button>
       </form>
       <a href="archive.html" class="back-link">← 一覧に戻る</a>
@@ -141,4 +139,5 @@
 <script type="module" src="post.js"></script>
 </body>
 </html>
+
 
