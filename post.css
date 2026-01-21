@@ -210,3 +210,21 @@ input:focus, textarea:focus {
   to { opacity: 0; }
 }
 
+/* 普段のボタン */
+#submit-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* ★ここを追加：無効化されている時のスタイル */
+#submit-btn:disabled {
+    background-color: #cccccc !important; /* グレーにする */
+    color: #666666 !important;           /* 文字を薄くする */
+    cursor: not-allowed !important;      /* 禁止マークのカーソル */
+    opacity: 0.7;
+}
