@@ -110,3 +110,18 @@ document.querySelectorAll(".tag-option").forEach(tag => {
         }
     });
 </script>
+<script>
+    const checkbox = document.getElementById('agree-checkbox');
+    const button = document.getElementById('submit-btn');
+
+    // チェック状態に合わせてボタンの状態を切り替える関数
+    function toggleButton() {
+        button.disabled = !checkbox.checked;
+    }
+
+    // ページを読み込んだ瞬間に実行（初期状態の反映）
+    toggleButton();
+
+    // チェックボックスがクリックされるたびに実行
+    checkbox.addEventListener('change', toggleButton);
+</script>
