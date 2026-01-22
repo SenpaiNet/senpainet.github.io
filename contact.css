@@ -1,0 +1,126 @@
+/* 全体の設定 */
+body {
+    background-color: #f5f7fa;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* カード風のデザイン */
+.contact-card {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    width: 90%;
+    max-width: 500px;
+}
+
+h2 {
+    margin-top: 0;
+    color: #333;
+    text-align: center;
+}
+
+.description {
+    font-size: 0.9em;
+    color: #666;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* 入力項目 */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #444;
+}
+
+.input-group input, 
+.input-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.input-group input:focus, 
+.input-group textarea:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.input-group textarea {
+    height: 120px;
+    resize: vertical;
+}
+
+/* チェックボックス */
+.consent-area {
+    margin: 25px 0;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+#agree-check {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+/* 送信ボタン */
+#submit-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#submit-btn:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+#submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.back-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.back-link a {
+    color: #888;
+    text-decoration: none;
+    font-size: 0.85em;
+}
+
+.back-link a:hover {
+    text-decoration: underline;
+}
