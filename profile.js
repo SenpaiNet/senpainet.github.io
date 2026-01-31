@@ -1,6 +1,7 @@
-import { auth, db } from "./firebase.js";
+import { auth, db, storage } from "./firebase.js"; // storageを追加
 import { onAuthStateChanged, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { doc, getDoc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js"; // Storage用関数を追加
 
 // === 円形切り抜き用の関数 ===
 function getRoundedCanvas(sourceCanvas) {
@@ -52,6 +53,12 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Error fetching user data:", e);
         }
     });
+
+    // ログアウトボタンの処理も念のため追加
+    const logoutBtn = document.getElementById("logoutBtn");
+    if(logoutBtn) {
+        logoutBtn.addEventListener("click", () => signOut(auth));
+    }
 });
 
 function renderProfile() {
@@ -75,8 +82,11 @@ function renderProfile() {
         document.getElementById("tagsCard").style.display = "block";
         const tagsDiv = document.getElementById("dispTags");
         tagsDiv.innerHTML = "";
-        if(data.tags && data.tags.length > 0) {
-            data.tags.forEach(t => {
+        // tags または interestedTags を表示に使用
+        const currentTags = data.tags || data.interestedTags || [];
+        
+        if(currentTags.length > 0) {
+            currentTags.forEach(t => {
                 const sp = document.createElement("span");
                 sp.className = "tag-badge";
                 sp.textContent = "#" + t;
@@ -135,7 +145,6 @@ function setupEditLogics() {
             });
         };
         reader.readAsDataURL(file);
-        // 同じファイルを選んでも発火するように
         fileInput.value = "";
     });
 
@@ -151,8 +160,7 @@ function setupEditLogics() {
         const rounded = getRoundedCanvas(canvas);
         const dataUrl = rounded.toDataURL("image/png"); // Base64
         
-        // Firestore保存（本来はStorage推奨だが、簡易実装としてFirestoreにBase64保存）
-        // ※データ量が大きいとエラーになる場合があるので注意
+        // Storageへアップロードして保存
         saveIcon(dataUrl);
         
         cropperModal.style.display = "none";
@@ -171,13 +179,33 @@ function setupEditLogics() {
         colorContainer.appendChild(img);
     });
 
-    async function saveIcon(url) {
+    // ★修正: Storageへのアップロード対応版 saveIcon
+    async function saveIcon(dataUrl) {
         try {
-            await updateProfile(currentUser, { photoURL: url });
-            await updateDoc(doc(db, "users", currentUser.uid), { iconUrl: url });
+            let finalUrl = dataUrl;
+
+            // データがBase64画像形式(data:image...)ならStorageにアップロード
+            if(dataUrl.startsWith("data:image")) {
+                // ファイル名にタイムスタンプをつけて一意にする
+                const storageRef = ref(storage, `icons/${currentUser.uid}_${Date.now()}.png`);
+                
+                // 文字列(Base64)としてアップロード
+                await uploadString(storageRef, dataUrl, 'data_url');
+                
+                // アップロード先の公開URLを取得
+                finalUrl = await getDownloadURL(storageRef);
+            }
+
+            // Authenticationのプロフィール画像とFirestoreのデータを更新
+            await updateProfile(currentUser, { photoURL: finalUrl });
+            await updateDoc(doc(db, "users", currentUser.uid), { iconUrl: finalUrl });
+            
             alert("アイコンを更新しました！");
             window.location.reload();
-        } catch(e) { console.error(e); alert("保存失敗: " + e.message); }
+        } catch(e) { 
+            console.error(e); 
+            alert("保存失敗: " + e.message); 
+        }
     }
 
 
@@ -249,7 +277,9 @@ function setupEditLogics() {
         const tagsView = document.getElementById("tagsViewMode");
         const tagsEditArea = document.getElementById("tagsEditArea");
         const tagsEditBtn = document.getElementById("tagsEditBtn");
-        let selectedTags = currentUserData.tags || [];
+        
+        // notificationシステムと同期するため、interestedTagsも考慮
+        let selectedTags = currentUserData.tags || currentUserData.interestedTags || [];
 
         tagsEditBtn.addEventListener("click", () => {
              tagsView.style.display = "none";
@@ -260,17 +290,14 @@ function setupEditLogics() {
              // タグボタンの状態初期化
              document.querySelectorAll("#tagSelectionContainer .tag-option").forEach(btn => {
                 const t = btn.dataset.tag;
-                // クラス名をリセットしてから判定
                 btn.className = "tag-option-btn"; 
                 if(selectedTags.includes(t)) btn.classList.add("selected");
              });
         });
 
-        // タグボタンの生成（HTMLに静的に書かれているものをJSで装飾しなおす、あるいはクリックイベント付与）
-        // ここではHTMLの span.tag-option を button.tag-option-btn に置き換えてイベント設定
+        // タグボタンの生成
         const container = document.getElementById("tagSelectionContainer");
         const spans = container.querySelectorAll(".tag-option");
-        // 一度クリアして再生成
         const tagList = Array.from(spans).map(s => s.dataset.tag);
         container.innerHTML = "";
         
@@ -306,9 +333,16 @@ function setupEditLogics() {
             tagsEditBtn.disabled = false;
             selectedTags = currentUserData.tags || [];
         });
+
         document.getElementById("tagsSaveBtn").addEventListener("click", async () => {
             try {
-                await setDoc(doc(db, "users", currentUser.uid), { tags: selectedTags }, { merge: true });
+                // ★修正: 通知システム用に interestedTags にも保存する
+                await setDoc(doc(db, "users", currentUser.uid), { 
+                    tags: selectedTags,
+                    interestedTags: selectedTags // これでCloud Functionsが反応します
+                }, { merge: true });
+                
+                alert("得意分野タグを保存しました！\n関連する相談が投稿されるとメール通知が届きます。");
                 window.location.reload();
             } catch (e) { console.error(e); alert("更新失敗: " + e.message); }
         });
@@ -330,7 +364,7 @@ function setupEditLogics() {
         });
     }
 
-    // === F. アカウント削除 (新規追加) ===
+    // === F. アカウント削除 ===
     const deleteBtn = document.getElementById("deleteAccountBtn");
     if(deleteBtn) {
         deleteBtn.addEventListener("click", async () => {
@@ -348,7 +382,6 @@ function setupEditLogics() {
                 window.location.href = "index.html";
             } catch(e) {
                 console.error(e);
-                // 再ログインが必要なケースがあるため
                 if(e.code === 'auth/requires-recent-login') {
                     alert("セキュリティのため、再ログインしてからもう一度お試しください。");
                 } else {
