@@ -8,6 +8,18 @@ style.innerHTML = `
   /* アカウントボタン周り */
   .account-btn-wrapper { position: relative; display: inline-block; }
 
+  /* ★★★ チラつき防止：最初は隠しておく ★★★ */
+  .account-btn, .account-link {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+  }
+  /* 準備ができたら表示するクラス */
+  .account-btn.visible, .account-link.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
   /* 通知バッジ (Discord風の赤丸) */
   .notification-dot {
     position: absolute; top: -3px; right: -3px;
@@ -143,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
         newBtn.setAttribute("style", btn.getAttribute("style")); 
         
         // スマホでは名前を非表示にしてアイコンのみにする（スペース節約）
-        // ただしCSSで制御するため、HTMLには名前を含めておく
         newBtn.innerHTML = `
           <img src="${userIcon}" style="width:28px; height:28px; border-radius:50%; vertical-align:middle; margin-right:8px; border:2px solid rgba(255,255,255,0.8); object-fit:cover;">
           <span style="vertical-align:middle;" class="user-name-label">${userName}</span>
@@ -166,6 +177,9 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.appendChild(newBtn);
         wrapper.appendChild(dropdown);
         parent.replaceChild(wrapper, btn);
+
+        // ★★★ 準備完了！ここでふわっと表示させる ★★★
+        setTimeout(() => newBtn.classList.add("visible"), 50);
 
         newBtn.addEventListener("click", (e) => {
           e.preventDefault(); e.stopPropagation();
@@ -190,14 +204,18 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
     } else {
+      // ログアウト状態
       authBtns.forEach(btn => {
         if (btn.id === 'logoutBtn') {
              btn.innerHTML = "🔑 ログイン";
              btn.href = "login.html";
+             btn.classList.add("visible"); // 表示
              return;
         }
         btn.textContent = "ログイン";
         btn.href = "login.html";
+        // ★★★ 準備完了！ここでふわっと表示させる ★★★
+        btn.classList.add("visible");
       });
     }
   });
