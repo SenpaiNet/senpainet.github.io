@@ -33,27 +33,39 @@ body {
 }
 .navbar-menu a:hover { color: #2563eb; }
 
-/* ★★★ かっこいいアカウントボタン ★★★ */
+/* ★★★ かっこいいアカウントボタン（修正版） ★★★ */
 .account-btn {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); /* 深みのある青グラデーション */
+  /* --- デザイン --- */
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white !important;
-  padding: 10px 24px !important; /* 横長にしてスタイリッシュに */
-  border-radius: 50px !important; /* 完全な丸み（ピル型） */
+  padding: 10px 24px !important;
+  border-radius: 50px !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: auto !important; /* 高さはpaddingで調整 */
+  height: auto !important;
   box-sizing: border-box;
   font-weight: 700 !important;
   letter-spacing: 0.03em;
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); /* 青い発光のような影 */
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
   border: 1px solid rgba(255,255,255,0.2);
+
+  /* --- チラつき防止（最初は見えなくする） --- */
+  opacity: 0;
+  visibility: hidden;
+  /* transitionから !important を外し、opacityの変更も滑らかにする */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, background 0.3s ease;
+}
+
+/* 準備ができたらJSがこのクラスをつける → ふわっと表示 */
+.account-btn.visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 .account-btn:hover {
-  transform: translateY(-2px); /* ふわっと浮く */
-  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5); /* 影が濃くなる */
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
 
@@ -273,6 +285,7 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   opacity: 1;
   visibility: visible;
 }
+
 
 
 
