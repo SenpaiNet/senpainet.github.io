@@ -3,12 +3,11 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // === CSSを動的に追加 ===
+// ★修正点: ここで「position」や「display」を指定すると style.css の絶対配置とケンカするので削除しました。
+// 純粋に「通知バッジ」や「ドロップダウン」のスタイルのみ定義します。
 const style = document.createElement('style');
 style.innerHTML = `
-  /* アカウントボタン周り */
-  .account-btn-wrapper { position: relative; display: inline-block; }
-
-  /* ★★★ チラつき防止：最初は隠しておく ★★★ */
+  /* --- チラつき防止：最初は隠しておく --- */
   .account-btn, .account-link {
     opacity: 0;
     visibility: hidden;
@@ -40,6 +39,7 @@ style.innerHTML = `
     border: 1px solid #f1f5f9;
     display: none; flex-direction: column;
     z-index: 9999; overflow: hidden;
+    text-align: left; /* 左寄せを強制 */
   }
   .nav-dropdown.show { display: flex; animation: fadeIn 0.2s ease-out; }
 
@@ -112,7 +112,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (user) {
       // === ログイン中 ===
-      // ★ログイン履歴を保存（これが重要！）
       localStorage.setItem("senpaiNet_hasAccount", "true");
 
       let userIcon = user.photoURL || defaultFallbackIcon;
@@ -165,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.appendChild(dropdown);
         parent.replaceChild(wrapper, btn);
 
-        // ★★★ 準備完了！ここでふわっと表示 ★★★
+        // ★★★ 準備完了！ここで表示 ★★★
         setTimeout(() => newBtn.classList.add("visible"), 10);
 
         newBtn.addEventListener("click", (e) => {
@@ -177,7 +176,6 @@ document.addEventListener("DOMContentLoaded", () => {
           e.preventDefault();
           if(confirm("ログアウトしますか？")) {
             signOut(auth).then(() => {
-              // ★ログアウト時だけ履歴を消す
               localStorage.removeItem("senpaiNet_hasAccount");
               window.location.href = "index.html";
             });
@@ -194,7 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       // === 未ログイン ===
       
-      // ★★★ ここが最重要！ ★★★
       // 「前にログインしたことがある」なら、Firebaseが一瞬nullを返しても
       // 「ログイン」ボタンを表示せずに、そのまま待ちます（透明のまま）。
       if (localStorage.getItem("senpaiNet_hasAccount")) {
