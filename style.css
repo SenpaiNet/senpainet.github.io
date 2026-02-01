@@ -6,116 +6,127 @@ body {
   padding-top: 70px; /* ヘッダー固定分の余白 */
 }
 
-/* === ナビゲーションバー === */
+/* =========================================
+   ヘッダー & ナビゲーション (Index / Archive 統一デザイン)
+   ========================================= */
+
+/* すりガラス風ナビゲーションバー */
 .navbar {
-  width: 100%; height: 70px;
-  background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+  width: 100%;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.85); /* 半透明の白 */
+  backdrop-filter: blur(12px); /* すりガラス効果 */
+  -webkit-backdrop-filter: blur(12px);
   position: fixed; top: 0; left: 0;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-  z-index: 1000; box-sizing: border-box;
-  display: flex; align-items: center; 
-  padding: 0 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+  z-index: 1000;
+  box-sizing: border-box;
+  display: flex; align-items: center; padding: 0 40px;
+  transition: all 0.3s ease;
 }
 
-/* 基準点を作るコンテナ */
 .navbar-container {
   width: 100%; max-width: 1200px; margin: 0 auto;
-  display: flex; align-items: center;
-  justify-content: space-between;
-  position: relative; /* ★重要：ここを基準にボタンを右端に固定 */
+  display: flex; justify-content: space-between; align-items: center;
 }
 
-/* ロゴ修正（文字の下が切れない設定） */
+/* === ロゴ (消える問題を修正 & 統一) === */
 .navbar-logo {
-  font-size: 24px; font-weight: 900;
-  background: linear-gradient(90deg, #4da6ff, #2563eb);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  /* グラデーション等の設定をリセットし、単色にする */
+  background: none; 
+  -webkit-background-clip: border-box;
+  -webkit-text-fill-color: initial;
+  color: #1e3a8a; /* 濃い青で統一 */
+  display: flex; align-items: center; line-height: 1;
+}
+
+.navbar-logo a {
+  text-decoration: none;
+  color: inherit; /* 親の色(#1e3a8a)を継承 */
+  transition: opacity 0.2s ease;
+}
+
+/* ホバー時に「消える」のを防ぐため、単に薄くするだけにする */
+.navbar-logo a:hover {
+  opacity: 0.7; 
+  color: #1e3a8a; /* 色を強制指定して白化を防ぐ */
+}
+
+/* === メニューリンク (Index用クラス: navbar-links) === */
+.navbar-links {
+  display: flex; align-items: center; gap: 32px;
+}
+
+.navbar-links a {
+  text-decoration: none;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.95rem;
+  position: relative;
+  padding: 8px 0;
+  transition: color 0.3s;
+}
+
+/* ホバー時の下線アニメーション */
+.navbar-links a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 50%;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.navbar-links a:hover {
+  color: #2563eb;
+}
+
+.navbar-links a:hover::after {
+  width: 100%;
+}
+
+/* === アカウントボタン (Indexでも表示されるように追加) === */
+.navbar-auth {
   display: flex; align-items: center;
-  line-height: 1.2;     
-  padding-bottom: 2px;  
-  margin-right: 20px;
-  flex-shrink: 0;
-}
-.navbar-logo a { text-decoration: none; }
-
-/* === メニューリンク === */
-.navbar-menu {
-  display: flex; align-items: center; gap: 30px;
-  /* ★重要：ボタンが被らないように、右側に強制的にスペースを空ける */
-  margin-right: 150px; 
 }
 
-.navbar-menu a:not(.account-btn) {
-  text-decoration: none; color: #475569; font-weight: 600;
-  transition: 0.2s; font-size: 0.95rem;
-  white-space: nowrap;
-}
-.navbar-menu a:hover { color: #2563eb; }
-
-/* === アカウントボタン（デザイン復活 + 強制固定） === */
-.account-btn, .account-btn-wrapper {
-  /* ▼▼▼ 場所の固定設定（絶対配置） ▼▼▼ */
-  position: absolute !important; 
-  right: 0;                      
-  top: 50%;                      
-  transform: translateY(-50%);   
-  z-index: 10;
-
-  /* ▼▼▼ デザイン設定（かっこいい青グラデーション） ▼▼▼ */
+/* ここで .account-btn のスタイルを定義しないと Index でボタンが崩れる */
+.account-btn, .account-link {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white !important;
+  color: white !important; /* 文字色を白で強制 */
   padding: 10px 24px !important;
   border-radius: 50px !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-flex; align-items: center; justify-content: center;
   height: auto !important;
-  box-sizing: border-box;
   font-weight: 700 !important;
-  letter-spacing: 0.03em;
+  font-size: 0.95rem;
   box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
   border: 1px solid rgba(255,255,255,0.2);
-  text-decoration: none; /* 下線を消す */
-
-  /* ▼▼▼ チラつき防止（最初は隠す） ▼▼▼ */
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  text-decoration: none !important;
+  /* 下線アニメーションを無効化 */
 }
+.account-btn::after, .account-link::after { display: none !important; }
 
-/* 準備完了時にJSがこのクラスをつける → 表示 */
-.account-btn.visible, .account-btn-wrapper .account-btn {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* ホバー時の動き（位置は固定のまま、色と影だけ変える） */
-.account-btn:hover {
-  /* 位置をズラさない（ズラすとガクッとなるため） */
-  transform: translateY(-50%) !important; 
-  
-  /* 色を濃くして、影を強くする */
+.account-link:hover, .account-btn:hover {
+  transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  opacity: 1 !important; /* JSのopacity制御と競合しないようHover時は不透明 */
 }
 
-/* === スマホ対応 === */
+/* レスポンシブ対応（スマホ表示） */
 @media (max-width: 768px) {
-  .navbar { padding: 0 15px; }
-  
-  .navbar-menu {
-    gap: 15px;
-    margin-right: 120px; /* スマホでのボタン用スペース */
-  }
-  .navbar-menu a:not(.account-btn) {
-    font-size: 0.8rem;
-  }
-  
-  .navbar-container {
-    overflow-x: auto;
-    padding-bottom: 5px;
-  }
-  .navbar-container::-webkit-scrollbar { display: none; }
+  .navbar { padding: 0 20px; }
+  .navbar-links { display: none; } /* スマホではメニューを隠す等の処理が必要なら */
 }
 /* ★★★ かっこいいアカウントボタン（統合版） ★★★ */
 .account-btn {
@@ -354,6 +365,7 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   color: #666;
   margin-top: 20px;
 }
+
 
 
 
