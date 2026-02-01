@@ -178,27 +178,29 @@ body.list-page {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-/* ★★★ 新しく投稿ボタン (劇的改善) ★★★ */
+/* ★★★ 新しく投稿ボタン (青グラデーション・アイコン削除) ★★★ */
 .new-post-btn {
   display: flex; align-items: center; justify-content: center;
   width: fit-content;
   margin: 30px auto 0; /* 中央配置 */
   padding: 16px 40px;
   
-  /* グラデーション：オレンジ〜アンバー */
-　background: linear-gradient(135deg, #3b82f6, #2563eb);
+  /* グラデーション：青に変更 */
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white; font-weight: 800; font-size: 1.1rem;
   text-decoration: none;
   border-radius: 50px;
   
-  /* 立体感と光彩 */
-  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  /* 立体感と光彩 (青系) */
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.new-post-btn::before { content: ''; margin-right: 10px; font-size: 1.2rem; }
+
+/* 鉛筆アイコンの擬似要素は削除しました */
+
 .new-post-btn:hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 15px 40px rgba(245, 158, 11, 0.5);
+  box-shadow: 0 15px 40px rgba(37, 99, 235, 0.5);
 }
 
 /* =========================================
@@ -247,5 +249,3 @@ body.list-page {
   font-size: 0.75rem; color: #64748b; background: #f1f5f9;
   padding: 4px 10px; border-radius: 8px; font-weight: 600;
 }
-
-
