@@ -33,6 +33,28 @@
       color: #2563eb;
     }
 
+    /* ▼▼▼ 追加：タグ選択のスタイル修正 ▼▼▼ */
+    /* これがないとクリックしても色が変わらないため、選択されたか分かりませんでした */
+    .tag-option {
+        display: inline-block;
+        padding: 8px 16px;
+        margin: 4px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        cursor: pointer;
+        background: #f8fafc;
+        color: #333;
+        transition: all 0.2s;
+        user-select: none; /* 連打した時に文字選択されないように */
+    }
+    .tag-option.selected {
+        background-color: #3b82f6 !important; /* 青色 */
+        color: white !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 2px 5px rgba(59, 130, 246, 0.4);
+    }
+    /* ▲▲▲ 追加終わり ▲▲▲ */
+
     /* スマホ画面での調整 */
     @media (max-width: 600px) {
       .fixed-back-btn {
@@ -155,7 +177,3 @@
 <script type="module" src="post.js"></script>
 </body>
 </html>
-
-
-
-
