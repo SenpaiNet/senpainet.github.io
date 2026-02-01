@@ -31,28 +31,33 @@ body {
   display: flex; justify-content: space-between; align-items: center;
 }
 
-/* === ロゴ (Archiveと統一・バグ修正) === */
+/* === ロゴ (グラデーション復活 & バグ対策済み) === */
 .navbar-logo {
   font-family: 'Inter', sans-serif;
   font-size: 24px;
   font-weight: 900;
   letter-spacing: -0.02em;
-  /* グラデーションを削除し、単色濃紺に統一 */
-  background: none;
-  -webkit-text-fill-color: initial;
-  color: #1e3a8a; 
   display: flex; align-items: center; line-height: 1;
 }
 
 .navbar-logo a {
   text-decoration: none;
-  color: inherit;
+  
+  /* グラデーション定義 */
+  background: linear-gradient(90deg, #4da6ff 0%, #2563eb 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  
+  /* 文字色を透明にして背景(グラデーション)を見せる */
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  
   transition: opacity 0.2s ease;
 }
 
+/* ホバー時は色をいじらず、透明度だけ下げる（これで消えません） */
 .navbar-logo a:hover {
-  opacity: 0.7; /* ホバー時に消えないように透明度操作のみ */
-  color: #1e3a8a;
+  opacity: 0.7;
 }
 
 /* === メニューリンク (Indexページ用クラス .navbar-links) === */
@@ -365,6 +370,7 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   color: #666;
   margin-top: 20px;
 }
+
 
 
 
