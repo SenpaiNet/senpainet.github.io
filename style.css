@@ -13,25 +13,69 @@ body {
   position: fixed; top: 0; left: 0;
   box-shadow: 0 4px 20px rgba(0,0,0,0.03);
   z-index: 1000; box-sizing: border-box;
-  display: flex; align-items: center; padding: 0 40px;
+  display: flex; align-items: center; 
+  padding: 0 20px; /* スマホ用に余白を少し狭める */
 }
+
 .navbar-container {
   width: 100%; max-width: 1200px; margin: 0 auto;
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex; align-items: center;
+  /* 子要素の配置を制御 */
+  justify-content: space-between;
 }
+
 .navbar-logo {
   font-size: 24px; font-weight: 900;
   background: linear-gradient(90deg, #4da6ff, #2563eb);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   display: flex; align-items: center; line-height: 1;
+  margin-right: 20px;
+  flex-shrink: 0; /* ロゴは縮めない */
 }
 .navbar-logo a { text-decoration: none; }
-.navbar-menu { display: flex; align-items: center; gap: 30px; }
-.navbar-menu a {
+
+/* === メニューリンク（中央〜左寄りエリア） === */
+.navbar-links {
+  display: flex; align-items: center; gap: 25px;
+  /* これが重要！右側の余白を自動で埋めることで、
+     ボタンを右端に押しやりつつ、自分たちは左（ロゴの隣）に固定される */
+  margin-right: auto; 
+  margin-left: 20px;
+}
+
+.navbar-links a {
   text-decoration: none; color: #475569; font-weight: 600;
   transition: 0.2s; font-size: 0.95rem;
+  white-space: nowrap; /* 文字が折り返されないようにする */
 }
-.navbar-menu a:hover { color: #2563eb; }
+.navbar-links a:hover { color: #2563eb; }
+
+/* === 認証ボタンエリア（右端エリア） === */
+.navbar-auth {
+  display: flex; align-items: center; justify-content: flex-end;
+  min-width: 100px; /* ボタンのスペースを確保してレイアウト崩れを防ぐ */
+}
+
+/* === スマホ対応（画面が狭いとき） === */
+@media (max-width: 768px) {
+  .navbar { padding: 0 15px; }
+  
+  /* リンクの文字サイズや間隔を調整 */
+  .navbar-links {
+    gap: 15px;
+    margin-left: 10px;
+  }
+  .navbar-links a {
+    font-size: 0.8rem; /* 少し小さくして収まりやすく */
+  }
+  
+  /* 画面が極端に狭い場合（スマホ縦）のスクロール対応 */
+  .navbar-container {
+    overflow-x: auto; /* 横スクロールを許可 */
+    padding-bottom: 5px; /* スクロールバーとの干渉避け */
+  }
+  .navbar-container::-webkit-scrollbar { display: none; } /* スクロールバーを隠す */
+}
 
 /* ★★★ かっこいいアカウントボタン（修正版） ★★★ */
 .account-btn {
@@ -285,6 +329,7 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   opacity: 1;
   visibility: visible;
 }
+
 
 
 
