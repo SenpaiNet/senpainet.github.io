@@ -3,20 +3,21 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // === CSSを動的に追加 ===
-// ★修正点: ここで「position」や「display」を指定すると style.css の絶対配置とケンカするので削除しました。
-// 純粋に「通知バッジ」や「ドロップダウン」のスタイルのみ定義します。
 const style = document.createElement('style');
 style.innerHTML = `
   /* --- チラつき防止：最初は隠しておく --- */
   .account-btn, .account-link {
     opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease;
+    transform: translateY(-5px);
+    pointer-events: none; /* 読み込み中はクリック不可 */
+    transition: opacity 0.3s ease, transform 0.3s ease;
   }
-  /* 準備ができたら表示するクラス */
-  .account-btn.visible, .account-link.visible {
+  
+  /* 認証チェック完了後の表示用クラス */
+  .account-btn.loaded, .account-link.loaded {
     opacity: 1;
-    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
   }
 
   /* 通知バッジ */
@@ -39,13 +40,9 @@ style.innerHTML = `
     border: 1px solid #f1f5f9;
     display: none; flex-direction: column;
     z-index: 9999; overflow: hidden;
-    text-align: left; /* 左寄せを強制 */
+    text-align: left;
   }
   .nav-dropdown.show { display: flex; animation: fadeIn 0.2s ease-out; }
-
-  @media (max-width: 480px) {
-    .nav-dropdown { right: -10px; width: 280px; }
-  }
 
   /* メニュー項目 */
   .dropdown-section-title {
@@ -129,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
       authBtns.forEach(btn => {
         if (btn.id === 'logoutBtn') return;
         
-        // 既に書き換え済みならスキップ
         const parent = btn.parentNode;
         if (parent.classList.contains("account-btn-wrapper")) return;
 
@@ -164,8 +160,8 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.appendChild(dropdown);
         parent.replaceChild(wrapper, btn);
 
-        // ★★★ 準備完了！ここで表示 ★★★
-        setTimeout(() => newBtn.classList.add("visible"), 10);
+        // ★★★ 修正: CSSの .loaded クラスと名前を一致させる ★★★
+        setTimeout(() => newBtn.classList.add("loaded"), 10);
 
         newBtn.addEventListener("click", (e) => {
           e.preventDefault(); e.stopPropagation();
@@ -191,9 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } else {
       // === 未ログイン ===
-      
-      // 「前にログインしたことがある」なら、Firebaseが一瞬nullを返しても
-      // 「ログイン」ボタンを表示せずに、そのまま待ちます（透明のまま）。
       if (localStorage.getItem("senpaiNet_hasAccount")) {
         return; 
       }
@@ -202,13 +195,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btn.id === 'logoutBtn') {
              btn.innerHTML = "🔑 ログイン";
              btn.href = "login.html";
-             btn.classList.add("visible");
+             btn.classList.add("loaded"); // 修正: visible -> loaded
              return;
         }
         btn.textContent = "ログイン";
         btn.href = "login.html";
-        // 本当に未ログインの人にだけ、ボタンを表示する
-        btn.classList.add("visible");
+        // 修正: visible -> loaded
+        btn.classList.add("loaded");
       });
     }
   });
