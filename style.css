@@ -21,18 +21,17 @@ body {
 .navbar-container {
   width: 100%; max-width: 1200px; margin: 0 auto;
   display: flex; align-items: center;
-  /* メニューを右寄せにするが、ボタンの影響を受けないようにする */
   justify-content: space-between;
-  position: relative; /* ★ここが重要：ボタンの座標の基準にする */
+  position: relative; /* ★重要：ここを基準にボタンを右端に固定 */
 }
 
-/* ロゴ修正（pの下が切れる問題もここで修正） */
+/* ロゴ修正（pの下が切れない設定） */
 .navbar-logo {
   font-size: 24px; font-weight: 900;
   background: linear-gradient(90deg, #4da6ff, #2563eb);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   display: flex; align-items: center;
-  line-height: 1.2;     /* 文字の下が切れないように広げる */
+  line-height: 1.2;     
   padding-bottom: 2px;  
   margin-right: 20px;
   flex-shrink: 0;
@@ -42,7 +41,7 @@ body {
 /* === メニューリンク === */
 .navbar-menu {
   display: flex; align-items: center; gap: 25px;
-  /* ★重要：ボタンが来るスペースを強制的に空けておく */
+  /* ★重要：ボタンが被らないように、右側に強制的にスペースを空ける */
   margin-right: 140px; 
 }
 
@@ -53,31 +52,64 @@ body {
 }
 .navbar-menu a:hover { color: #2563eb; }
 
-/* === アカウントボタン（強制配置） === */
-/* ボタン自体と、JSが作るラッパーの両方を右端にピン留めする */
+/* === アカウントボタン（デザイン復活 + 強制固定） === */
 .account-btn, .account-btn-wrapper {
-  position: absolute !important; /* 文句なしに絶対配置 */
-  right: 0;                      /* コンテナの右端に固定 */
-  top: 50%;                      /* 上下中央 */
-  transform: translateY(-50%);   /* 中央揃えの補正 */
+  /* ▼▼▼ ここで座標をガッチリ固定 ▼▼▼ */
+  position: absolute !important; 
+  right: 0;                      
+  top: 50%;                      
+  transform: translateY(-50%);   
   z-index: 10;
+
+  /* ▼▼▼ ここでデザインを復活 ▼▼▼ */
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white !important;
+  padding: 10px 24px !important;
+  border-radius: 50px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: auto !important;
+  box-sizing: border-box;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  border: 1px solid rgba(255,255,255,0.2);
+  text-decoration: none;
+
+  /* ▼▼▼ チラつき防止（最初は隠す） ▼▼▼ */
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* 準備完了時にJSがこのクラスをつける → ふわっと表示 */
+.account-btn.visible, .account-btn-wrapper .account-btn {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ホバー時の動き */
+.account-btn:hover {
+  transform: translateY(-52%) !important; /* 固定位置(-50%)から少し浮かす(-52%) */
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
 
 /* === スマホ対応 === */
 @media (max-width: 768px) {
   .navbar { padding: 0 15px; }
   
-  /* スマホでは隙間を少し狭める */
   .navbar-menu {
     gap: 15px;
-    margin-right: 110px; /* ボタン用スペース */
+    margin-right: 110px; /* スマホでのボタン用スペース */
   }
   .navbar-menu a:not(.account-btn) {
     font-size: 0.8rem;
   }
   
   .navbar-container {
-    overflow-x: auto; /* 横スクロール許可 */
+    overflow-x: auto;
     padding-bottom: 5px;
   }
   .navbar-container::-webkit-scrollbar { display: none; }
@@ -319,6 +351,7 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   color: #666;
   margin-top: 20px;
 }
+
 
 
 
