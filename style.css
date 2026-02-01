@@ -17,64 +17,71 @@ body {
   padding: 0 20px;
 }
 
+/* 基準点を作る */
 .navbar-container {
   width: 100%; max-width: 1200px; margin: 0 auto;
   display: flex; align-items: center;
-  justify-content: space-between; /* ロゴ・メニューと、ボタンを左右に離す */
+  /* メニューを右寄せにするが、ボタンの影響を受けないようにする */
+  justify-content: space-between;
+  position: relative; /* ★ここが重要：ボタンの座標の基準にする */
 }
 
+/* ロゴ修正（pの下が切れる問題もここで修正） */
 .navbar-logo {
   font-size: 24px; font-weight: 900;
   background: linear-gradient(90deg, #4da6ff, #2563eb);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  display: flex; align-items: center; line-height: 1.2;
-  padding-bottom: 2px;
+  display: flex; align-items: center;
+  line-height: 1.2;     /* 文字の下が切れないように広げる */
+  padding-bottom: 2px;  
   margin-right: 20px;
   flex-shrink: 0;
 }
 .navbar-logo a { text-decoration: none; }
 
-/* === メニューリンク（左側に固定） === */
-.navbar-links {
+/* === メニューリンク === */
+.navbar-menu {
   display: flex; align-items: center; gap: 25px;
-  margin-right: auto; /* これが右側の余白を埋めて、ボタンを右端に追いやる */
-  margin-left: 10px;
+  /* ★重要：ボタンが来るスペースを強制的に空けておく */
+  margin-right: 140px; 
 }
 
-.navbar-links a {
+.navbar-menu a:not(.account-btn) {
   text-decoration: none; color: #475569; font-weight: 600;
   transition: 0.2s; font-size: 0.95rem;
   white-space: nowrap;
 }
-.navbar-links a:hover { color: #2563eb; }
+.navbar-menu a:hover { color: #2563eb; }
 
-/* === 認証ボタンエリア（右端に固定・場所確保） === */
-.navbar-auth {
-  display: flex; align-items: center; justify-content: flex-end;
-  /* ★重要：ボタンが消えている間も幅を確保して、メニューが動かないようにする */
-  min-width: 120px; 
+/* === アカウントボタン（強制配置） === */
+/* ボタン自体と、JSが作るラッパーの両方を右端にピン留めする */
+.account-btn, .account-btn-wrapper {
+  position: absolute !important; /* 文句なしに絶対配置 */
+  right: 0;                      /* コンテナの右端に固定 */
+  top: 50%;                      /* 上下中央 */
+  transform: translateY(-50%);   /* 中央揃えの補正 */
+  z-index: 10;
 }
 
 /* === スマホ対応 === */
 @media (max-width: 768px) {
   .navbar { padding: 0 15px; }
   
-  .navbar-links {
+  /* スマホでは隙間を少し狭める */
+  .navbar-menu {
     gap: 15px;
-    margin-left: 5px;
+    margin-right: 110px; /* ボタン用スペース */
   }
-  .navbar-links a {
+  .navbar-menu a:not(.account-btn) {
     font-size: 0.8rem;
   }
   
-  /* 画面が狭いときは横スクロールで逃がす */
   .navbar-container {
-    overflow-x: auto;
+    overflow-x: auto; /* 横スクロール許可 */
     padding-bottom: 5px;
   }
   .navbar-container::-webkit-scrollbar { display: none; }
 }
-
 /* ★★★ かっこいいアカウントボタン（統合版） ★★★ */
 .account-btn {
   /* --- デザイン --- */
@@ -312,6 +319,7 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   color: #666;
   margin-top: 20px;
 }
+
 
 
 
