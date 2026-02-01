@@ -1,7 +1,17 @@
-import { auth, db, storage } from "./firebase.js"; // storageを追加
+import { auth, db, storage } from "./firebase.js";
 import { onAuthStateChanged, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { doc, getDoc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-import { ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js"; // Storage用関数を追加
+import { ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+
+// === タグのマスターリスト（ここを編集すれば全タグが更新されます） ===
+const availableTags = [
+    "一般入試", "AO入試", "指定校推薦", "海外大学", "進路",
+    "数学", "英語", "理科", "国語", "社会", "理系", "文系",
+    "DP", "MYP",
+    "部活", "課外活動", "ボランティア", "学校生活",
+    "英検", "TOEFL", "IELTS", "模試",
+    "教育", "その他"
+];
 
 // === 円形切り抜き用の関数 ===
 function getRoundedCanvas(sourceCanvas) {
@@ -54,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ログアウトボタンの処理も念のため追加
+    // ログアウトボタン
     const logoutBtn = document.getElementById("logoutBtn");
     if(logoutBtn) {
         logoutBtn.addEventListener("click", () => signOut(auth));
@@ -82,8 +92,9 @@ function renderProfile() {
         document.getElementById("tagsCard").style.display = "block";
         const tagsDiv = document.getElementById("dispTags");
         tagsDiv.innerHTML = "";
-        // tags または interestedTags を表示に使用
-        const currentTags = data.tags || data.interestedTags || [];
+        
+        // interestedTags を優先表示（なければ tags）
+        const currentTags = data.interestedTags || data.tags || [];
         
         if(currentTags.length > 0) {
             currentTags.forEach(t => {
@@ -160,7 +171,6 @@ function setupEditLogics() {
         const rounded = getRoundedCanvas(canvas);
         const dataUrl = rounded.toDataURL("image/png"); // Base64
         
-        // Storageへアップロードして保存
         saveIcon(dataUrl);
         
         cropperModal.style.display = "none";
@@ -179,27 +189,18 @@ function setupEditLogics() {
         colorContainer.appendChild(img);
     });
 
-    // ★修正: Storageへのアップロード対応版 saveIcon
     async function saveIcon(dataUrl) {
         try {
             let finalUrl = dataUrl;
-
-            // データがBase64画像形式(data:image...)ならStorageにアップロード
+            // Base64データならStorageにアップロード
             if(dataUrl.startsWith("data:image")) {
-                // ファイル名にタイムスタンプをつけて一意にする
                 const storageRef = ref(storage, `icons/${currentUser.uid}_${Date.now()}.png`);
-                
-                // 文字列(Base64)としてアップロード
                 await uploadString(storageRef, dataUrl, 'data_url');
-                
-                // アップロード先の公開URLを取得
                 finalUrl = await getDownloadURL(storageRef);
             }
 
-            // Authenticationのプロフィール画像とFirestoreのデータを更新
             await updateProfile(currentUser, { photoURL: finalUrl });
             await updateDoc(doc(db, "users", currentUser.uid), { iconUrl: finalUrl });
-            
             alert("アイコンを更新しました！");
             window.location.reload();
         } catch(e) { 
@@ -272,14 +273,14 @@ function setupEditLogics() {
         } catch(e) { console.error(e); alert("保存失敗: " + e.message); }
     });
 
-    // === D. タグ編集 ===
+    // === D. タグ編集 (修正：JS内のリストから動的生成) ===
     if(currentUserData.userType === "卒業生") {
         const tagsView = document.getElementById("tagsViewMode");
         const tagsEditArea = document.getElementById("tagsEditArea");
         const tagsEditBtn = document.getElementById("tagsEditBtn");
         
-        // notificationシステムと同期するため、interestedTagsも考慮
-        let selectedTags = currentUserData.tags || currentUserData.interestedTags || [];
+        // 通知用(interestedTags)優先、なければ旧データ(tags)
+        let selectedTags = currentUserData.interestedTags || currentUserData.tags || [];
 
         tagsEditBtn.addEventListener("click", () => {
              tagsView.style.display = "none";
@@ -287,61 +288,58 @@ function setupEditLogics() {
              tagsEditBtn.classList.add("editing");
              tagsEditBtn.disabled = true;
 
-             // タグボタンの状態初期化
-             document.querySelectorAll("#tagSelectionContainer .tag-option").forEach(btn => {
-                const t = btn.dataset.tag;
-                btn.className = "tag-option-btn"; 
-                if(selectedTags.includes(t)) btn.classList.add("selected");
-             });
+             renderTagButtons(); // ボタンを再描画
         });
 
-        // タグボタンの生成
-        const container = document.getElementById("tagSelectionContainer");
-        const spans = container.querySelectorAll(".tag-option");
-        const tagList = Array.from(spans).map(s => s.dataset.tag);
-        container.innerHTML = "";
-        
-        tagList.forEach(tag => {
-            const btn = document.createElement("button");
-            btn.className = "tag-option-btn";
-            btn.textContent = "#" + tag;
-            btn.dataset.tag = tag;
-            if(selectedTags.includes(tag)) btn.classList.add("selected");
+        // ボタン生成ロジック
+        function renderTagButtons() {
+            const container = document.getElementById("tagSelectionContainer");
+            container.innerHTML = "";
             
-            container.appendChild(btn);
-            
-            btn.addEventListener("click", () => {
-                const t = btn.dataset.tag;
-                if(selectedTags.includes(t)) {
-                    selectedTags = selectedTags.filter(item => item !== t);
-                    btn.classList.remove("selected");
-                } else {
-                    if(selectedTags.length < 3) {
-                        selectedTags.push(t);
-                        btn.classList.add("selected");
-                    } else {
-                        alert("タグは最大3つまでです。");
-                    }
+            // availableTags（上部で定義したリスト）を使ってボタンを作る
+            availableTags.forEach(tag => {
+                const btn = document.createElement("button");
+                btn.className = "tag-option-btn";
+                btn.textContent = "#" + tag;
+                btn.dataset.tag = tag;
+                
+                if(selectedTags.includes(tag)) {
+                    btn.classList.add("selected");
                 }
+                
+                btn.addEventListener("click", () => {
+                    if(selectedTags.includes(tag)) {
+                        selectedTags = selectedTags.filter(item => item !== tag);
+                        btn.classList.remove("selected");
+                    } else {
+                        if(selectedTags.length < 3) {
+                            selectedTags.push(tag);
+                            btn.classList.add("selected");
+                        } else {
+                            alert("タグは最大3つまでです。");
+                        }
+                    }
+                });
+                container.appendChild(btn);
             });
-        });
+        }
 
         document.getElementById("tagsCancelBtn").addEventListener("click", () => {
             tagsView.style.display = "block";
             tagsEditArea.classList.remove("active");
             tagsEditBtn.classList.remove("editing");
             tagsEditBtn.disabled = false;
-            selectedTags = currentUserData.tags || [];
+            // キャンセル時は元の状態に戻す
+            selectedTags = currentUserData.interestedTags || currentUserData.tags || [];
         });
 
         document.getElementById("tagsSaveBtn").addEventListener("click", async () => {
             try {
-                // ★修正: 通知システム用に interestedTags にも保存する
-                await setDoc(doc(db, "users", currentUser.uid), { 
+                // 通知用(interestedTags) と 表示用(tags) 両方を更新
+                await updateDoc(doc(db, "users", currentUser.uid), { 
                     tags: selectedTags,
-                    interestedTags: selectedTags // これでCloud Functionsが反応します
-                }, { merge: true });
-                
+                    interestedTags: selectedTags 
+                });
                 alert("得意分野タグを保存しました！\n関連する相談が投稿されるとメール通知が届きます。");
                 window.location.reload();
             } catch (e) { console.error(e); alert("更新失敗: " + e.message); }
@@ -372,12 +370,8 @@ function setupEditLogics() {
             if(!confirm("投稿したコンテンツの作者名は「不明」となりますがよろしいですか？")) return;
 
             try {
-                // 1. Firestoreのユーザーデータを削除
                 await deleteDoc(doc(db, "users", currentUser.uid));
-                
-                // 2. Authenticationから削除
                 await deleteUser(currentUser);
-
                 alert("アカウントを削除しました。ご利用ありがとうございました。");
                 window.location.href = "index.html";
             } catch(e) {
