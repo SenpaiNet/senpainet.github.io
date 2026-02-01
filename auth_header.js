@@ -9,12 +9,15 @@ style.innerHTML = `
   .account-btn, .account-link {
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease;
+    transform: translateY(-5px);
+    transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
   }
+  
   /* 準備ができたら表示するクラス */
-  .account-btn.visible, .account-link.visible {
+  .account-btn.auth-loaded, .account-link.auth-loaded {
     opacity: 1;
     visibility: visible;
+    transform: translateY(0);
   }
 
   /* 通知バッジ */
@@ -31,28 +34,28 @@ style.innerHTML = `
   /* ドロップダウンメニュー */
   .nav-dropdown {
     position: absolute; top: 120%; right: 0; 
-    width: 300px; max-width: 90vw;
-    background: white; border-radius: 12px;
+    width: 320px; max-width: 90vw;
+    background: white; border-radius: 16px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.15);
     border: 1px solid #f1f5f9;
     display: none; flex-direction: column;
     z-index: 9999; overflow: hidden;
-    text-align: left; /* 左寄せを強制 */
+    text-align: left;
+    padding-bottom: 10px; /* 下部に少し余白 */
   }
   .nav-dropdown.show { display: flex; animation: fadeIn 0.2s ease-out; }
 
-  @media (max-width: 480px) {
-    .nav-dropdown { right: -10px; width: 280px; }
+  /* メニュー項目（見出し） */
+  .dropdown-section-title {
+    padding: 12px 20px; background: #f8fafc; font-size: 0.85rem;
+    font-weight: bold; color: #64748b; border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 5px;
   }
 
-  /* メニュー項目 */
-  .dropdown-section-title {
-    padding: 12px 16px; background: #f8fafc; font-size: 0.85rem;
-    font-weight: bold; color: #64748b; border-bottom: 1px solid #e2e8f0;
-  }
-  .notif-list { max-height: 300px; overflow-y: auto; padding: 0; margin: 0; list-style: none; -webkit-overflow-scrolling: touch; }
+  /* 通知リスト */
+  .notif-list { max-height: 250px; overflow-y: auto; padding: 0; margin: 0; list-style: none; -webkit-overflow-scrolling: touch; }
   .notif-item {
-    padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+    padding: 12px 20px; border-bottom: 1px solid #f1f5f9;
     cursor: pointer; transition: background 0.2s; display: flex; gap: 12px;
     align-items: flex-start; text-decoration: none; color: inherit;
   }
@@ -63,16 +66,34 @@ style.innerHTML = `
   .notif-time { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; display: block;}
   .notif-empty { padding: 30px; text-align: center; color: #94a3b8; font-size: 0.9rem; }
 
+  /* === メニューリンク（ボタン風デザインに変更） === */
   .menu-link {
-    display: block; 
-    padding: 14px 24px; /* ★修正: 左の余白を16pxから24pxに増やして調整 */
+    display: flex; align-items: center; justify-content: center; /* 中央寄せ */
+    padding: 12px 16px;
+    margin: 6px 16px; /* 外側に余白を作ってボタン感を出す */
+    border-radius: 12px;
+    background-color: #f8fafc;
     color: #334155;
-    text-decoration: none; font-weight: 600; font-size: 0.95rem;
-    transition: background 0.2s; border-top: 1px solid #f1f5f9;
+    text-decoration: none; font-weight: 700; font-size: 0.95rem;
+    transition: all 0.2s;
+    border: 1px solid transparent;
   }
-  .menu-link:hover { background: #f8fafc; color: #4da6ff; }
-  .menu-link.logout { color: #ef4444; }
-  .menu-link.logout:hover { background: #fef2f2; }
+  .menu-link:hover { 
+    background-color: #e2e8f0; 
+    color: #1e293b;
+    transform: translateY(-1px);
+  }
+  
+  /* ログアウトボタン（赤系） */
+  .menu-link.logout { 
+    color: #ef4444; 
+    background-color: #fef2f2;
+    margin-top: 8px;
+  }
+  .menu-link.logout:hover { 
+    background-color: #fee2e2; 
+    border-color: #fecaca;
+  }
 
   /* オフライン通知 */
   #offline-toast {
@@ -129,7 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
       authBtns.forEach(btn => {
         if (btn.id === 'logoutBtn') return;
         
-        // 既に書き換え済みならスキップ
         const parent = btn.parentNode;
         if (parent.classList.contains("account-btn-wrapper")) return;
 
@@ -156,16 +176,18 @@ document.addEventListener("DOMContentLoaded", () => {
             <li class="notif-empty">読み込み中...</li>
           </ul>
           <div class="dropdown-section-title">👤 アカウント</div>
-          <a href="profile.html" class="menu-link">マイページ編集</a>
-          <a href="#" class="menu-link logout" id="headerLogoutBtn">ログアウト</a>
+          <a href="profile.html" class="menu-link">⚙️ マイページ編集</a>
+          <a href="#" class="menu-link logout" id="headerLogoutBtn">🚪 ログアウト</a>
         `;
 
         wrapper.appendChild(newBtn);
         wrapper.appendChild(dropdown);
         parent.replaceChild(wrapper, btn);
 
-        // ★★★ 準備完了！ここで表示 ★★★
-        setTimeout(() => newBtn.classList.add("visible"), 10);
+        // 表示アニメーション
+        requestAnimationFrame(() => {
+            newBtn.classList.add("auth-loaded");
+        });
 
         newBtn.addEventListener("click", (e) => {
           e.preventDefault(); e.stopPropagation();
@@ -191,24 +213,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } else {
       // === 未ログイン ===
-      
-      // 「前にログインしたことがある」なら、Firebaseが一瞬nullを返しても
-      // 「ログイン」ボタンを表示せずに、そのまま待ちます（透明のまま）。
-      if (localStorage.getItem("senpaiNet_hasAccount")) {
-        return; 
-      }
-
       authBtns.forEach(btn => {
         if (btn.id === 'logoutBtn') {
              btn.innerHTML = "🔑 ログイン";
              btn.href = "login.html";
-             btn.classList.add("visible");
+             requestAnimationFrame(() => btn.classList.add("auth-loaded"));
              return;
         }
         btn.textContent = "ログイン";
         btn.href = "login.html";
-        // 本当に未ログインの人にだけ、ボタンを表示する
-        btn.classList.add("visible");
+        requestAnimationFrame(() => btn.classList.add("auth-loaded"));
       });
     }
   });
