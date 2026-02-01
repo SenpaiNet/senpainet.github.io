@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="post.css">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* 左上の戻るボタン（これは維持します） */
+    /* 左上の戻るボタン */
     .fixed-back-btn {
       position: fixed;
       top: 30px;
@@ -33,6 +33,20 @@
       color: #2563eb;
     }
 
+    /* ▼▼▼ 追加：タグを寄せる設定 ▼▼▼ */
+    .tag-select {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px; /* タグ同士の間隔を8pxに統一 */
+    }
+    .tag-option {
+      margin: 0 !important; /* 元のマージンを打ち消してgapで制御 */
+      /* 必要ならサイズ調整 */
+      padding: 6px 14px;
+      font-size: 0.9rem;
+    }
+    /* ▲▲▲ 追加終わり ▲▲▲ */
+
     /* スマホ画面での調整 */
     @media (max-width: 600px) {
       .fixed-back-btn {
@@ -42,9 +56,8 @@
         font-size: 0.85rem;
       }
       .fixed-back-btn span {
-        font-size: 1.2em; /* 矢印だけ少し大きく */
+        font-size: 1.2em;
       }
-      /* コンテンツと重ならないように余白調整 */
       .post-wrapper {
         padding-top: 60px; 
       }
