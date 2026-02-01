@@ -25,23 +25,28 @@ body.list-page {
   display: flex; justify-content: space-between; align-items: center;
 }
 
-/* === 統一ロゴデザイン === */
+/* === ロゴの修正 (消えるバグ防止) === */
 .navbar-logo {
-  font-family: 'Inter', sans-serif; /* index.htmlのフォントに合わせる */
+  font-family: 'Inter', sans-serif;
   font-size: 24px; 
   font-weight: 900;
   letter-spacing: -0.02em;
-  /* index.htmlのようなシンプルな濃い青、またはグラデーションに統一 */
-  color: #1e3a8a; 
+  /* 以前の background-clip などを削除し、単色指定にする */
+  background: none;
+  -webkit-text-fill-color: initial;
+  color: #1e3a8a; /* 濃い青 */
   display: flex; align-items: center; line-height: 1;
 }
+
 .navbar-logo a { 
   text-decoration: none; 
   color: inherit; /* 親の色を継承 */
-  transition: opacity 0.2s;
+  transition: opacity 0.2s ease;
 }
+
 .navbar-logo a:hover {
-  opacity: 0.8;
+  opacity: 0.7; /* 少し薄くするだけ */
+  color: #1e3a8a; /* 色を維持 */
 }
 
 /* === メニューリンクのスタイリッシュ化 === */
@@ -222,6 +227,7 @@ body.list-page {
   background: #4da6ff;
   color: white;
 }
+
 
 
 
