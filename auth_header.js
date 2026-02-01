@@ -5,19 +5,16 @@ import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc } from "
 // === CSSを動的に追加 ===
 const style = document.createElement('style');
 style.innerHTML = `
-  /* --- 修正: 初期状態は「完全に透明」かつ「クリック不可」にします --- */
+  /* --- チラつき防止：最初は隠しておく --- */
   .account-btn, .account-link {
-    opacity: 0; 
-    visibility: hidden; /* 完全に隠す（レイアウト崩れ防止のためスペースは確保したい場合はvisibilityを外す） */
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    transform: translateY(-5px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
   }
-  
-  /* --- データ読み込み完了後に付与するクラス --- */
-  .account-btn.auth-loaded, .account-link.auth-loaded {
+  /* 準備ができたら表示するクラス */
+  .account-btn.visible, .account-link.visible {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
   }
 
   /* 通知バッジ */
@@ -40,9 +37,13 @@ style.innerHTML = `
     border: 1px solid #f1f5f9;
     display: none; flex-direction: column;
     z-index: 9999; overflow: hidden;
-    text-align: left;
+    text-align: left; /* 左寄せを強制 */
   }
   .nav-dropdown.show { display: flex; animation: fadeIn 0.2s ease-out; }
+
+  @media (max-width: 480px) {
+    .nav-dropdown { right: -10px; width: 280px; }
+  }
 
   /* メニュー項目 */
   .dropdown-section-title {
@@ -63,7 +64,9 @@ style.innerHTML = `
   .notif-empty { padding: 30px; text-align: center; color: #94a3b8; font-size: 0.9rem; }
 
   .menu-link {
-    display: block; padding: 14px 16px; color: #334155;
+    display: block; 
+    padding: 14px 24px; /* ★修正: 左の余白を16pxから24pxに増やして調整 */
+    color: #334155;
     text-decoration: none; font-weight: 600; font-size: 0.95rem;
     transition: background 0.2s; border-top: 1px solid #f1f5f9;
   }
@@ -108,13 +111,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const authBtns = document.querySelectorAll('.account-btn, .account-link');
 
     if (user) {
-      // === ログインしている場合 ===
+      // === ログイン中 ===
       localStorage.setItem("senpaiNet_hasAccount", "true");
 
       let userIcon = user.photoURL || defaultFallbackIcon;
       let userName = user.displayName || "ユーザー";
 
-      // ★ここでFirestoreからデータを取得するまで表示を待つ
       try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
@@ -124,12 +126,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (e) { console.error(e); }
 
-      // データ取得完了！ボタンを書き換える
       authBtns.forEach(btn => {
         if (btn.id === 'logoutBtn') return;
         
+        // 既に書き換え済みならスキップ
         const parent = btn.parentNode;
-        // すでに処理済みならスキップ
         if (parent.classList.contains("account-btn-wrapper")) return;
 
         const wrapper = document.createElement("div");
@@ -139,9 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
         newBtn.href = "#"; 
         newBtn.className = btn.className; 
         newBtn.setAttribute("style", btn.getAttribute("style")); 
-        
-        // 最初は透明なクラスを持たせておく
-        // (CSSで .account-btn は opacity: 0 になっています)
         
         // アイコン表示
         newBtn.innerHTML = `
@@ -166,13 +164,9 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.appendChild(dropdown);
         parent.replaceChild(wrapper, btn);
 
-        // ★★★ 修正: ここで初めて「表示」クラスを追加する ★★★
-        // requestAnimationFrameを使うことで、DOM追加後のアニメーションを確実に発火させる
-        requestAnimationFrame(() => {
-            newBtn.classList.add("auth-loaded");
-        });
+        // ★★★ 準備完了！ここで表示 ★★★
+        setTimeout(() => newBtn.classList.add("visible"), 10);
 
-        // ドロップダウン開閉イベント
         newBtn.addEventListener("click", (e) => {
           e.preventDefault(); e.stopPropagation();
           dropdown.classList.toggle("show");
@@ -196,22 +190,25 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
     } else {
-      // === 未ログインの場合 ===
+      // === 未ログイン ===
       
+      // 「前にログインしたことがある」なら、Firebaseが一瞬nullを返しても
+      // 「ログイン」ボタンを表示せずに、そのまま待ちます（透明のまま）。
+      if (localStorage.getItem("senpaiNet_hasAccount")) {
+        return; 
+      }
+
       authBtns.forEach(btn => {
         if (btn.id === 'logoutBtn') {
              btn.innerHTML = "🔑 ログイン";
              btn.href = "login.html";
-             // ログインボタンとして確定してから表示
-             requestAnimationFrame(() => btn.classList.add("auth-loaded"));
+             btn.classList.add("visible");
              return;
         }
-        
-        btn.textContent = "ログイン"; // デフォルトテキスト
+        btn.textContent = "ログイン";
         btn.href = "login.html";
-        
-        // 未ログインが確定したので、ログインボタンを表示する
-        requestAnimationFrame(() => btn.classList.add("auth-loaded"));
+        // 本当に未ログインの人にだけ、ボタンを表示する
+        btn.classList.add("visible");
       });
     }
   });
