@@ -5,21 +5,11 @@ import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc } from "
 // === CSSを動的に追加 ===
 const style = document.createElement('style');
 style.innerHTML = `
-  /* --- チラつき防止：最初は隠しておく --- */
+  /* ★修正: ボタンを隠す設定(opacity:0)を削除しました。これで常に表示されます */
   .account-btn, .account-link {
-    opacity: 0;
-    transform: translateY(-5px);
-    pointer-events: none; /* 読み込み中はクリック不可 */
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    /* 何もしない（CSS側の定義に従う） */
   }
   
-  /* 認証チェック完了後の表示用クラス */
-  .account-btn.loaded, .account-link.loaded {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-
   /* 通知バッジ */
   .notification-dot {
     position: absolute; top: -3px; right: -3px;
@@ -126,6 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
       authBtns.forEach(btn => {
         if (btn.id === 'logoutBtn') return;
         
+        // 既に書き換え済みならスキップ
         const parent = btn.parentNode;
         if (parent.classList.contains("account-btn-wrapper")) return;
 
@@ -160,8 +151,8 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.appendChild(dropdown);
         parent.replaceChild(wrapper, btn);
 
-        // ★★★ 修正: CSSの .loaded クラスと名前を一致させる ★★★
-        setTimeout(() => newBtn.classList.add("loaded"), 10);
+        // クラス追加（表示用アニメーションがあれば発火）
+        newBtn.classList.add("loaded");
 
         newBtn.addEventListener("click", (e) => {
           e.preventDefault(); e.stopPropagation();
@@ -187,20 +178,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } else {
       // === 未ログイン ===
-      if (localStorage.getItem("senpaiNet_hasAccount")) {
-        return; 
-      }
-
+      
+      // 以前ログインしていた形跡があれば一瞬待つ（必要なら戻してください）
+      // 今回はボタンが表示されないトラブルを防ぐため、即座にログインボタンにします
+      
       authBtns.forEach(btn => {
         if (btn.id === 'logoutBtn') {
              btn.innerHTML = "🔑 ログイン";
              btn.href = "login.html";
-             btn.classList.add("loaded"); // 修正: visible -> loaded
+             btn.classList.add("loaded");
              return;
         }
         btn.textContent = "ログイン";
         btn.href = "login.html";
-        // 修正: visible -> loaded
         btn.classList.add("loaded");
       });
     }
