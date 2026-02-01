@@ -7,7 +7,7 @@ body {
 }
 
 /* =========================================
-   ヘッダー & ナビゲーション (Index用・修正版)
+   ヘッダー & ナビゲーション (全ページ統一版)
    ========================================= */
 
 /* すりガラス風ナビゲーションバー */
@@ -31,7 +31,7 @@ body {
   display: flex; justify-content: space-between; align-items: center;
 }
 
-/* === ロゴ (グラデーション復活 & バグ対策済み) === */
+/* === ロゴ (青グラデーション適用) === */
 .navbar-logo {
   font-family: 'Inter', sans-serif;
   font-size: 24px;
@@ -55,17 +55,18 @@ body {
   transition: opacity 0.2s ease;
 }
 
-/* ホバー時は色をいじらず、透明度だけ下げる（これで消えません） */
+/* ホバー時は色をいじらず、透明度だけ下げる */
 .navbar-logo a:hover {
   opacity: 0.7;
 }
 
-/* === メニューリンク (Indexページ用クラス .navbar-links) === */
-.navbar-links {
+/* === メニューリンクコンテナ (archive/senpaiと統一) === */
+.navbar-menu {
   display: flex; align-items: center; gap: 32px;
 }
 
-.navbar-links a {
+/* リンクのデザイン (アカウントボタン以外) */
+.navbar-menu a:not(.account-btn) {
   text-decoration: none;
   color: #475569;
   font-weight: 600;
@@ -76,7 +77,7 @@ body {
 }
 
 /* ホバー時の下線アニメーション */
-.navbar-links a::after {
+.navbar-menu a:not(.account-btn)::after {
   content: '';
   position: absolute;
   width: 0;
@@ -89,39 +90,52 @@ body {
   border-radius: 2px;
 }
 
-.navbar-links a:hover {
+.navbar-menu a:not(.account-btn):hover {
   color: #2563eb;
 }
 
-.navbar-links a:hover::after {
+.navbar-menu a:not(.account-btn):hover::after {
   width: 100%;
 }
 
-/* === アカウントボタンエリア === */
-.navbar-auth {
-  display: flex; align-items: center;
-}
-
-/* アカウントボタン本体のデザイン */
+/* === アカウントボタン (統合・修正版) === */
 .account-btn, .account-link {
+  /* --- デザイン --- */
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white !important; /* 文字色を白で強制 */
   padding: 10px 24px !important;
   border-radius: 50px !important;
-  display: inline-flex; align-items: center; justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   height: auto !important;
+  box-sizing: border-box;
   font-weight: 700 !important;
-  font-size: 0.95rem;
+  letter-spacing: 0.03em;
   box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
   border: 1px solid rgba(255,255,255,0.2);
   text-decoration: none !important;
-  opacity: 1 !important; /* JSでの隠蔽を強制解除 */
-  visibility: visible !important;
+
+  /* --- 初期状態 (auth_header.jsで制御) --- */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-5px);
+  
+  /* アニメーション */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.4s ease, visibility 0.4s ease;
+}
+
+/* データ読み込み後にJSが付与するクラス */
+.account-btn.auth-loaded, .account-link.auth-loaded {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 /* ボタンの下線は消す */
 .account-btn::after, .account-link::after { display: none !important; }
 
+/* ボタンホバー時 */
 .account-link:hover, .account-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
@@ -131,7 +145,7 @@ body {
 /* スマホ対応 */
 @media (max-width: 768px) {
   .navbar { padding: 0 20px; }
-  .navbar-links { display: none; } /* 必要に応じてハンバーガーメニュー等へ */
+  .navbar-menu { display: none; } /* 必要に応じてハンバーガーメニュー等へ */
 }
 /* ★★★ かっこいいアカウントボタン（統合版） ★★★ */
 .account-btn {
@@ -370,6 +384,7 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   color: #666;
   margin-top: 20px;
 }
+
 
 
 
