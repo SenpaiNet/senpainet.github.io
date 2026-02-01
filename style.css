@@ -14,14 +14,13 @@ body {
   box-shadow: 0 4px 20px rgba(0,0,0,0.03);
   z-index: 1000; box-sizing: border-box;
   display: flex; align-items: center; 
-  padding: 0 20px; /* スマホ用に余白を少し狭める */
+  padding: 0 20px;
 }
 
 .navbar-container {
   width: 100%; max-width: 1200px; margin: 0 auto;
   display: flex; align-items: center;
-  /* 子要素の配置を制御 */
-  justify-content: space-between;
+  justify-content: space-between; /* ロゴ・メニューと、ボタンを左右に離す */
 }
 
 .navbar-logo {
@@ -30,54 +29,52 @@ body {
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   display: flex; align-items: center; line-height: 1;
   margin-right: 20px;
-  flex-shrink: 0; /* ロゴは縮めない */
+  flex-shrink: 0;
 }
 .navbar-logo a { text-decoration: none; }
 
-/* === メニューリンク（中央〜左寄りエリア） === */
+/* === メニューリンク（左側に固定） === */
 .navbar-links {
   display: flex; align-items: center; gap: 25px;
-  /* これが重要！右側の余白を自動で埋めることで、
-     ボタンを右端に押しやりつつ、自分たちは左（ロゴの隣）に固定される */
-  margin-right: auto; 
-  margin-left: 20px;
+  margin-right: auto; /* これが右側の余白を埋めて、ボタンを右端に追いやる */
+  margin-left: 10px;
 }
 
 .navbar-links a {
   text-decoration: none; color: #475569; font-weight: 600;
   transition: 0.2s; font-size: 0.95rem;
-  white-space: nowrap; /* 文字が折り返されないようにする */
+  white-space: nowrap;
 }
 .navbar-links a:hover { color: #2563eb; }
 
-/* === 認証ボタンエリア（右端エリア） === */
+/* === 認証ボタンエリア（右端に固定・場所確保） === */
 .navbar-auth {
   display: flex; align-items: center; justify-content: flex-end;
-  min-width: 100px; /* ボタンのスペースを確保してレイアウト崩れを防ぐ */
+  /* ★重要：ボタンが消えている間も幅を確保して、メニューが動かないようにする */
+  min-width: 120px; 
 }
 
-/* === スマホ対応（画面が狭いとき） === */
+/* === スマホ対応 === */
 @media (max-width: 768px) {
   .navbar { padding: 0 15px; }
   
-  /* リンクの文字サイズや間隔を調整 */
   .navbar-links {
     gap: 15px;
-    margin-left: 10px;
+    margin-left: 5px;
   }
   .navbar-links a {
-    font-size: 0.8rem; /* 少し小さくして収まりやすく */
+    font-size: 0.8rem;
   }
   
-  /* 画面が極端に狭い場合（スマホ縦）のスクロール対応 */
+  /* 画面が狭いときは横スクロールで逃がす */
   .navbar-container {
-    overflow-x: auto; /* 横スクロールを許可 */
-    padding-bottom: 5px; /* スクロールバーとの干渉避け */
+    overflow-x: auto;
+    padding-bottom: 5px;
   }
-  .navbar-container::-webkit-scrollbar { display: none; } /* スクロールバーを隠す */
+  .navbar-container::-webkit-scrollbar { display: none; }
 }
 
-/* ★★★ かっこいいアカウントボタン（修正版） ★★★ */
+/* ★★★ かっこいいアカウントボタン（統合版） ★★★ */
 .account-btn {
   /* --- デザイン --- */
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
@@ -97,8 +94,8 @@ body {
   /* --- チラつき防止（最初は見えなくする） --- */
   opacity: 0;
   visibility: hidden;
-  /* transitionから !important を外し、opacityの変更も滑らかにする */
-  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, background 0.3s ease;
+  /* デザインのアニメーションと表示のアニメーションを同時に管理 */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
 }
 
 /* 準備ができたらJSがこのクラスをつける → ふわっと表示 */
@@ -315,20 +312,6 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   margin-top: 20px;
 }
 
-/* === style.css の末尾に追加 === */
-
-/* 初期状態ではアカウントボタンを隠す */
-.account-btn {
-  opacity: 0;
-  visibility: hidden; 
-  transition: opacity 0.3s ease; /* ふわっと表示させる */
-}
-
-/* 準備ができたら表示するクラス */
-.account-btn.visible {
-  opacity: 1;
-  visibility: visible;
-}
 
 
 
