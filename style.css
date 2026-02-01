@@ -17,7 +17,7 @@ body {
   padding: 0 20px;
 }
 
-/* 基準点を作る */
+/* 基準点を作るコンテナ */
 .navbar-container {
   width: 100%; max-width: 1200px; margin: 0 auto;
   display: flex; align-items: center;
@@ -25,7 +25,7 @@ body {
   position: relative; /* ★重要：ここを基準にボタンを右端に固定 */
 }
 
-/* ロゴ修正（pの下が切れない設定） */
+/* ロゴ修正（文字の下が切れない設定） */
 .navbar-logo {
   font-size: 24px; font-weight: 900;
   background: linear-gradient(90deg, #4da6ff, #2563eb);
@@ -40,9 +40,9 @@ body {
 
 /* === メニューリンク === */
 .navbar-menu {
-  display: flex; align-items: center; gap: 25px;
+  display: flex; align-items: center; gap: 30px;
   /* ★重要：ボタンが被らないように、右側に強制的にスペースを空ける */
-  margin-right: 140px; 
+  margin-right: 150px; 
 }
 
 .navbar-menu a:not(.account-btn) {
@@ -54,14 +54,14 @@ body {
 
 /* === アカウントボタン（デザイン復活 + 強制固定） === */
 .account-btn, .account-btn-wrapper {
-  /* ▼▼▼ ここで座標をガッチリ固定 ▼▼▼ */
+  /* ▼▼▼ 場所の固定設定（絶対配置） ▼▼▼ */
   position: absolute !important; 
   right: 0;                      
   top: 50%;                      
   transform: translateY(-50%);   
   z-index: 10;
 
-  /* ▼▼▼ ここでデザインを復活 ▼▼▼ */
+  /* ▼▼▼ デザイン設定（かっこいい青グラデーション） ▼▼▼ */
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white !important;
   padding: 10px 24px !important;
@@ -75,26 +75,26 @@ body {
   letter-spacing: 0.03em;
   box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
   border: 1px solid rgba(255,255,255,0.2);
-  text-decoration: none;
+  text-decoration: none; /* 下線を消す */
 
   /* ▼▼▼ チラつき防止（最初は隠す） ▼▼▼ */
   opacity: 0;
   visibility: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 }
 
-/* 準備完了時にJSがこのクラスをつける → ふわっと表示 */
+/* 準備完了時にJSがこのクラスをつける → 表示 */
 .account-btn.visible, .account-btn-wrapper .account-btn {
   opacity: 1;
   visibility: visible;
 }
 
-/* ホバー時の動き（位置固定版） */
+/* ホバー時の動き（位置は固定のまま、色と影だけ変える） */
 .account-btn:hover {
-  /* ★ここが重要：通常時と同じ「-50%」を指定して、位置を固定する */
-
+  /* 位置をズラさない（ズラすとガクッとなるため） */
+  transform: translateY(-50%) !important; 
   
-  /* 色と影の変化だけ残す */
+  /* 色を濃くして、影を強くする */
   box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
@@ -105,7 +105,7 @@ body {
   
   .navbar-menu {
     gap: 15px;
-    margin-right: 110px; /* スマホでのボタン用スペース */
+    margin-right: 120px; /* スマホでのボタン用スペース */
   }
   .navbar-menu a:not(.account-btn) {
     font-size: 0.8rem;
@@ -354,6 +354,7 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   color: #666;
   margin-top: 20px;
 }
+
 
 
 
