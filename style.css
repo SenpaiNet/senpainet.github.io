@@ -89,9 +89,12 @@ body {
   visibility: visible;
 }
 
-/* ホバー時の動き */
+/* ホバー時の動き（位置固定版） */
 .account-btn:hover {
-  transform: translateY(-52%) !important; /* 固定位置(-50%)から少し浮かす(-52%) */
+  /* ★ここが重要：通常時と同じ「-50%」を指定して、位置を固定する */
+  transform: translateY(-50%) !important; 
+  
+  /* 色と影の変化だけ残す */
   box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
@@ -351,6 +354,7 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   color: #666;
   margin-top: 20px;
 }
+
 
 
 
