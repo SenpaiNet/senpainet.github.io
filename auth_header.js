@@ -5,11 +5,21 @@ import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc } from "
 // === CSSを動的に追加 ===
 const style = document.createElement('style');
 style.innerHTML = `
-  /* ★修正: ボタンを隠す設定(opacity:0)を削除しました。これで常に表示されます */
+  /* --- 修正: 初期状態は「完全に透明」かつ「クリック不可」にします --- */
   .account-btn, .account-link {
-    /* 何もしない（CSS側の定義に従う） */
+    opacity: 0; 
+    visibility: hidden; /* 完全に隠す（レイアウト崩れ防止のためスペースは確保したい場合はvisibilityを外す） */
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    transform: translateY(-5px);
   }
   
+  /* --- データ読み込み完了後に付与するクラス --- */
+  .account-btn.auth-loaded, .account-link.auth-loaded {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
   /* 通知バッジ */
   .notification-dot {
     position: absolute; top: -3px; right: -3px;
@@ -98,12 +108,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const authBtns = document.querySelectorAll('.account-btn, .account-link');
 
     if (user) {
-      // === ログイン中 ===
+      // === ログインしている場合 ===
       localStorage.setItem("senpaiNet_hasAccount", "true");
 
       let userIcon = user.photoURL || defaultFallbackIcon;
       let userName = user.displayName || "ユーザー";
 
+      // ★ここでFirestoreからデータを取得するまで表示を待つ
       try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
@@ -113,11 +124,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (e) { console.error(e); }
 
+      // データ取得完了！ボタンを書き換える
       authBtns.forEach(btn => {
         if (btn.id === 'logoutBtn') return;
         
-        // 既に書き換え済みならスキップ
         const parent = btn.parentNode;
+        // すでに処理済みならスキップ
         if (parent.classList.contains("account-btn-wrapper")) return;
 
         const wrapper = document.createElement("div");
@@ -127,6 +139,9 @@ document.addEventListener("DOMContentLoaded", () => {
         newBtn.href = "#"; 
         newBtn.className = btn.className; 
         newBtn.setAttribute("style", btn.getAttribute("style")); 
+        
+        // 最初は透明なクラスを持たせておく
+        // (CSSで .account-btn は opacity: 0 になっています)
         
         // アイコン表示
         newBtn.innerHTML = `
@@ -151,9 +166,13 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.appendChild(dropdown);
         parent.replaceChild(wrapper, btn);
 
-        // クラス追加（表示用アニメーションがあれば発火）
-        newBtn.classList.add("loaded");
+        // ★★★ 修正: ここで初めて「表示」クラスを追加する ★★★
+        // requestAnimationFrameを使うことで、DOM追加後のアニメーションを確実に発火させる
+        requestAnimationFrame(() => {
+            newBtn.classList.add("auth-loaded");
+        });
 
+        // ドロップダウン開閉イベント
         newBtn.addEventListener("click", (e) => {
           e.preventDefault(); e.stopPropagation();
           dropdown.classList.toggle("show");
@@ -177,21 +196,22 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
     } else {
-      // === 未ログイン ===
-      
-      // 以前ログインしていた形跡があれば一瞬待つ（必要なら戻してください）
-      // 今回はボタンが表示されないトラブルを防ぐため、即座にログインボタンにします
+      // === 未ログインの場合 ===
       
       authBtns.forEach(btn => {
         if (btn.id === 'logoutBtn') {
              btn.innerHTML = "🔑 ログイン";
              btn.href = "login.html";
-             btn.classList.add("loaded");
+             // ログインボタンとして確定してから表示
+             requestAnimationFrame(() => btn.classList.add("auth-loaded"));
              return;
         }
-        btn.textContent = "ログイン";
+        
+        btn.textContent = "ログイン"; // デフォルトテキスト
         btn.href = "login.html";
-        btn.classList.add("loaded");
+        
+        // 未ログインが確定したので、ログインボタンを表示する
+        requestAnimationFrame(() => btn.classList.add("auth-loaded"));
       });
     }
   });
