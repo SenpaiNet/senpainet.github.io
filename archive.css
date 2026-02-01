@@ -5,34 +5,82 @@ body.list-page {
   margin: 0; padding: 0; padding-top: 70px;
 }
 
-/* === ナビゲーションバー === */
+/* === ナビゲーションバー (デザイン刷新) === */
 .navbar {
-  width: 100%; height: 70px;
-  background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+  width: 100%;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.85); /* 透明度を上げてすりガラス感を強調 */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   position: fixed; top: 0; left: 0;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
   z-index: 1000; box-sizing: border-box;
   display: flex; align-items: center; padding: 0 40px;
+  transition: all 0.3s ease;
 }
+
 .navbar-container {
   width: 100%; max-width: 1200px; margin: 0 auto;
   display: flex; justify-content: space-between; align-items: center;
 }
+
+/* === 統一ロゴデザイン === */
 .navbar-logo {
-  font-size: 24px; font-weight: 900;
-  background: linear-gradient(90deg, #4da6ff, #2563eb);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  font-family: 'Inter', sans-serif; /* index.htmlのフォントに合わせる */
+  font-size: 24px; 
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  /* index.htmlのようなシンプルな濃い青、またはグラデーションに統一 */
+  color: #1e3a8a; 
   display: flex; align-items: center; line-height: 1;
 }
-.navbar-logo a { text-decoration: none; }
-.navbar-menu { display: flex; align-items: center; gap: 30px; }
-.navbar-menu a {
-  text-decoration: none; color: #475569; font-weight: 600;
-  transition: 0.2s; font-size: 0.95rem;
+.navbar-logo a { 
+  text-decoration: none; 
+  color: inherit; /* 親の色を継承 */
+  transition: opacity 0.2s;
 }
-.navbar-menu a:hover { color: #2563eb; }
+.navbar-logo a:hover {
+  opacity: 0.8;
+}
 
-/* アカウントボタン */
+/* === メニューリンクのスタイリッシュ化 === */
+.navbar-menu { display: flex; align-items: center; gap: 32px; }
+
+/* 既存のリンクスタイルを上書き */
+.navbar-menu a:not(.account-btn) {
+  text-decoration: none;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.95rem;
+  position: relative;
+  padding: 8px 0;
+  transition: color 0.3s;
+}
+
+/* ホバー時のスライドアニメーション */
+.navbar-menu a:not(.account-btn)::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 50%;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.navbar-menu a:not(.account-btn):hover {
+  color: #2563eb;
+}
+
+.navbar-menu a:not(.account-btn):hover::after {
+  width: 100%;
+}
+
+/* アカウントボタン（既存のスタイルを微調整） */
 .account-btn, .account-link {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white !important;
@@ -44,29 +92,16 @@ body.list-page {
   box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   border: 1px solid rgba(255,255,255,0.2);
+  text-decoration: none !important; /* 下線アニメーションを除外 */
 }
+.account-btn::after, .account-link::after {
+  display: none; /* ボタンには下線を出さない */
+}
+
 .account-link:hover, .account-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-}
-
-/* === ヘッダー === */
-.header { text-align: center; padding: 40px 15px 20px; }
-.header h1 { color: #1e3a8a; margin-bottom: 20px; font-size: 2rem; }
-
-.new-post-btn {
-  display: inline-block;
-  background: linear-gradient(135deg, #3b82f6, #60a5fa);
-  color: white; text-decoration: none;
-  border-radius: 50px; padding: 12px 30px;
-  font-weight: bold;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-  transition: all 0.3s;
-}
-.new-post-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
 }
 
 /* === 検索バー === */
@@ -187,5 +222,6 @@ body.list-page {
   background: #4da6ff;
   color: white;
 }
+
 
 
