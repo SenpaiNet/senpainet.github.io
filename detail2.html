@@ -27,7 +27,7 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.05);
       margin-bottom: 40px;
       border: 1px solid #f1f5f9;
-      position: relative; /* バッジ配置用 */
+      position: relative;
     }
     .question-title { font-size: 1.8rem; margin-bottom: 15px; color: #1e3a8a; font-weight: 800; }
     .question-meta {
@@ -97,7 +97,6 @@
     .action-link { color: #94a3b8; cursor: pointer; margin-left: 8px; text-decoration: none; }
     .action-link:hover { color: #ef4444; text-decoration: underline; }
 
-    /* ▼▼▼ 追加スタイル (機能拡張用) ▼▼▼ */
     /* Markdown & 数式用スタイル */
     .markdown-body h1, .markdown-body h2, .markdown-body h3 {
       border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3em; margin-top: 1.5em; margin-bottom: 16px; font-size:1.2em;
@@ -232,6 +231,7 @@
     if (!postId) window.location.href = "archive.html";
 
     let currentUser = null;
+    let currentUserSettings = {}; // ★追加：ユーザー設定を保持
     let postData = null;
     let blockedUsers = [];
     let replyParentId = null; // スレッド返信先ID
@@ -260,6 +260,7 @@
                 const uDoc = await getDoc(doc(db, "users", user.uid));
                 if(uDoc.exists()) {
                     const ud = uDoc.data();
+                    currentUserSettings = ud; // ★設定をロード
                     blockedUsers = ud.blocked || [];
                     // ブックマーク状態確認
                     if(ud.bookmarks && ud.bookmarks.includes(postId)) {
@@ -277,7 +278,6 @@
     async function loadQuestion() {
         const docRef = doc(db, "posts", postId);
         
-        // リアルタイムリスナーに変更 (解決済みバッジ等の即時反映のため)
         onSnapshot(docRef, (docSnap) => {
             if (!docSnap.exists()) {
                 document.querySelector('.detail-container').innerHTML = "<p>投稿が見つかりません。</p>";
@@ -342,8 +342,23 @@
             const ownerActions = document.getElementById("ownerActions");
             if(currentUser && currentUser.uid === postData.authorId) {
                 ownerActions.style.display = "flex";
+                ownerActions.style.alignItems = "center"; // ★見栄え調整
+
+                // ★通知設定のチェック状態を決定
+                // 設定がない(undefined)またはtrueの場合はON、falseの場合のみOFF
+                const isNotifEnabled = (currentUserSettings.allowAnswerNotification !== false);
+                const checkedState = isNotifEnabled ? "checked" : "";
+
                 let btns = "";
                 
+                // ★通知スイッチを追加
+                btns += `
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px; margin-right:15px; font-size:0.9rem; color:#475569; background:#f1f5f9; padding:4px 10px; border-radius:15px;">
+                        <input type="checkbox" onchange="toggleEmailNotification(this)" ${checkedState}>
+                        📩 通知を受け取る
+                    </label>
+                `;
+
                 // 解決ボタン
                 if(!postData.isSolved) {
                     btns += `<button class="action-btn" onclick="markAsSolved()">✓ 解決済みにする</button>`;
@@ -374,7 +389,7 @@
             const answers = [];
             snapshot.forEach(d => answers.push({id: d.id, ...d.data()}));
 
-            // スレッド表示: 親を持たない回答を描画 -> その子を描画
+            // スレッド表示
             const rootAnswers = answers.filter(a => !a.parentId);
             
             rootAnswers.forEach(ans => {
@@ -449,6 +464,24 @@
 
 
     // === グローバル関数 (windowに登録) ===
+    
+    // ★追加: 通知設定の切り替え
+    window.toggleEmailNotification = async (checkbox) => {
+        if(!currentUser) return;
+        const newValue = checkbox.checked;
+        try {
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                allowAnswerNotification: newValue
+            });
+            // ローカルの設定も更新（再読み込みなしで反映させるため）
+            currentUserSettings.allowAnswerNotification = newValue;
+        } catch(e) {
+            console.error("設定更新エラー", e);
+            alert("設定の保存に失敗しました。");
+            checkbox.checked = !newValue; // 元に戻す
+        }
+    };
+
     window.toggleLike = async (ansId, isLiked) => {
         if (!currentUser) return alert("ログインが必要です。");
         const ansRef = doc(db, "posts", postId, "answers", ansId);
@@ -560,12 +593,9 @@
             let userIcon = user.photoURL;
             let userName = user.displayName;
             try {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if(userDoc.exists()) {
-                    const ud = userDoc.data();
-                    userIcon = ud.iconUrl || userIcon;
-                    userName = ud.nickname || userName;
-                }
+                // currentUserSettings があればそこから取る（高速化）
+                if(currentUserSettings.nickname) userName = currentUserSettings.nickname;
+                if(currentUserSettings.iconUrl) userIcon = currentUserSettings.iconUrl;
             } catch(e){}
 
             await addDoc(collection(db, "posts", postId, "answers"), {
