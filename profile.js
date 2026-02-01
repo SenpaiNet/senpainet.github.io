@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 setupEditLogics();
             } else {
                 console.error("User data not found in Firestore");
+                // データがない場合の新規作成などの処理が必要ならここへ
             }
         } catch(e) {
             console.error("Error fetching user data:", e);
@@ -110,10 +111,16 @@ function renderProfile() {
         document.getElementById("tagsCard").style.display = "none";
     }
 
-    // 通知設定
+    // === 通知設定の表示 ===
+    // バックエンドに合わせて 'allowAnswerNotification' を使用
     const notifToggle = document.getElementById("emailNotifToggle");
     if(notifToggle) {
-        notifToggle.checked = !!data.allowEmailNotification;
+        // 設定がない(undefined)場合は「ON(true)」とみなす
+        if (data.allowAnswerNotification === false) {
+            notifToggle.checked = false;
+        } else {
+            notifToggle.checked = true;
+        }
     }
 }
 
@@ -273,7 +280,7 @@ function setupEditLogics() {
         } catch(e) { console.error(e); alert("保存失敗: " + e.message); }
     });
 
-    // === D. タグ編集 (修正：JS内のリストから動的生成) ===
+    // === D. タグ編集 ===
     if(currentUserData.userType === "卒業生") {
         const tagsView = document.getElementById("tagsViewMode");
         const tagsEditArea = document.getElementById("tagsEditArea");
@@ -346,17 +353,20 @@ function setupEditLogics() {
         });
     }
 
-    // === E. 通知設定 ===
+    // === E. 通知設定 (バックエンド連携用に修正) ===
     const notifToggle = document.getElementById("emailNotifToggle");
     if(notifToggle) {
         notifToggle.addEventListener("change", async (e) => {
             try {
+                // バックエンドの仕様に合わせて 'allowAnswerNotification' を更新する
                 await updateDoc(doc(db, "users", currentUser.uid), { 
-                    allowEmailNotification: e.target.checked 
+                    allowAnswerNotification: e.target.checked 
                 });
+                console.log("通知設定を保存しました: " + e.target.checked);
             } catch (err) {
                 console.error(err);
                 alert("設定の保存に失敗しました。");
+                // エラー時はスイッチを元に戻す
                 e.target.checked = !e.target.checked;
             }
         });
@@ -370,8 +380,11 @@ function setupEditLogics() {
             if(!confirm("投稿したコンテンツの作者名は「不明」となりますがよろしいですか？")) return;
 
             try {
+                // Firestoreのユーザーデータを削除
                 await deleteDoc(doc(db, "users", currentUser.uid));
+                // Authのユーザーを削除
                 await deleteUser(currentUser);
+                
                 alert("アカウントを削除しました。ご利用ありがとうございました。");
                 window.location.href = "index.html";
             } catch(e) {
