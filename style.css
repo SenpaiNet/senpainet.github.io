@@ -259,6 +259,20 @@ footer { text-align: center; margin: 80px 0 40px; color: #94a3b8; }
   margin-top: 20px;
 }
 
+/* === style.css の末尾に追加 === */
+
+/* 初期状態ではアカウントボタンを隠す */
+.account-btn {
+  opacity: 0;
+  visibility: hidden; 
+  transition: opacity 0.3s ease; /* ふわっと表示させる */
+}
+
+/* 準備ができたら表示するクラス */
+.account-btn.visible {
+  opacity: 1;
+  visibility: visible;
+}
 
 
 
