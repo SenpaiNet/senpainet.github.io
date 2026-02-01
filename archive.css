@@ -186,7 +186,7 @@ body.list-page {
   padding: 16px 40px;
   
   /* グラデーション：オレンジ〜アンバー */
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+　background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white; font-weight: 800; font-size: 1.1rem;
   text-decoration: none;
   border-radius: 50px;
@@ -195,7 +195,7 @@ body.list-page {
   box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.new-post-btn::before { content: '✏️'; margin-right: 10px; font-size: 1.2rem; }
+.new-post-btn::before { content: ''; margin-right: 10px; font-size: 1.2rem; }
 .new-post-btn:hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 15px 40px rgba(245, 158, 11, 0.5);
@@ -247,3 +247,4 @@ body.list-page {
   font-size: 0.75rem; color: #64748b; background: #f1f5f9;
   padding: 4px 10px; border-radius: 8px; font-weight: 600;
 }
+
