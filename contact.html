@@ -8,57 +8,33 @@
 </head>
 
 <body>
-<header class="navbar fade-down">
-  <div class="navbar-container">
-    <div class="navbar-logo">SenpaiNet</div>
-
-    <nav class="navbar-menu">
-     
-      <a href="post.html">相談する</a>
-      <a href="archive.html">相談を見る</a>
-      <a href="senpai.html">先輩一覧</a>
-      <a href="contact.html">お問い合わせ</a>
-      <a href="signup.html" class="account-btn">👤 アカウント</a>
-    </nav>
-  </div>
-</header>
-    
-    <div class="contact-card">
-        <h2>お問い合わせ</h2>
-        <p class="description">サービスに関するご意見・不具合などは、以下のフォームよりお気軽にご連絡ください。</p>
-
-        <form action="https://formspree.io/f/XXXXXX" method="POST" id="contact-form">
-            <div class="input-group">
-                <label for="name">お名前</label>
-                <input type="text" id="name" name="name" placeholder="例：山田 太郎" required>
-            </div>
-
-            <div class="input-group">
-                <label for="email">メールアドレス</label>
-                <input type="email" id="email" name="email" placeholder="example@mail.com" required>
-            </div>
-
-            <div class="input-group">
-                <label for="message">お問い合わせ内容</label>
-                <textarea id="message" name="message" placeholder="内容を入力してください" required></textarea>
-            </div>
-
-            <div class="consent-area">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="agree-check">
-                    <span class="checkmark"></span>
-                    <span class="label-text">プライバシーポリシーに同意する</span>
-                </label>
-            </div>
-
-            <button type="submit" id="submit-btn" disabled>送信する</button>
-        </form>
-        
-        <div class="back-link">
-            <a href="index.html">ホームに戻る</a>
+<section id="contact">
+    <h2>お問い合わせ</h2>
+    <form id="contact-form">
+        <div class="field">
+            <label for="email">メールアドレス</label>
+            <input type="email" id="email" placeholder="example@mail.com" required>
         </div>
-    </div>
 
+        <div class="field">
+            <label for="category">お問い合わせ内容の選択</label>
+            <select id="category" required>
+                <option value="">選択してください</option>
+                <option value="service">サービスについて</option>
+                <option value="collaboration">コラボレーションのご提案</option>
+                <option value="other">その他</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="message">具体的な内容</label>
+            <textarea id="message" rows="5" placeholder="こちらにご記入ください" required></textarea>
+        </div>
+
+        <button type="submit" id="submit-btn">送信する</button>
+    </form>
+    <div id="form-status"></div>
+</section>
     <script src="contact.js"></script>
 </body>
 </html>
