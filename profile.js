@@ -319,11 +319,11 @@ function setupEditLogics() {
                         selectedTags = selectedTags.filter(item => item !== tag);
                         btn.classList.remove("selected");
                     } else {
-                        if(selectedTags.length < 3) {
+                        if(selectedTags.length < 10) {
                             selectedTags.push(tag);
                             btn.classList.add("selected");
                         } else {
-                            alert("タグは最大3つまでです。");
+                            alert("タグは最大10個までです。");
                         }
                     }
                 });
