@@ -1,44 +1,172 @@
-#contact {
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 20px;
-    font-family: sans-serif;
+/* 全体のリセットと基本設定 */
+* {
+    box-sizing: border-box;
 }
 
-.field {
-    margin-bottom: 20px;
+body {
+    margin: 0;
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    background-color: #f4f7f6; /* 少しグレーがかった背景色 */
+    color: #333;
+    line-height: 1.6;
 }
 
-label {
+/* セクション全体 */
+.contact-section {
+    padding: 60px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* フォームを含むカードコンテナ */
+.contact-container {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* 柔らかい影 */
+    width: 100%;
+    max-width: 500px; /* 最大幅を設定 */
+    transition: transform 0.3s ease;
+}
+
+/* タイトルと説明 */
+.section-title {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: #222;
+    position: relative;
+}
+
+/* タイトルの下に小さなアクセント線を入れる */
+.section-title::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(to right, #007bff, #00d4ff);
+    margin: 15px auto 0;
+    border-radius: 2px;
+}
+
+.section-description {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #666;
+    font-size: 15px;
+}
+
+/* フォームグループ */
+.form-group {
+    margin-bottom: 25px;
+}
+
+/* ラベル */
+.form-group label {
     display: block;
     margin-bottom: 8px;
-    font-weight: bold;
+    font-weight: 600;
+    color: #444;
+    font-size: 14px;
 }
 
-input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* 幅の計算を楽にする */
+/* 必須マーク */
+.required {
+    color: #e74c3c;
+    margin-left: 4px;
 }
 
-button {
-    background-color: #007bff;
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+/* 入力フィールド（共通） */
+.form-control {
     width: 100%;
+    padding: 14px 16px;
     font-size: 16px;
+    border: 2px solid #e1e1e1; /* 薄いグレーの枠線 */
+    border-radius: 8px;
+    background-color: #fafafa;
+    transition: all 0.3s ease; /* なめらかな変化 */
+    appearance: none; /* ブラウザのデフォルトスタイルを打ち消す */
 }
 
-button:hover {
-    background-color: #0056b3;
+/* 入力フィールドにフォーカスが当たった時 */
+.form-control:focus {
+    outline: none;
+    border-color: #007bff; /* 青色に変化 */
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1); /* 青い光彩 */
 }
 
-#form-status {
-    margin-top: 15px;
+/* プレースホルダーの色 */
+::placeholder {
+    color: #bbb;
+}
+
+/* テキストエリアのサイズ変更を縦のみに制限 */
+textarea.form-control {
+    resize: vertical;
+}
+
+/* セレクトボックスの矢印をカスタマイズ（簡易版） */
+.form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 12px;
+    padding-right: 40px; /* 矢印の分だけ余白を空ける */
+}
+
+/* 送信ボタン */
+.submit-btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, #007bff, #0056b3); /* 青のグラデーション */
+    border: none;
+    border-radius: 50px; /* 丸みのあるボタン */
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+/* ボタンホバー時 */
+.submit-btn:hover {
+    background: linear-gradient(135deg, #0056b3, #004494);
+    transform: translateY(-2px); /* 少し浮き上がる */
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+/* ボタンクリック時 */
+.submit-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+}
+
+/* 送信中のボタンの状態 */
+.submit-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* 送信結果のメッセージ */
+.form-status {
+    margin-top: 25px;
     text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* スマホ向けの調整 */
+@media (max-width: 480px) {
+    .contact-container {
+        padding: 30px 20px;
+    }
+    .section-title {
+        font-size: 24px;
+    }
 }
