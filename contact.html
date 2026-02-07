@@ -4,37 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>お問い合わせ - SenpaiNet</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="contact.css">
 </head>
 
 <body>
-<section id="contact">
-    <h2>お問い合わせ</h2>
-    <form id="contact-form">
-        <div class="field">
-            <label for="email">メールアドレス</label>
-            <input type="email" id="email" placeholder="example@mail.com" required>
+    <header class="navbar fade-down">
+      <div class="navbar-container">
+        <div class="navbar-logo">
+          <a href="index.html">SenpaiNet</a>
         </div>
+    
+        <nav class="navbar-menu">
+          <a href="post.html">相談する</a>
+          <a href="archive.html">相談を見る</a>
+          <a href="senpai.html">先輩一覧</a>
+          <a href="contact.html">お問い合わせ</a>
+          
+          <a href="signup.html" class="account-btn">👤 アカウント</a>
+        </nav>
+      </div>
+    </header>
+    <section id="contact">
+        <h2>お問い合わせ</h2>
+        <form id="contact-form">
+            <div class="field">
+                <label for="email">メールアドレス</label>
+                <input type="email" id="email" placeholder="example@mail.com" required>
+            </div>
 
-        <div class="field">
-            <label for="category">お問い合わせ内容の選択</label>
-            <select id="category" required>
-                <option value="">選択してください</option>
-                <option value="service">サービスについて</option>
-                <option value="collaboration">コラボレーションのご提案</option>
-                <option value="other">その他</option>
-            </select>
-        </div>
+            <div class="field">
+                <label for="category">お問い合わせ内容の選択</label>
+                <select id="category" required>
+                    <option value="">選択してください</option>
+                    <option value="service">サービスについて</option>
+                    <option value="collaboration">コラボレーションのご提案</option>
+                    <option value="other">その他</option>
+                </select>
+            </div>
 
-        <div class="field">
-            <label for="message">具体的な内容</label>
-            <textarea id="message" rows="5" placeholder="こちらにご記入ください" required></textarea>
-        </div>
+            <div class="field">
+                <label for="message">具体的な内容</label>
+                <textarea id="message" rows="5" placeholder="こちらにご記入ください" required></textarea>
+            </div>
 
-        <button type="submit" id="submit-btn">送信する</button>
-    </form>
-    <div id="form-status"></div>
-</section>
+            <button type="submit" id="submit-btn">送信する</button>
+        </form>
+        <div id="form-status"></div>
+    </section>
+
+    <script type="module" src="firebase.js"></script>
+    <script type="module" src="auth_header.js"></script>
     <script src="contact.js"></script>
 </body>
 </html>
