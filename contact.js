@@ -4,12 +4,13 @@ import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.g
 
 // TODO: あなたのFirebaseプロジェクトの「プロジェクト設定」からコピーしたconfigに置き換えてください
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDuDU6ujKlBcxP05XOUwPsGqpxQVqeHgvs",
+  authDomain: "senpainet-auth.firebaseapp.com",
+  projectId: "senpainet-auth",
+  storageBucket: "senpainet-auth.firebasestorage.app",
+  messagingSenderId: "694282767766",
+  appId: "1:694282767766:web:3e0dd18f697aafb60e61b7",
+  measurementId: "G-977F3HXN1F"
 };
 
 // 初期化
