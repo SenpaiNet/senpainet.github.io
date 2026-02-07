@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>相談詳細 | SenpaiNet</title>
   <link rel="stylesheet" href="archive.css">
+  <link rel="stylesheet" href="style.css"> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -154,17 +155,19 @@
 </head>
 <body class="list-page">
 
-  <header class="navbar">
+  <header class="navbar fade-down">
     <div class="navbar-container">
       <div class="navbar-logo">
         <a href="index.html">SenpaiNet</a>
       </div>
+
       <nav class="navbar-menu">
         <a href="post.html">相談する</a>
         <a href="archive.html" class="active">相談を見る</a>
         <a href="senpai.html">先輩一覧</a>
-        <a href="form.html">お問い合わせ</a>
-        <a href="#" class="account-btn">ログイン</a>
+        <a href="contact.html">お問い合わせ</a>
+        
+        <a href="signup.html" class="account-btn">👤 アカウント</a>
       </nav>
     </div>
   </header>
@@ -231,20 +234,16 @@
     if (!postId) window.location.href = "archive.html";
 
     let currentUser = null;
-    let currentUserSettings = {}; // ★追加：ユーザー設定を保持
+    let currentUserSettings = {}; 
     let postData = null;
     let blockedUsers = [];
-    let replyParentId = null; // スレッド返信先ID
+    let replyParentId = null; 
 
-    // Markdownレンダリング関数
     function renderContent(text, elementId) {
         const el = document.getElementById(elementId);
-        // Markdown -> HTML
         let html = marked.parse(text);
-        // サニタイズ(XSS対策)
         html = DOMPurify.sanitize(html);
         el.innerHTML = html;
-        // 数式レンダリング (KaTeX)
         renderMathInElement(el, {
             delimiters: [
                 {left: "$$", right: "$$", display: true},
@@ -260,21 +259,18 @@
                 const uDoc = await getDoc(doc(db, "users", user.uid));
                 if(uDoc.exists()) {
                     const ud = uDoc.data();
-                    currentUserSettings = ud; // ★設定をロード
+                    currentUserSettings = ud; 
                     blockedUsers = ud.blocked || [];
-                    // ブックマーク状態確認
                     if(ud.bookmarks && ud.bookmarks.includes(postId)) {
                         document.getElementById("bookmarkBtn").classList.add("active");
                     }
                 }
-                // 閲覧数カウントアップ
                 updateDoc(doc(db, "posts", postId), { viewCount: increment(1) }).catch(()=>{});
             } catch(e) {}
         }
         loadQuestion(); 
     });
 
-    // 1. 質問表示
     async function loadQuestion() {
         const docRef = doc(db, "posts", postId);
         
@@ -286,17 +282,14 @@
 
             postData = docSnap.data();
             
-            // ブロック判定
             if(blockedUsers.includes(postData.authorId)) {
                 document.getElementById('qSection').innerHTML = "<p style='color:#999; text-align:center;'>ブロックしたユーザーの投稿です。</p>";
                 return;
             }
 
             document.getElementById('qTitle').textContent = postData.title;
-            // Markdownとして描画
             renderContent(postData.content, 'qBody');
             
-            // 解決済みバッジ
             const badgeArea = document.getElementById("statusBadgeArea");
             if(postData.isSolved) {
                 badgeArea.innerHTML = `<span class="status-badge status-solved">✓ 解決済み</span>`;
@@ -304,13 +297,11 @@
                 badgeArea.innerHTML = `<span class="status-badge status-open">回答募集中</span>`;
             }
 
-            // 閲覧数
             document.getElementById("viewCountArea").textContent = `👀 ${postData.viewCount || 0} views`;
 
             const dateStr = postData.createdAt ? postData.createdAt.toDate().toLocaleDateString() : "日付不明";
             const icon = postData.authorIcon || "https://placehold.co/30";
             
-            // メタ情報＆操作ボタン
             const metaContainer = document.getElementById('qMeta');
             let actionsHtml = "";
             
@@ -331,27 +322,22 @@
                 ${actionsHtml}
             `;
 
-            // タグ
             if(postData.tags && postData.tags.length > 0) {
                 document.getElementById('qTags').innerHTML = postData.tags.map(t => 
                     `<span style="background:#e0f2fe; color:#0284c7; padding:4px 10px; border-radius:20px; font-size:0.85rem; font-weight:600;">#${t}</span>`
                 ).join("");
             }
 
-            // 投稿者メニュー (削除、解決済みにする)
             const ownerActions = document.getElementById("ownerActions");
             if(currentUser && currentUser.uid === postData.authorId) {
                 ownerActions.style.display = "flex";
-                ownerActions.style.alignItems = "center"; // ★見栄え調整
+                ownerActions.style.alignItems = "center"; 
 
-                // ★通知設定のチェック状態を決定
-                // 設定がない(undefined)またはtrueの場合はON、falseの場合のみOFF
                 const isNotifEnabled = (currentUserSettings.allowAnswerNotification !== false);
                 const checkedState = isNotifEnabled ? "checked" : "";
 
                 let btns = "";
                 
-                // ★通知スイッチを追加
                 btns += `
                     <label style="cursor:pointer; display:flex; align-items:center; gap:4px; margin-right:15px; font-size:0.9rem; color:#475569; background:#f1f5f9; padding:4px 10px; border-radius:15px;">
                         <input type="checkbox" onchange="toggleEmailNotification(this)" ${checkedState}>
@@ -359,12 +345,10 @@
                     </label>
                 `;
 
-                // 解決ボタン
                 if(!postData.isSolved) {
                     btns += `<button class="action-btn" onclick="markAsSolved()">✓ 解決済みにする</button>`;
                 }
                 
-                // 削除ボタン
                 btns += `<button class="action-btn" onclick="deleteMyPost()" style="color:#ef4444;">🗑 削除</button>`;
                 
                 ownerActions.innerHTML = btns;
@@ -372,7 +356,6 @@
         });
     }
 
-    // 2. 回答一覧 (スレッド対応)
     function loadAnswers() {
         const answersRef = collection(db, "posts", postId, "answers");
         const q = query(answersRef, orderBy("createdAt", "asc"));
@@ -389,18 +372,16 @@
             const answers = [];
             snapshot.forEach(d => answers.push({id: d.id, ...d.data()}));
 
-            // スレッド表示
             const rootAnswers = answers.filter(a => !a.parentId);
             
             rootAnswers.forEach(ans => {
                 if(blockedUsers.includes(ans.authorId)) return;
-                renderAnswerCard(ans, container, false); // 親
+                renderAnswerCard(ans, container, false); 
 
-                // 子を探す
                 const children = answers.filter(a => a.parentId === ans.id);
                 children.forEach(child => {
                     if(blockedUsers.includes(child.authorId)) return;
-                    renderAnswerCard(child, container, true); // 子 (インデントあり)
+                    renderAnswerCard(child, container, true); 
                 });
             });
         });
@@ -419,7 +400,6 @@
         const isLiked = currentUser && likes.includes(currentUser.uid);
         const heartColor = isLiked ? "#ff4757" : "#ccc";
 
-        // ベストアンサー選択ボタン (投稿者かつ未解決の場合)
         let baButton = "";
         if(postData && !postData.isSolved && currentUser && currentUser.uid === postData.authorId) {
             baButton = `<button onclick="selectBestAnswer('${ans.id}')" style="font-size:0.8rem; background:#fbbf24; border:none; border-radius:12px; padding:4px 8px; cursor:pointer;">👑 ベストアンサーにする</button>`;
@@ -458,14 +438,12 @@
         `;
         container.appendChild(div);
         
-        // Markdown描画
         renderContent(ans.content, bodyId);
     }
 
 
-    // === グローバル関数 (windowに登録) ===
+    // === グローバル関数 ===
     
-    // ★追加: 通知設定の切り替え
     window.toggleEmailNotification = async (checkbox) => {
         if(!currentUser) return;
         const newValue = checkbox.checked;
@@ -473,12 +451,11 @@
             await updateDoc(doc(db, "users", currentUser.uid), {
                 allowAnswerNotification: newValue
             });
-            // ローカルの設定も更新（再読み込みなしで反映させるため）
             currentUserSettings.allowAnswerNotification = newValue;
         } catch(e) {
             console.error("設定更新エラー", e);
             alert("設定の保存に失敗しました。");
-            checkbox.checked = !newValue; // 元に戻す
+            checkbox.checked = !newValue; 
         }
     };
 
@@ -563,7 +540,6 @@
     };
 
 
-    // ブックマーク処理
     document.getElementById("bookmarkBtn").addEventListener("click", async () => {
         if(!currentUser) return alert("ログインが必要です");
         const btn = document.getElementById("bookmarkBtn");
@@ -580,7 +556,6 @@
     });
 
 
-    // 3. 回答送信
     document.getElementById('answerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const user = auth.currentUser;
@@ -593,7 +568,6 @@
             let userIcon = user.photoURL;
             let userName = user.displayName;
             try {
-                // currentUserSettings があればそこから取る（高速化）
                 if(currentUserSettings.nickname) userName = currentUserSettings.nickname;
                 if(currentUserSettings.iconUrl) userIcon = currentUserSettings.iconUrl;
             } catch(e){}
@@ -605,15 +579,14 @@
                 authorIcon: isAnon ? "https://placehold.co/30" : (userIcon || "https://placehold.co/30"),
                 createdAt: serverTimestamp(),
                 likes: [],
-                parentId: replyParentId // スレッドID
+                parentId: replyParentId 
             });
 
             await updateDoc(doc(db, "posts", postId), { 
                 replies: increment(1),
-                lastUpdatedAt: serverTimestamp() // 更新順用
+                lastUpdatedAt: serverTimestamp() 
             });
 
-            // 通知処理
             if (postData.authorId && postData.authorId !== user.uid) {
                 await addDoc(collection(db, "users", postData.authorId, "notifications"), {
                     type: "reply",
