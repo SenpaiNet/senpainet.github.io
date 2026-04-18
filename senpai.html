@@ -47,6 +47,27 @@
     }
     .add-submit-btn:hover { background: #172554; }
 
+    /* --- 今回追加した部分：カード内の編集・削除ボタン用スタイル --- */
+    .card-actions {
+      display: flex; gap: 10px; margin-top: 15px; padding-top: 15px;
+      border-top: 1px solid #e2e8f0; justify-content: flex-end;
+    }
+    
+    .edit-btn {
+      background: #10b981; color: white; border: none;
+      padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 0.85rem;
+      cursor: pointer; transition: 0.2s;
+    }
+    .edit-btn:hover { background: #059669; }
+
+    .delete-btn {
+      background: #ef4444; color: white; border: none;
+      padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 0.85rem;
+      cursor: pointer; transition: 0.2s;
+    }
+    .delete-btn:hover { background: #dc2626; }
+    /* ------------------------------------------------------------- */
+
     @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
@@ -81,9 +102,11 @@
       </div>
 
       <div id="profileFormArea" class="profile-input-box">
-        <h3 style="margin-top:0; color:#1e3a8a; margin-bottom:20px;">登録情報を元に作成</h3>
+        <h3 id="formTitle" style="margin-top:0; color:#1e3a8a; margin-bottom:20px;">登録情報を元に作成</h3>
         <p style="font-size:0.85rem; color:#666; margin-bottom:15px;">※内容はここで自由に修正できます</p>
         
+        <input type="hidden" id="editCardId" value="">
+
         <div class="row">
             <div class="col input-group">
                 <label class="input-label">名前 (ニックネーム)</label>
