@@ -7,8 +7,9 @@
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    /* 既存のスタイル */
+    /* 追加ボタンエリア */
     .header-actions { text-align: center; margin-bottom: 30px; }
+    
     .toggle-form-btn {
       background: #3b82f6; color: white; border: none;
       padding: 12px 30px; border-radius: 50px; font-weight: bold; font-size: 1rem;
@@ -17,6 +18,7 @@
     }
     .toggle-form-btn:hover { transform: translateY(-2px); background: #2563eb; }
 
+    /* プロフィール入力ボックス（最初は隠す） */
     .profile-input-box {
       max-width: 600px; margin: 0 auto 40px; 
       background: white; padding: 30px; border-radius: 20px;
@@ -26,6 +28,7 @@
     }
     .profile-input-box.active { display: block; }
     
+    /* フォームパーツ */
     .input-group { margin-bottom: 15px; }
     .input-label { display: block; font-weight: bold; color: #475569; margin-bottom: 5px; font-size: 0.9rem; }
     .input-field {
@@ -44,24 +47,6 @@
     }
     .add-submit-btn:hover { background: #172554; }
 
-    /* --- 今回追加したアクションボタン用スタイル --- */
-    .card-actions {
-      display: flex; gap: 10px; margin-top: 15px; padding-top: 15px;
-      border-top: 1px solid #e2e8f0; justify-content: flex-end;
-    }
-    .edit-btn {
-      background: #10b981; color: white; border: none;
-      padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 0.85rem;
-      cursor: pointer; transition: 0.2s;
-    }
-    .edit-btn:hover { background: #059669; }
-    .delete-btn {
-      background: #ef4444; color: white; border: none;
-      padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 0.85rem;
-      cursor: pointer; transition: 0.2s;
-    }
-    .delete-btn:hover { background: #dc2626; }
-
     @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
@@ -69,67 +54,70 @@
 
 <header class="navbar fade-down">
   <div class="navbar-container">
-    <div class="navbar-logo"><a href="index.html">SenpaiNet</a></div>
+    <div class="navbar-logo">
+      <a href="index.html">SenpaiNet</a>
+    </div>
+
     <nav class="navbar-menu">
       <a href="post.html">相談する</a>
       <a href="archive.html">相談を見る</a>
       <a href="senpai.html">先輩一覧</a>
       <a href="contact.html">お問い合わせ</a>
+      
       <a href="signup.html" class="account-btn">👤 アカウント</a>
     </nav>
   </div>
 </header>
 
-<main>
-  <section class="header">
-    <h1>🎓 先輩ポートフォリオ</h1>
-    <p style="color:#666; margin-bottom:20px;">あなたの情報をカードにして表示します</p>
+  <main>
+    <section class="header">
+      <h1>🎓 先輩ポートフォリオ</h1>
+      <p style="color:#666; margin-bottom:20px;">あなたの情報をカードにして表示します</p>
 
-    <div class="header-actions">
-      <button id="toggleFormBtn" class="toggle-form-btn">
-        <span>＋ プロフィールカードを作成</span>
-      </button>
-    </div>
-
-    <div id="profileFormArea" class="profile-input-box">
-      <h3 id="formTitle" style="margin-top:0; color:#1e3a8a; margin-bottom:20px;">登録情報を元に作成</h3>
-      
-      <input type="hidden" id="editCardId" value="">
-      
-      <div class="row">
-          <div class="col input-group">
-              <label class="input-label">名前 (ニックネーム)</label>
-              <input type="text" id="inputName" class="input-field" placeholder="名前を入力">
-          </div>
-          <div class="col input-group">
-              <label class="input-label">学年・属性</label>
-              <input type="text" id="inputGrade" class="input-field" placeholder="例: 大学3年生">
-          </div>
+      <div class="header-actions">
+        <button id="toggleFormBtn" class="toggle-form-btn">
+          <span>＋ プロフィールカードを作成</span>
+        </button>
       </div>
 
-      <div class="input-group">
-          <label class="input-label">自己紹介・経歴</label>
-          <textarea id="inputBio" class="input-field" rows="3" placeholder="経歴や得意分野を入力してください..."></textarea>
+      <div id="profileFormArea" class="profile-input-box">
+        <h3 style="margin-top:0; color:#1e3a8a; margin-bottom:20px;">登録情報を元に作成</h3>
+        <p style="font-size:0.85rem; color:#666; margin-bottom:15px;">※内容はここで自由に修正できます</p>
+        
+        <div class="row">
+            <div class="col input-group">
+                <label class="input-label">名前 (ニックネーム)</label>
+                <input type="text" id="inputName" class="input-field" placeholder="読み込み中...">
+            </div>
+            <div class="col input-group">
+                <label class="input-label">学年・属性</label>
+                <input type="text" id="inputGrade" class="input-field" placeholder="読み込み中...">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">自己紹介・経歴</label>
+            <textarea id="inputBio" class="input-field" rows="3" placeholder="経歴や得意分野を入力してください..."></textarea>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">タグ (カンマ区切り)</label>
+            <input type="text" id="inputTags" class="input-field" placeholder="例: 理系, サッカー部, 海外大">
+        </div>
+
+        <button id="addCardBtn" class="add-submit-btn">この内容でカードを表示</button>
       </div>
+    </section>
 
-      <div class="input-group">
-          <label class="input-label">タグ (カンマ区切り)</label>
-          <input type="text" id="inputTags" class="input-field" placeholder="例: 理系, サッカー部, 海外大">
-      </div>
+    <section class="post-list" id="senpaiList">
+        <p id="emptyMsg" style="text-align:center; color:#ccc; grid-column:1/-1; padding: 40px;">
+            ボタンを押してプロフィールカードを追加してください
+        </p>
+    </section>
+  </main>
 
-      <button id="addCardBtn" class="add-submit-btn">この内容でカードを表示</button>
-    </div>
-  </section>
-
-  <section class="post-list" id="senpaiList">
-      <p id="emptyMsg" style="text-align:center; color:#ccc; grid-column:1/-1; padding: 40px;">
-          ボタンを押してプロフィールカードを追加してください
-      </p>
-  </section>
-</main>
-
-<script type="module" src="firebase.js"></script>
-<script type="module" src="auth_header.js"></script>
-<script type="module" src="senpai.js"></script>
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="auth_header.js"></script>
+  <script type="module" src="senpai.js"></script>
 </body>
 </html>
