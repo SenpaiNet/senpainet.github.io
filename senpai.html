@@ -8,13 +8,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     /* 追加ボタンエリア */
-    .header-actions { text-align: center; margin-bottom: 30px; }
+    .header-actions { text-align: center; margin-bottom: 30px; min-height: 50px; }
     
     .toggle-form-btn {
       background: #3b82f6; color: white; border: none;
       padding: 12px 30px; border-radius: 50px; font-weight: bold; font-size: 1rem;
       cursor: pointer; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-      transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+      transition: all 0.2s; display: none; align-items: center; gap: 8px; margin: 0 auto;
     }
     .toggle-form-btn:hover { transform: translateY(-2px); background: #2563eb; }
 
@@ -39,6 +39,14 @@
     
     .row { display: flex; gap: 15px; }
     .col { flex: 1; }
+
+    /* タグ選択エリア用スタイル */
+    .preset-tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .selectable-tag {
+        font-size: 0.8rem; padding: 4px 12px; border-radius: 20px; border: 1px solid #e2e8f0;
+        background: #fff; color: #64748b; cursor: pointer; transition: 0.2s;
+    }
+    .selectable-tag.selected { background: #3b82f6; color: #fff; border-color: #3b82f6; }
 
     .add-submit-btn {
       width: 100%; background: #1e3a8a; color: white; border: none;
@@ -78,6 +86,7 @@
         <button id="toggleFormBtn" class="toggle-form-btn">
           <span>＋ プロフィールカードを作成</span>
         </button>
+        <p id="notSenpaiMsg" style="display:none; color:#94a3b8; font-size:0.9rem;">※プロフィール作成は先輩ユーザーのみ可能です</p>
       </div>
 
       <div id="profileFormArea" class="profile-input-box">
@@ -103,6 +112,7 @@
         <div class="input-group">
             <label class="input-label">タグ (カンマ区切り)</label>
             <input type="text" id="inputTags" class="input-field" placeholder="例: 理系, サッカー部, 海外大">
+            <div id="presetTagsArea" class="preset-tags-container"></div>
         </div>
 
         <button id="addCardBtn" class="add-submit-btn">この内容でカードを表示</button>
