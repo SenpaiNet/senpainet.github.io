@@ -16,8 +16,14 @@ const inGrade = document.getElementById("inputGrade");
 const inBio = document.getElementById("inputBio");
 const inTags = document.getElementById("inputTags");
 
-// 推奨タグのリスト
-const PRESET_TAGS = ["理系", "文系", "留学", "体育会系", "サークル", "インターン", "起業", "公務員", "教職", "資格勉強", "一人暮らし"];
+// ★ ご指定いただいたタグリストに更新 ★
+const PRESET_TAGS = [
+    "一般入試", "AO入試", "海外大学", "指定校推薦", 
+    "数学", "英語", "理科", "国語", 
+    "DP", "MYP", "部活", "課外活動", 
+    "英検", "TOEFL", "IELTS", "模試", 
+    "理系", "文系", "ボランティア", "教育", "進路"
+];
 
 let isFormOpen = false;
 let currentUserData = null; 
@@ -65,7 +71,7 @@ function renderAllCards() {
     allPortfolios.forEach(user => renderSenpaiCard(user));
 }
 
-// ★ タグ選択機能の実装 ★
+// タグ選択機能の実装
 function initTagSelector() {
     presetTagsArea.innerHTML = "";
     PRESET_TAGS.forEach(tag => {
@@ -115,7 +121,7 @@ onAuthStateChanged(auth, async (user) => {
             if (docSnap.exists()) {
                 currentUserData = docSnap.data();
                 
-                // ★ 先輩のみボタンを表示するロジック ★
+                // 先輩のみボタンを表示するロジック
                 if (currentUserData.role === "senpai") {
                     toggleBtn.style.display = "flex";
                     notSenpaiMsg.style.display = "none";
