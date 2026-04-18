@@ -1,146 +1,174 @@
 import { db, auth } from "./firebase.js";
-import { 
-    collection, addDoc, onSnapshot, query, orderBy, 
-    deleteDoc, doc, updateDoc 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-const senpaiList = document.getElementById("senpaiList");
-const profileFormArea = document.getElementById("profileFormArea");
-const toggleFormBtn = document.getElementById("toggleFormBtn");
-const addCardBtn = document.getElementById("addCardBtn");
-const formTitle = document.getElementById("formTitle");
-const editCardId = document.getElementById("editCardId");
+const listContainer = document.getElementById("senpaiList");
+const toggleBtn = document.getElementById("toggleFormBtn");
+const formArea = document.getElementById("profileFormArea");
+const addBtn = document.getElementById("addCardBtn");
+const emptyMsg = document.getElementById("emptyMsg");
 
-// 入力フィールド
-const inputName = document.getElementById("inputName");
-const inputGrade = document.getElementById("inputGrade");
-const inputBio = document.getElementById("inputBio");
-const inputTags = document.getElementById("inputTags");
+// 入力欄
+const inName = document.getElementById("inputName");
+const inGrade = document.getElementById("inputGrade");
+const inBio = document.getElementById("inputBio");
+const inTags = document.getElementById("inputTags");
 
-let currentUser = null;
+let isFormOpen = false;
+let currentUserData = null;
 
-// 認証状態の監視
-onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    renderCards();
-});
-
-// フォームの表示/非表示（新規作成モードにリセット）
-toggleFormBtn.addEventListener("click", () => {
-    profileFormArea.classList.toggle("active");
-    if (profileFormArea.classList.contains("active")) {
-        // 新規作成用にリセット
-        editCardId.value = "";
-        inputName.value = "";
-        inputGrade.value = "";
-        inputBio.value = "";
-        inputTags.value = "";
-        formTitle.innerText = "プロフィールカードを作成";
-        addCardBtn.innerText = "この内容でカードを表示";
-    }
-});
-
-// カードの保存・更新
-addCardBtn.addEventListener("click", async () => {
-    if (!currentUser) return alert("ログインが必要です");
-
-    const data = {
-        name: inputName.value,
-        grade: inputGrade.value,
-        bio: inputBio.value,
-        tags: inputTags.value.split(",").map(t => t.trim()).filter(t => t),
-        uid: currentUser.uid,
-        updatedAt: new Date()
-    };
-
-    try {
-        if (editCardId.value) {
-            // 更新処理
-            await updateDoc(doc(db, "senpai_cards", editCardId.value), data);
-        } else {
-            // 新規作成
-            data.createdAt = new Date();
-            await addDoc(collection(db, "senpai_cards"), data);
-        }
-        profileFormArea.classList.remove("active");
-    } catch (e) {
-        console.error("Error saving document: ", e);
-    }
-});
-
-// カード一覧の取得と表示
-function renderCards() {
-    const q = query(collection(db, "senpai_cards"), orderBy("updatedAt", "desc"));
+// 0. 初期ロード（全員分のポートフォリオを表示）
+async function loadAllPortfolios() {
+    listContainer.innerHTML = ""; // クリア
     
-    onSnapshot(q, (snapshot) => {
-        senpaiList.innerHTML = "";
+    try {
+        // 更新順（新しい順）で取得したい場合は orderBy('updatedAt', 'desc') を使いますが、
+        // インデックス未作成エラーを防ぐため、まずは単純取得にします。
+        const q = query(collection(db, "portfolios")); 
+        const snapshot = await getDocs(q);
+
         if (snapshot.empty) {
-            senpaiList.innerHTML = `<p id="emptyMsg" style="...">ボタンを押して追加してください</p>`;
+            if(emptyMsg) emptyMsg.style.display = "block";
             return;
         }
 
-        snapshot.forEach((d) => {
-            const card = d.data();
-            const isOwner = currentUser && currentUser.uid === card.uid;
-            
-            const cardEl = document.createElement("div");
-            cardEl.className = "senpai-card fade-up"; // 既存のCSSクラス
-            
-            // カードHTMLの組み立て
-            let html = `
-                <div class="card-header">
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${card.name}" class="avatar">
-                    <div>
-                        <div class="name">${card.name}</div>
-                        <div class="grade">${card.grade}</div>
-                    </div>
-                </div>
-                <div class="tags">
-                    ${card.tags.map(t => `<span class="tag">#${t}</span>`).join("")}
-                </div>
-                <div class="bio">${card.bio}</div>
-            `;
+        if(emptyMsg) emptyMsg.style.display = "none";
 
-            // 自分のカードならアクションボタンを追加
-            if (isOwner) {
-                html += `
-                    <div class="card-actions">
-                        <button class="edit-btn" data-id="${d.id}">編集</button>
-                        <button class="delete-btn" data-id="${d.id}">削除</button>
-                    </div>
-                `;
-            }
-
-            cardEl.innerHTML = html;
-            senpaiList.appendChild(cardEl);
-
-            // ボタンへのイベント登録
-            if (isOwner) {
-                cardEl.querySelector(".edit-btn").addEventListener("click", () => startEdit(d.id, card));
-                cardEl.querySelector(".delete-btn").addEventListener("click", () => deleteCard(d.id));
-            }
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            // データにIDを含めて描画
+            renderSenpaiCard({ uid: doc.id, ...data });
         });
-    });
-}
 
-// 編集モード開始
-function startEdit(id, data) {
-    editCardId.value = id;
-    inputName.value = data.name;
-    inputGrade.value = data.grade;
-    inputBio.value = data.bio;
-    inputTags.value = data.tags.join(", ");
-    
-    formTitle.innerText = "カードの内容を編集";
-    addCardBtn.innerText = "更新する";
-    profileFormArea.classList.add("active");
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// 削除処理
-async function deleteCard(id) {
-    if (confirm("このプロフィールカードを削除してもよろしいですか？")) {
-        await deleteDoc(doc(db, "senpai_cards", id));
+    } catch (e) {
+        console.error("読み込みエラー:", e);
+        listContainer.innerHTML = "<p style='text-align:center'>読み込みに失敗しました</p>";
     }
+}
+
+// ページ読み込み時に実行
+loadAllPortfolios();
+
+
+// 1. ログインユーザー情報の取得 & フォーム制御
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        try {
+            const docSnap = await getDoc(doc(db, "users", user.uid));
+            if (docSnap.exists()) {
+                currentUserData = docSnap.data();
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+});
+
+toggleBtn.addEventListener("click", () => {
+    if (!auth.currentUser) {
+        alert("機能を使用するにはログインが必要です");
+        return;
+    }
+
+    isFormOpen = !isFormOpen;
+    if (isFormOpen) {
+        formArea.classList.add("active");
+        toggleBtn.textContent = "▲ 閉じる";
+        toggleBtn.style.background = "#64748b";
+
+        // 自動入力
+        if (currentUserData) {
+            if (!inName.value) inName.value = currentUserData.nickname || "";
+            if (!inGrade.value) inGrade.value = currentUserData.grade || "";
+            if (!inBio.value) inBio.value = currentUserData.bio || "";
+            if (!inTags.value && currentUserData.tags && Array.isArray(currentUserData.tags)) {
+                inTags.value = currentUserData.tags.join(", ");
+            }
+        }
+    } else {
+        formArea.classList.remove("active");
+        toggleBtn.textContent = "＋ プロフィールカードを作成";
+        toggleBtn.style.background = "#3b82f6";
+    }
+});
+
+// 2. 「追加」ボタン → Firestoreへ保存
+addBtn.addEventListener("click", async () => {
+    if (!auth.currentUser) return;
+
+    addBtn.disabled = true;
+    addBtn.textContent = "保存中...";
+
+    const name = inName.value.trim() || "名無し先輩";
+    const grade = inGrade.value.trim() || "卒業生";
+    const bio = inBio.value.trim() || "自己紹介なし";
+    const tagsStr = inTags.value.trim();
+    
+    let tags = [];
+    if (tagsStr) {
+        tags = tagsStr.split(/,|、/).map(t => t.trim()).filter(t => t);
+    }
+
+    const icon = currentUserData ? (currentUserData.iconUrl || auth.currentUser.photoURL) : "https://placehold.co/50";
+
+    // 保存するデータ
+    const portfolioData = {
+        nickname: name,
+        grade: grade,
+        bio: bio,
+        tags: tags,
+        iconUrl: icon,
+        updatedAt: serverTimestamp() // 保存日時
+    };
+
+    try {
+        // Firestoreの 'portfolios' コレクションに、自分のUIDをキーにして保存
+        // (setDocなので、既に存在すれば上書きされます)
+        await setDoc(doc(db, "portfolios", auth.currentUser.uid), portfolioData);
+        
+        alert("プロフィールを公開しました！");
+        
+        // フォームを閉じて再読み込み
+        toggleBtn.click();
+        loadAllPortfolios(); // 画面を更新
+
+    } catch (e) {
+        console.error(e);
+        alert("保存に失敗しました: " + e.message);
+    } finally {
+        addBtn.disabled = false;
+        addBtn.textContent = "この内容でカードを表示";
+    }
+});
+
+// カード描画関数
+function renderSenpaiCard(user) {
+    // 既存の自分のカードがあれば削除（再描画のため）
+    const existingCard = document.getElementById(`card-${user.uid}`);
+    if (existingCard) existingCard.remove();
+
+    const icon = user.iconUrl || "https://placehold.co/50";
+    const name = user.nickname;
+    const bioSnippet = user.bio.length > 60 ? user.bio.substring(0, 60) + "..." : user.bio;
+    const tagsHtml = (user.tags || []).map(t => `<span class="tag">#${t}</span>`).join("");
+
+    const html = `
+      <article id="card-${user.uid}" class="post-card" style="cursor: default; animation: fadeIn 0.5s ease;">
+        <div style="display:flex; align-items:center; margin-bottom:15px; border-bottom:1px solid #f1f5f9; padding-bottom:10px;">
+             <img src="${icon}" style="width:45px; height:45px; border-radius:50%; margin-right:12px; object-fit:cover; border:1px solid #eee;">
+             <div>
+                 <h3 style="margin:0; font-size:1.1rem; color:#1e3a8a;">${name}</h3>
+                 <span style="font-size:0.85rem; color:#64748b;">${user.grade}</span>
+             </div>
+        </div>
+        
+        <div class="tags" style="margin-bottom:12px;">${tagsHtml}</div>
+        
+        <p style="font-size:0.95rem; color:#334155; line-height:1.6; flex-grow:1;">${bioSnippet}</p>
+      </article>
+    `;
+    
+    // 新しい順にしたい場合は prepend (afterbegin), 古い順なら append (beforeend)
+    // ここでは単純に上に追加します
+    listContainer.insertAdjacentHTML("afterbegin", html);
 }
