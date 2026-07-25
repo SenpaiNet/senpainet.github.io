@@ -120,6 +120,12 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // 通報対応の通知キュー。運営が理由つきで積み、サーバー(Apps Script)が
+    // 通報者・投稿者のメールを解決して送る。閲覧・作成は運営のみ。
+    match /moderationNotices/{id} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
     // 公開設定（相談タグの一覧など）。表示に必要なので読み取りは全員、変更は運営のみ。
     match /config/{id} {
       allow read: if true;

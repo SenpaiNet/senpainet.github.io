@@ -58,6 +58,8 @@ function processNotifyQueue() {
   var token = getAccessToken();
   // お問い合わせの通知も同じトリガーでまとめて処理する（トリガー追加は不要）
   try { processContactQueue(token); } catch (e) { Logger.log("お問い合わせ通知でエラー: " + e); }
+  // 通報対応の通知（通報者・投稿者へ）も同じトリガーで処理する
+  try { processModerationQueue(token); } catch (e) { Logger.log("通報対応通知でエラー: " + e); }
 
   // 未送信の通知を取り出す
   var queue = runQuery(token, {
@@ -181,6 +183,145 @@ function processContactQueue(token) {
 
     Logger.log('お問い合わせ1件 → 運営 ' + sent + '人に通知');
   });
+}
+
+/**
+ * 通報対応の通知：措置と理由を、通報者と投稿者の両方にメールで知らせる。
+ * 匿名投稿・未ログイン通報など、メールを特定できない相手には送らない（best effort）。
+ */
+function processModerationQueue(token) {
+  token = token || getAccessToken();
+
+  var pending = runQuery(token, {
+    from: [{ collectionId: 'moderationNotices' }],
+    where: {
+      fieldFilter: { field: { fieldPath: 'notified' }, op: 'EQUAL', value: { booleanValue: false } }
+    },
+    limit: MAX_QUEUE_PER_RUN
+  });
+
+  if (!pending.length) {
+    Logger.log('未通知の通報対応はありません');
+    return;
+  }
+  Logger.log('未通知の通報対応 ' + pending.length + '件');
+
+  pending.forEach(function (item) {
+    var n = item.fields;
+    var actionLabel = toStr(n.actionLabel) || '対応';
+    var reason = toStr(n.reason);
+    var title = toStr(n.title);
+    var sent = 0;
+
+    // 通報者（reporterUid → users/{uid}.email）
+    var reporterEmail = emailOfUser(token, toStr(n.reporterUid));
+    if (reporterEmail) {
+      try {
+        MailApp.sendEmail({
+          to: reporterEmail,
+          subject: '【SenpaiNet】ご通報いただいた件への対応について',
+          body: reporterBody(actionLabel, reason, title),
+          htmlBody: moderationHtml('ご通報ありがとうございました', reporterBody(actionLabel, reason, title)),
+          name: 'SenpaiNet 運営'
+        });
+        sent++;
+      } catch (e) { Logger.log('通報者への送信失敗: ' + e); }
+    }
+
+    // 投稿者（相談は consultationOwners/{targetId}.uid から解決。回答・コミュニティは匿名で解決不可）
+    var authorEmail = null;
+    if (toStr(n.targetType) === 'consultation') {
+      var ownerUid = ownerUidOf(token, toStr(n.targetId));
+      authorEmail = emailOfUser(token, ownerUid);
+    }
+    // 対応不要（dismiss）は投稿者に知らせる必要がないので送らない
+    if (authorEmail && toStr(n.action) !== 'dismiss') {
+      try {
+        MailApp.sendEmail({
+          to: authorEmail,
+          subject: '【SenpaiNet】あなたの投稿に関する運営からのお知らせ',
+          body: authorBody(actionLabel, reason, title),
+          htmlBody: moderationHtml('運営からのお知らせ', authorBody(actionLabel, reason, title)),
+          name: 'SenpaiNet 運営'
+        });
+        sent++;
+      } catch (e) { Logger.log('投稿者への送信失敗: ' + e); }
+    }
+
+    patchDoc(token, item.name, {
+      notified: { booleanValue: true },
+      notifiedAt: { integerValue: String(Date.now()) },
+      sentCount: { integerValue: String(sent) }
+    }, ['notified', 'notifiedAt', 'sentCount']);
+
+    Logger.log('通報対応「' + actionLabel + '」→ ' + sent + '通送信');
+  });
+}
+
+// users/{uid} のメールアドレスを取得（見つからなければ空）
+function emailOfUser(token, uid) {
+  if (!uid) return '';
+  try {
+    var res = UrlFetchApp.fetch(baseUrl() + '/users/' + encodeURIComponent(uid), {
+      headers: { Authorization: 'Bearer ' + token }, muteHttpExceptions: true
+    });
+    if (res.getResponseCode() !== 200) return '';
+    var f = (JSON.parse(res.getContentText()).fields) || {};
+    return toStr(f.email).trim();
+  } catch (e) { return ''; }
+}
+
+// consultationOwners/{cid} の投稿者 uid を取得
+function ownerUidOf(token, cid) {
+  if (!cid) return '';
+  try {
+    var res = UrlFetchApp.fetch(baseUrl() + '/consultationOwners/' + encodeURIComponent(cid), {
+      headers: { Authorization: 'Bearer ' + token }, muteHttpExceptions: true
+    });
+    if (res.getResponseCode() !== 200) return '';
+    var f = (JSON.parse(res.getContentText()).fields) || {};
+    return toStr(f.uid).trim();
+  } catch (e) { return ''; }
+}
+
+function reporterBody(actionLabel, reason, title) {
+  return 'いつも SenpaiNet をご利用いただきありがとうございます。\n\n' +
+    'あなたが通報してくださった投稿について、運営が確認し、対応しました。\n\n' +
+    '対応内容：' + actionLabel + '\n' +
+    '理由：' + reason + '\n' +
+    (title ? '対象：' + title + '\n' : '') +
+    '\nご協力ありがとうございました。安心して利用できる場を一緒に守っていきましょう。\n\n' +
+    'SenpaiNet 運営';
+}
+
+function authorBody(actionLabel, reason, title) {
+  return 'SenpaiNet 運営です。\n\n' +
+    'あなたの投稿について、他の利用者からの通報を受けて運営が確認し、次の対応を行いました。\n\n' +
+    '対応内容：' + actionLabel + '\n' +
+    '理由：' + reason + '\n' +
+    (title ? '対象：' + title + '\n' : '') +
+    '\n心当たりがない場合や、対応に疑問がある場合は、サイトのお問い合わせ窓口からご連絡ください。\n\n' +
+    'SenpaiNet 運営';
+}
+
+function moderationHtml(heading, plain) {
+  var BLUE = '#2f73e8', INK = '#14233f';
+  return '<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<meta name="color-scheme" content="light only"></head>' +
+    '<body style="margin:0;padding:0;background:#f4f7fb">' +
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f4f7fb">' +
+    '<tr><td align="center" style="padding:32px 16px">' +
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" ' +
+      'style="width:600px;max-width:100%;background:#fff;border-radius:16px;overflow:hidden">' +
+    '<tr><td style="background:' + BLUE + ';height:5px;font-size:0;line-height:0">&nbsp;</td></tr>' +
+    '<tr><td style="padding:28px 32px 0">' +
+      '<div style="font:700 11px/1 Helvetica,Arial,sans-serif;color:' + BLUE + ';letter-spacing:.14em">SENPAINET</div>' +
+      '<h1 style="margin:10px 0 0;font:700 18px/1.5 Helvetica,Arial,sans-serif;color:' + INK + '">' + escapeHtml(heading) + '</h1>' +
+    '</td></tr>' +
+    '<tr><td style="padding:14px 32px 30px;font:400 13px/1.95 Helvetica,Arial,sans-serif;color:#3a465f;white-space:pre-wrap">' +
+      escapeHtml(plain) + '</td></tr>' +
+    '</table></td></tr></table></body></html>';
 }
 
 // 運営メンバーのメールアドレス一覧（admins コレクションのドキュメントIDがメール）

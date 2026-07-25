@@ -415,6 +415,7 @@ var state = {
   // ---- 運営（管理者）コンソール ----
   adminTab: 'dashboard', adminSelectedId: null, adminReportId: null,
   reportTarget: null, reportReason: '', reportNote: '', adminReportsLoaded: false,
+  reportActionReason: '', reportModAction: null, reportModId: null,
   editTarget: null, editTitle: '', editBody: '', editTags: [],
   adminNewTag: '', adminEditTag: null, adminEditTagText: '',
   adminQ: '', adminCatF: 'all', adminStatusF: 'all', adminSortF: 'new',
@@ -1029,6 +1030,8 @@ function submitReport(){
     reason: state.reportReason,
     note: note.trim().slice(0, 500),
     reporter: state.setupStatus==='grad' ? '卒業生' : (state.setupStatus==='current' ? '在校生' : '匿名の利用者'),
+    // ログイン中なら通報者にメール連絡できるよう uid を控える（匿名の相談本体には残さない）
+    reporterUid: (state.authUser && state.authUser.uid) ? state.authUser.uid : null,
     time: 'たった今',
     createdAt: Date.now(),
     status: 'pending'
@@ -1060,16 +1063,65 @@ function reportConfirmModal(action, id){
   }[action];
   if(!cfg) return '';
 
+  // 措置の判断根拠になりやすい理由を、ワンタップで入れられるようにする
+  var presets = {
+    warn:    ['攻撃的・不適切な表現があるため','個人が特定される情報が含まれるため','コミュニティガイドライン違反のため'],
+    suspend: ['悪質な投稿を繰り返しているため','警告後も改善が見られないため','なりすまし・不正利用のため'],
+    del:     ['誹謗中傷にあたるため','個人情報が含まれているため','スパム・宣伝のため','事実と異なる情報のため'],
+    dismiss: ['確認したが問題は見られなかったため','ガイドライン違反にはあたらないため','重複した通報のため']
+  }[action] || [];
+  var chips = presets.map(function(p){
+    return '<span data-report-reason-fill="'+esc(p)+'" style="cursor:pointer;font-size:11.5px;color:#3a465f;background:#eef2f8;border:1px solid #e0e7f1;border-radius:999px;padding:6px 12px">'+esc(p)+'</span>';
+  }).join('');
+
   return '<div style="padding:30px 28px 26px">'
     + '<h2 style="font-size:18px;font-weight:900;color:#14233f;margin:0 0 10px">'+cfg.title+'</h2>'
     + '<p style="font-size:13px;color:#5a6678;line-height:1.9;margin:0 0 16px">'+cfg.desc+'</p>'
     + '<div style="background:#f7f9fc;border:1px solid #e7edf6;border-radius:11px;padding:13px 15px">'
     + '<div style="font-size:11px;font-weight:700;color:#8a97ac;margin-bottom:5px">対象</div>'
     + '<div style="font-size:13px;font-weight:700;color:#1b2942;line-height:1.6">'+esc(cfg.target)+'</div></div>'
-    + '<div style="display:flex;gap:12px;justify-content:flex-end;margin-top:22px">'
+    + '<div style="margin-top:18px">'
+    + '<label style="display:block;font-size:12.5px;font-weight:800;color:#3a465f;margin-bottom:7px">対応の理由 <span style="color:#c0392b">必須</span></label>'
+    + '<p style="font-size:11.5px;color:#94a1b5;line-height:1.7;margin:0 0 9px">入力した理由は、通報者と投稿者にメールでそのまま伝えられます。</p>'
+    + (chips ? '<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px">'+chips+'</div>' : '')
+    + '<textarea id="report-action-reason" placeholder="この対応を行う理由を記入してください" style="width:100%;box-sizing:border-box;height:88px;border:1.5px solid #dde4f1;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.8;color:#1b2942;outline:none;resize:vertical;font-family:inherit">'+esc(state.reportActionReason||'')+'</textarea>'
+    + '</div>'
+    + '<div style="display:flex;gap:12px;justify-content:flex-end;margin-top:20px">'
     + '<button data-modal-close-btn style="cursor:pointer;background:#fff;border:1.5px solid #d4dde9;color:#3a465f;font-weight:700;font-size:13.5px;padding:11px 22px;border-radius:10px">キャンセル</button>'
     + '<button '+cfg.attr+' style="cursor:pointer;border:none;background:'+cfg.color+';color:#fff;font-weight:700;font-size:13.5px;padding:11px 24px;border-radius:10px">'+cfg.btn+'</button>'
     + '</div></div>';
+}
+// 確認ダイアログの理由欄を読み、未入力ならトーストを出して null を返す（＝処理中断）
+function readActionReason(){
+  var el = document.getElementById('report-action-reason');
+  var v = (el ? el.value : (state.reportActionReason || '')).trim();
+  if(!v){ toast('対応の理由を入力してください'); return null; }
+  return v;
+}
+// 通報の対応結果を Firestore にも反映する
+function applyReportUpdate(r){
+  if(window.snDb && window.snDb.updateReport){
+    window.snDb.updateReport(r.id, { status:'resolved', action:r.action||'', actionReason:r.actionReason||'', actionAt:Date.now() });
+  }
+}
+// 対応の内容と理由を通知キューに積む。Apps Script が通報者・投稿者のメールを
+// サーバー側で解決して送る（クライアントは他人のメールを読めない設計のまま）。
+function notifyModeration(r, actionKey, actionLabel, reason){
+  var notice = {
+    id: 'mn_' + Date.now(),
+    reportId: r.id,
+    action: actionKey,          // warn | suspend | delete | dismiss
+    actionLabel: actionLabel,   // 表示・メール用の日本語ラベル
+    reason: (reason || '').slice(0, 1000),
+    reporterUid: r.reporterUid || null,
+    targetType: r.targetType,
+    targetId: r.targetId,
+    title: r.target || '',
+    createdAt: Date.now(),
+    notified: false
+  };
+  if(r.answerIndex != null) notice.answerIndex = r.answerIndex;
+  if(window.snDb && window.snDb.enqueueModerationNotice) window.snDb.enqueueModerationNotice(notice);
 }
 // 通報された投稿そのものを削除する（相談／回答／コミュニティ投稿）
 function deleteReportedContent(r){
@@ -3803,7 +3855,8 @@ function adminReports(){
         + '<p style="font-size:11px;color:#94a1b5;line-height:1.8;margin:10px 0 0">警告は投稿者に通知され、累計回数が記録されます。停止したアカウントは投稿・回答ができなくなります。削除した投稿は元に戻せません。</p></div>'
       : '<div style="margin-top:18px;background:#f4f8fd;border:1px solid #e3ecfb;border-radius:12px;padding:14px 16px">'
         + '<div style="font-size:12.5px;font-weight:800;color:#1f5fd0">対応済み'+(sel.action?'：'+esc(sel.action):'')+'</div>'
-        + (sel.actionAt ? '<div style="font-size:11.5px;color:#66738c;margin-top:4px">'+esc(sel.actionAt)+'</div>' : '')
+        + (sel.actionReason ? '<div style="font-size:12px;color:#3a465f;line-height:1.8;margin-top:8px;white-space:pre-wrap"><span style="font-weight:700;color:#8a97ac">理由：</span>'+esc(sel.actionReason)+'</div>' : '')
+        + '<div style="font-size:11px;color:#94a1b5;margin-top:8px">通報者と投稿者にメールで通知しました'+(typeof sel.actionAt==='number'?'（'+new Date(sel.actionAt).toLocaleString('ja-JP')+'）':(sel.actionAt?'（'+esc(sel.actionAt)+'）':''))+'</div>'
         + '</div>';
 
     var actions = measures
@@ -4196,7 +4249,7 @@ function on(sel,evt,fn){ var n=document.getElementById(sel); if(n) n.addEventLis
 // handlers across re-renders, which would fire toggles multiple times.
 function setupDelegation(){
   document.body.addEventListener('click', function(e){
-    var t = e.target.closest('[data-nav],[data-open],[data-like],[data-bookmark],[data-chip],[data-grade],[data-helpful],[data-auth],[data-google],[data-info],[data-support],[data-legal],[data-mytab],[data-setup-status],[data-setup-grade],[data-setup-tag],[data-setup-notify],[data-mp-tag],[data-mp-notify],[data-mp-notify-save],[data-ptag],[data-setup-done],[data-setup-skip],[data-community-open],[data-community-back],[data-community-like],[data-community-post],[data-cm-filter],[data-cm-setsort],[data-cm-sort],[data-cm-feedtab],[data-cm-follow],[data-cm-post],[data-cm-bookmark],[data-community-feed-open],[data-news-filter],[data-news-page],[data-news-pref],[data-qa-cat],[data-qa-status],[data-qa-follow],[data-qa-reset],[data-qa-post],[data-toast],[data-outreach-new],[data-outreach-respond],[data-outreach-filter],[data-bell],[data-sns],[data-browse-sort],[data-browse-more],[data-answer-sort],[data-ansort],[data-answer-anon],[data-reply-open],[data-reply-cancel],[data-post-more],[data-post-edit],[data-scroll],[data-profile],[data-logout],[data-mypost],[data-more-toast],[data-notif],[data-notif-read],[data-admin],[data-admin-login],[data-admin-logout],[data-admin-tab],[data-admin-view],[data-admin-report-view],[data-admin-open-cons],[data-admin-back],[data-admin-hide],[data-admin-user],[data-admin-news-del],[data-admin-sn-del],[data-admin-report-resolve],[data-admin-report-del],[data-admin-add-member],[data-admin-remove-member],[data-admin-resend-invite],[data-invite-copy],[data-admin-contact-view],[data-admin-contact-resolve],[data-admin-contact-del],[data-admin-cons-reset],[data-admin-del-cons],[data-admin-del-cons-confirm],[data-admin-tag-add],[data-admin-tag-edit],[data-admin-tag-cancel],[data-admin-tag-save],[data-admin-tag-up],[data-admin-tag-del],[data-admin-tag-del-confirm],[data-edit-open],[data-edit-tag],[data-edit-save],[data-del-open],[data-del-confirm],[data-report-open],[data-report-reason],[data-report-submit],[data-admin-remove-confirm],[data-report-confirm],[data-report-warn],[data-report-suspend],[data-report-delete],[data-report-dismiss],[data-menu]');
+    var t = e.target.closest('[data-nav],[data-open],[data-like],[data-bookmark],[data-chip],[data-grade],[data-helpful],[data-auth],[data-google],[data-info],[data-support],[data-legal],[data-mytab],[data-setup-status],[data-setup-grade],[data-setup-tag],[data-setup-notify],[data-mp-tag],[data-mp-notify],[data-mp-notify-save],[data-ptag],[data-setup-done],[data-setup-skip],[data-community-open],[data-community-back],[data-community-like],[data-community-post],[data-cm-filter],[data-cm-setsort],[data-cm-sort],[data-cm-feedtab],[data-cm-follow],[data-cm-post],[data-cm-bookmark],[data-community-feed-open],[data-news-filter],[data-news-page],[data-news-pref],[data-qa-cat],[data-qa-status],[data-qa-follow],[data-qa-reset],[data-qa-post],[data-toast],[data-outreach-new],[data-outreach-respond],[data-outreach-filter],[data-bell],[data-sns],[data-browse-sort],[data-browse-more],[data-answer-sort],[data-ansort],[data-answer-anon],[data-reply-open],[data-reply-cancel],[data-post-more],[data-post-edit],[data-scroll],[data-profile],[data-logout],[data-mypost],[data-more-toast],[data-notif],[data-notif-read],[data-admin],[data-admin-login],[data-admin-logout],[data-admin-tab],[data-admin-view],[data-admin-report-view],[data-admin-open-cons],[data-admin-back],[data-admin-hide],[data-admin-user],[data-admin-news-del],[data-admin-sn-del],[data-admin-report-resolve],[data-admin-report-del],[data-admin-add-member],[data-admin-remove-member],[data-admin-resend-invite],[data-invite-copy],[data-admin-contact-view],[data-admin-contact-resolve],[data-admin-contact-del],[data-admin-cons-reset],[data-admin-del-cons],[data-admin-del-cons-confirm],[data-admin-tag-add],[data-admin-tag-edit],[data-admin-tag-cancel],[data-admin-tag-save],[data-admin-tag-up],[data-admin-tag-del],[data-admin-tag-del-confirm],[data-edit-open],[data-edit-tag],[data-edit-save],[data-del-open],[data-del-confirm],[data-report-open],[data-report-reason],[data-report-submit],[data-admin-remove-confirm],[data-report-confirm],[data-report-reason-fill],[data-report-warn],[data-report-suspend],[data-report-delete],[data-report-dismiss],[data-menu]');
     if(!t) return;
     if(t.hasAttribute('data-like') || t.hasAttribute('data-bookmark') || t.hasAttribute('data-helpful')) e.stopPropagation();
 
@@ -4532,35 +4585,50 @@ function setupDelegation(){
     }
     if(t.hasAttribute('data-report-confirm')){
       var cf=(t.getAttribute('data-report-confirm')||'').split(':');
-      return openModal(reportConfirmModal(cf[0], cf[1]), 420);
+      state.reportModAction = cf[0]; state.reportModId = cf[1]; state.reportActionReason = '';
+      return openModal(reportConfirmModal(cf[0], cf[1]), 460);
+    }
+    // 理由のプリセットをワンタップで入力欄に反映
+    if(t.hasAttribute('data-report-reason-fill')){
+      state.reportActionReason = t.getAttribute('data-report-reason-fill');
+      return openModal(reportConfirmModal(state.reportModAction, state.reportModId), 460);
     }
     if(t.hasAttribute('data-report-warn')){
+      var reasonW = readActionReason(); if(reasonW === null) return;
       var rw=findById(state.adminReports, t.getAttribute('data-report-warn'));
-      closeModal();
       if(rw){ var uw=reportAuthor(rw); if(uw) uw.warnings=(uw.warnings||0)+1;
-        rw.status='resolved'; rw.action='投稿者に警告'; rw.actionAt='たった今'; state.adminReportId=rw.id;
-        render(); toast(uw ? ('投稿者に警告しました（累計 '+uw.warnings+' 回）') : '警告を記録しました'); }
+        rw.status='resolved'; rw.action='投稿者に警告'; rw.actionReason=reasonW; rw.actionAt='たった今'; state.adminReportId=rw.id;
+        applyReportUpdate(rw); notifyModeration(rw, 'warn', '投稿者への警告', reasonW);
+        closeModal(); render(); toast('投稿者に警告し、通知を送信しました'); }
+      else closeModal();
       return;
     }
     if(t.hasAttribute('data-report-suspend')){
+      var reasonS = readActionReason(); if(reasonS === null) return;
       var rs=findById(state.adminReports, t.getAttribute('data-report-suspend'));
-      closeModal();
       if(rs){ var us=reportAuthor(rs); if(us) us.status='suspended';
-        rs.status='resolved'; rs.action='アカウント停止'; rs.actionAt='たった今'; state.adminReportId=rs.id;
-        render(); toast(us ? ('アカウントを停止しました（'+us.handle+'）') : 'アカウント停止を記録しました'); }
+        rs.status='resolved'; rs.action='アカウント停止'; rs.actionReason=reasonS; rs.actionAt='たった今'; state.adminReportId=rs.id;
+        applyReportUpdate(rs); notifyModeration(rs, 'suspend', 'アカウントの停止', reasonS);
+        closeModal(); render(); toast('アカウントを停止し、通知を送信しました'); }
+      else closeModal();
       return;
     }
     if(t.hasAttribute('data-report-delete')){
+      var reasonD = readActionReason(); if(reasonD === null) return;
       var rd=findById(state.adminReports, t.getAttribute('data-report-delete'));
-      closeModal();
-      if(rd){ deleteReportedContent(rd); rd.status='resolved'; rd.action='投稿を削除'; rd.actionAt='たった今'; state.adminReportId=rd.id;
-        render(); toast('通報された投稿を削除しました'); }
+      if(rd){ deleteReportedContent(rd); rd.status='resolved'; rd.action='投稿を削除'; rd.actionReason=reasonD; rd.actionAt='たった今'; state.adminReportId=rd.id;
+        applyReportUpdate(rd); notifyModeration(rd, 'delete', '投稿の削除', reasonD);
+        closeModal(); render(); toast('投稿を削除し、通知を送信しました'); }
+      else closeModal();
       return;
     }
     if(t.hasAttribute('data-report-dismiss')){
+      var reasonN = readActionReason(); if(reasonN === null) return;
       var rn=findById(state.adminReports, t.getAttribute('data-report-dismiss'));
-      closeModal();
-      if(rn){ rn.status='resolved'; rn.action='対応不要'; rn.actionAt='たった今'; state.adminReportId=rn.id; render(); toast('対応不要として処理しました'); }
+      if(rn){ rn.status='resolved'; rn.action='対応不要'; rn.actionReason=reasonN; rn.actionAt='たった今'; state.adminReportId=rn.id;
+        applyReportUpdate(rn); notifyModeration(rn, 'dismiss', '対応不要としての処理', reasonN);
+        closeModal(); render(); toast('対応不要として処理し、通知を送信しました'); }
+      else closeModal();
       return;
     }
     if(t.hasAttribute('data-admin-report-resolve')){ var rr=findById(state.adminReports, t.getAttribute('data-admin-report-resolve')); if(rr){ rr.status='resolved'; if(window.snDb && window.snDb.updateReport) window.snDb.updateReport(rr.id, {status:'resolved'}); render(); toast('対応済みにしました'); } return; }
@@ -4957,6 +5025,8 @@ render();
         },
         updateContact: async (id, patch) => { try { await setDoc(doc(db, "contacts", id), patch, { merge: true }); } catch (e) {} },
         deleteContact: async (id) => { try { await deleteDoc(doc(db, "contacts", id)); } catch (e) {} },
+        // 通報対応の通知（理由つき）をキューに積む。Apps Script が通報者・投稿者へ送る
+        enqueueModerationNotice: async (n) => { try { await setDoc(doc(db, "moderationNotices", n.id), n); } catch (e) {} },
         // 利用者からの通報を保存する（作成は誰でも可／閲覧は運営のみ＝ルールで保護）
         addReport: async (r) => { try { await setDoc(doc(db, "reports", r.id), r); } catch (e) {} },
         // 運営が通報一覧を読み込む
