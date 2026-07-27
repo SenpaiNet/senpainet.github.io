@@ -218,16 +218,17 @@
   .sec-link{transition:background .15s,border-color .15s,box-shadow .15s}
   .sec-link:hover{background:#e8f1fe;border-color:#bcd3f5;box-shadow:0 4px 12px rgba(47,115,232,.12)}
 
-  /* ご意見募集バナー（ホーム・全幅・控えめ） */
+  /* ご意見募集バナー（ホーム・全幅・青地／控えめサイズ） */
   .fb-sec{margin:44px 0 0}
-  .fb-card{position:relative;overflow:hidden;background:linear-gradient(120deg,#eef4ff 0%,#f4f8ff 60%,#eef4ff 100%);border-top:1px solid #dbe7fb;border-bottom:1px solid #dbe7fb;padding:24px 28px}
+  .fb-card{position:relative;overflow:hidden;background:linear-gradient(115deg,#1f4fd0 0%,#2f73e8 52%,#4d92ff 100%);padding:24px 28px}
+  .fb-card::before{content:"";position:absolute;top:-90px;right:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.16),rgba(255,255,255,0) 70%)}
   .fb-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center}
-  .fb-badge{display:inline-flex;align-items:center;gap:7px;background:#e3ecfb;color:#2f5fe0;border-radius:999px;padding:5px 12px;font-size:11.5px;font-weight:800}
-  .fb-title{margin:11px 0 0;font-size:clamp(17px,2vw,21px);font-weight:900;line-height:1.5;color:#14233f}
-  .fb-title .blue{color:#2f73e8}
-  .fb-hl{background:linear-gradient(transparent 62%,#ffdf85 62%);padding:0 2px}
-  .fb-sub{margin:8px 0 0;font-size:12.5px;line-height:1.8;color:#5a6678}
-  .fb-btn{flex-shrink:0;display:inline-flex;align-items:center;gap:9px;cursor:pointer;border:none;background:#2f5fe0;color:#fff;font-weight:800;font-size:13.5px;padding:12px 22px;border-radius:11px;box-shadow:0 5px 14px rgba(47,95,224,.22);white-space:nowrap}
+  .fb-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.18);color:#fff;border-radius:999px;padding:5px 12px;font-size:11.5px;font-weight:800}
+  .fb-title{margin:11px 0 0;font-size:clamp(17px,2vw,21px);font-weight:900;line-height:1.5;color:#fff}
+  .fb-title .blue{color:#ffe27a}
+  .fb-hl{background:linear-gradient(transparent 62%,rgba(255,212,59,.8) 62%);padding:0 2px}
+  .fb-sub{margin:8px 0 0;font-size:12.5px;line-height:1.8;color:#dbe7ff}
+  .fb-btn{flex-shrink:0;display:inline-flex;align-items:center;gap:9px;cursor:pointer;border:none;background:#fff;color:#2f5fe0;font-weight:800;font-size:13.5px;padding:12px 22px;border-radius:11px;box-shadow:0 5px 14px rgba(10,25,60,.18);white-space:nowrap}
   .fb-btn .fb-arrow{transition:transform .18s ease}
   .fb-btn:hover .fb-arrow{transform:translateX(3px)}
   .fb-photo{display:none}
@@ -1366,7 +1367,7 @@ function featuresHTML(){
 /* ============ HOME ============ */
 // ホームの「ご意見・バグ報告・機能要望」募集バナー（控えめ）
 function feedbackBanner(){
-  var arrow = '<svg class="fb-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  var arrow = '<svg class="fb-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f5fe0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
   return '<section class="fb-sec reveal"><div class="fb-card"><div class="fb-inner">'
     + '<div>'
     + '<div class="fb-badge">📣 ご意見・ご要望 募集中</div>'
