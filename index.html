@@ -197,6 +197,9 @@
   .ab-c3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
   .ab-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:start}
   .ab-scroll{display:flex;gap:16px;overflow-x:auto;padding:4px 2px 12px;scroll-behavior:smooth}
+  .ab-need{display:flex;align-items:flex-start;justify-content:center;gap:6px;flex-wrap:wrap}
+  .ab-whatrow{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+  @media (max-width:760px){ .ab-need,.ab-whatrow{gap:16px} }
   .ab-card{background:#fff;border:1px solid #e7edf6;border-radius:16px;box-shadow:0 6px 18px rgba(15,23,42,.04)}
   @media (max-width:1000px){
     .ab-split{grid-template-columns:1fr;gap:20px}
@@ -4100,175 +4103,185 @@ function aboutHTML(){
       + '<p style="font-size:11.5px;color:#76839a;line-height:1.8;margin:0">'+body+'</p></div>';
   }
 
-  /* ---------- HERO ---------- */
-  var heroArt = '<div class="ill ill-highfive" style="width:100%;max-width:520px;margin:0 0 0 auto"></div>';
+  /* ========== 参照デザイン準拠の About LP（01〜10） ========== */
+  var st = computeStats();
+  var avgLabel = st.avgHours > 0 ? String(st.avgHours < 10 ? Math.round(st.avgHours*10)/10 : Math.round(st.avgHours)) : '—';
 
+  function numHead(num, title, sub){
+    return '<div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">'
+      + '<span style="font:900 clamp(30px,5vw,46px)/1 \'Plus Jakarta Sans\',sans-serif;color:#e3ecfb">'+num+'</span>'
+      + '<div><h2 style="margin:0;font-size:clamp(20px,2.6vw,25px);font-weight:900;color:#14233f;line-height:1.5">'+title+'</h2>'
+      + (sub?'<p style="margin:10px 0 0;font-size:13px;color:#66738c;line-height:1.85">'+sub+'</p>':'')+'</div></div>';
+  }
+  function cHead(num, title, sub){
+    return '<div style="text-align:center;margin-bottom:30px">'
+      + (num?'<div style="font:800 12px/1 \'Plus Jakarta Sans\',sans-serif;color:#9db8e8;letter-spacing:.22em">'+num+'</div>':'')
+      + '<h2 style="margin:'+(num?'10px':'0')+' 0 0;font-size:clamp(20px,2.6vw,25px);font-weight:900;color:#14233f">'+title+'</h2>'
+      + (sub?'<p style="margin:10px 0 0;font-size:13px;color:#66738c;line-height:1.85">'+sub+'</p>':'')+'</div>';
+  }
+  function circleIcon(bg, col, icon, size){
+    size = size || 72;
+    return '<div style="width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+bg+';color:'+col+';display:flex;align-items:center;justify-content:center;margin:0 auto">'+icon+'</div>';
+  }
+  var arrowSm = '<div style="display:flex;align-items:center;color:#bcd3f5;padding-top:26px">'+I('<path d="M5 12h14M13 6l6 6-6 6"/>',20,2.2)+'</div>';
+
+  /* ---------- HERO (01) ---------- */
+  var heroArt = '<div class="ill ill-highfive" style="width:100%;max-width:520px;margin:0 0 0 auto"></div>';
   var hero = '<div style="background:url(\'assets/photos/about-hero-bg.png\') center/cover no-repeat, linear-gradient(180deg,#f2f7ff 0%,#fbfcff 100%);border-bottom:1px solid #eaf0fa">'
-    + '<section class="rs-post rs-pad" style="max-width:1180px;margin:0 auto;padding:52px 28px 46px;display:grid;grid-template-columns:1.02fr .98fr;gap:36px;align-items:center">'
+    + '<section class="rs-post rs-pad" style="max-width:1180px;margin:0 auto;padding:56px 28px 44px;display:grid;grid-template-columns:1.02fr .98fr;gap:36px;align-items:center">'
     + '<div>'
-    + '<h1 class="rs-page-h1" style="margin:0;font-size:38px;line-height:1.4;font-weight:900;letter-spacing:-.01em;color:#14233f"><span style="color:#2f73e8">未来は、</span><br>先輩との出会いで変わる。</h1>'
+    + '<h1 class="rs-page-h1" style="margin:0;font-size:40px;line-height:1.32;font-weight:900;letter-spacing:-.01em;color:#14233f"><span style="color:#2f73e8">その悩み、</span><br>先輩に相談してみよう。</h1>'
     + '<div style="font-size:15px;font-weight:800;color:#1b2942;margin-top:18px">高校生と卒業生をつなぐ相談コミュニティ</div>'
-    + '<p style="margin:12px 0 0;font-size:13.5px;line-height:1.95;color:#5a6678">受験・勉強・大学生活・進路のこと。<br>同じ道を通ってきた先輩が、あなたの「知りたい」に答えます。</p>'
+    + '<p style="margin:12px 0 0;font-size:13.5px;line-height:1.95;color:#5a6678">受験・勉強・大学生活・進路など、<br>同じ学校を卒業した先輩だからこそ、リアルな経験を届けられます。</p>'
     + '<div class="rs-btn-row" style="margin-top:26px;display:flex;gap:14px">'
-    + '<button data-nav="post" style="border:none;cursor:pointer;background:#2f73e8;color:#fff;border-radius:999px;padding:13px 28px;font-size:14px;font-weight:800">相談してみる（無料）</button>'
-    + '<button data-nav="alumni" style="cursor:pointer;background:#fff;color:#2f73e8;border:1.5px solid #bcd3f5;border-radius:999px;padding:13px 28px;font-size:14px;font-weight:700">先輩として参加する</button>'
+    + '<button data-nav="post" style="border:none;cursor:pointer;background:#2f73e8;color:#fff;border-radius:999px;padding:13px 30px;font-size:14px;font-weight:800">相談してみる（無料）</button>'
+    + '<button data-nav="alumni" style="cursor:pointer;background:#fff;color:#2f73e8;border:1.5px solid #bcd3f5;border-radius:999px;padding:13px 30px;font-size:14px;font-weight:700">先輩として参加する</button>'
     + '</div></div>' + heroArt + '</section></div>';
 
-  /* ---------- 課題1 ---------- */
-  var need = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:56px 28px 0"><div class="ab-split">'
-    + headBlock('高校生には<br>「相談できる相手」が足りない。','')
-    + '<div class="ab-c4">'
-    + card(I('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/>',22),'#e8f1fe','#2f73e8','志望校選び','どの大学が自分に合っているのか分からない…')
-    + card(I('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',22),'#eaf3ff','#3f6fd8','勉強法','効率の良い勉強法を知りたい…')
-    + card(I('<path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/>',22),'#e8f1fe','#2f73e8','大学生活','大学の雰囲気や授業の様子が知りたい…')
-    + card(I('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',22),'#eaf3ff','#3f6fd8','就職活動','就活っていつから何をすればいいの？')
+  /* ---------- 01 こんなサービスがあれば ---------- */
+  function needItem(icon, label, quote){
+    return '<div style="width:118px;text-align:center">'+circleIcon('#eef2f8','#8a97ac',icon,72)
+      + '<div style="font-size:13px;font-weight:800;color:#14233f;margin-top:12px">'+label+'</div>'
+      + '<p style="font-size:11px;color:#94a1b5;line-height:1.7;margin:5px 0 0">'+quote+'</p></div>';
+  }
+  var need = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:62px 28px 0">'
+    + numHead('01','高校生の頃、「こんなサービスがあれば。」<br>そう思った経験はありませんか？','')
+    + '<div class="ab-need" style="margin-top:34px">'
+    + needItem(I('<circle cx="12" cy="8" r="4"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/>',30),'先生','相談しにくい…')
+    + arrowSm
+    + needItem(I('<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2 21c0-3 2.4-5 6-5M22 21c0-3-2.4-5-6-5"/>',30),'親','少し話しづらい…')
+    + arrowSm
+    + needItem(I('<rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 9h20M8 22h8"/>',30),'ネット','情報が多すぎる…')
+    + arrowSm
+    + '<div style="width:132px;text-align:center">'+circleIcon('#e8f1fe','#2f73e8',heart(30),72)
+    + '<div style="font-size:12px;font-weight:800;color:#94a1b5;margin-top:12px">だから</div>'
+    + '<div style="font:800 17px/1 \'Plus Jakarta Sans\',sans-serif;color:#2f73e8;margin-top:3px">SenpaiNet</div></div>'
+    + '</div></section>';
+
+  /* ---------- 02 私たちが作った理由 ---------- */
+  var reason = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:62px 28px 0">'
+    + '<div class="ab-split" style="grid-template-columns:1fr 1.08fr;align-items:center;gap:42px">'
+    + '<div style="border-radius:18px;overflow:hidden;box-shadow:0 12px 30px rgba(15,23,42,.10)"><img src="assets/photos/window.png" alt="" style="display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover"></div>'
+    + '<div>'+numHead('02','私たちが作った理由','')
+    + '<p style="margin:18px 0 0;font-size:13.5px;color:#4a5670;line-height:2">SenpaiNetは、メンバー自身が高校生だった頃、「同じ学校の先輩に相談できたら」という思いから生まれました。<br><br>先生ではなく、親でもなく、<b style="color:#2f73e8">実際にその道を歩んだ先輩だから話せること</b>があります。</p>'
     + '</div></div></section>';
 
-  /* ---------- 課題2 → だからSenpaiNet ---------- */
-  function barrier(icon, title, body){
-    return '<div class="ab-card" style="padding:18px 16px;text-align:center">'
-      + '<div style="font-size:12.5px;font-weight:800;color:#14233f;background:#eef3fa;border-radius:8px;padding:6px 8px">'+title+'</div>'
-      + '<p style="font-size:11px;color:#76839a;line-height:1.75;margin:10px 0 12px">'+body+'</p>'
-      + '<div style="width:44px;height:44px;border-radius:50%;background:#e8f1fe;color:#2f73e8;display:flex;align-items:center;justify-content:center;margin:0 auto">'+icon+'</div></div>';
+  /* ---------- SenpaiNetとは？ ---------- */
+  function flowLabel(color, icon, label){
+    return '<div style="text-align:center;min-width:92px"><div style="display:flex;justify-content:center;color:'+color+'">'+icon+'</div>'
+      + '<div style="font-size:11.5px;font-weight:700;color:#66738c;margin-top:5px">'+label+'</div>'
+      + '<div style="border-top:2px dashed '+color+';opacity:.5;margin-top:9px"></div></div>';
   }
-  var hard = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:52px 28px 0"><div class="ab-split">'
-    + headBlock('でも、<br>身近には相談しづらい。','')
-    + '<div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center" class="rs-post">'
+  var whatis = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:66px 28px 0">'
+    + cHead('','SenpaiNetとは？','<b style="color:#2f73e8">在校生と卒業生</b>がつながり、経験をシェアし合うコミュニティです。')
+    + '<div class="ab-whatrow" style="margin-top:6px">'
+    + '<div style="width:150px;text-align:center">'+circleIcon('#e8f1fe','#2f73e8',I('<circle cx="12" cy="8" r="4"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/>',32),86)+'<div style="font-size:14px;font-weight:800;color:#14233f;margin-top:12px">高校生</div><div style="font-size:11px;color:#94a1b5">（在校生）</div></div>'
+    + flowLabel('#9db8e8', I('<path d="M21 11.5a8.4 8.4 0 0 1-11.7 7.7L3 21l1.9-6.1A8.4 8.4 0 1 1 21 11.5z"/>',22,2), '相談する')
+    + '<div style="width:150px;text-align:center">'+circleIcon('#eaf3ff','#2f73e8',I('<path d="M2 8l10-4 10 4-10 4z"/><path d="M6 10v5c0 1.6 3 3 6 3s6-1.4 6-3v-5"/>',30),86)+'<div style="font-size:14px;font-weight:800;color:#14233f;margin-top:12px">卒業生</div><div style="font-size:11px;color:#94a1b5">（先輩）</div></div>'
+    + flowLabel('#e0568a', heart(22), '経験を届ける')
+    + '<div style="width:150px;text-align:center">'+circleIcon('#efeafe','#7c5cf0',I('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/>',30),86)+'<div style="font-size:14px;font-weight:800;color:#14233f;margin-top:12px">つながる</div><div style="font-size:11px;color:#94a1b5">支え合う</div></div>'
+    + '</div></section>';
+
+  /* ---------- 03 大切にしていること ---------- */
+  function valCard(icon, ibg, icol, title, body){
+    return '<div class="ab-card" style="padding:24px 22px">'
+      + '<div style="width:46px;height:46px;border-radius:14px;background:'+ibg+';color:'+icol+';display:flex;align-items:center;justify-content:center">'+icon+'</div>'
+      + '<div style="font-size:15px;font-weight:800;color:'+icol+';margin:14px 0 8px">'+title+'</div>'
+      + '<p style="font-size:12px;color:#76839a;line-height:1.85;margin:0">'+body+'</p></div>';
+  }
+  var values = '<div style="background:#f4f8ff;border-top:1px solid #eaf0fa;border-bottom:1px solid #eaf0fa;margin-top:66px"><section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:54px 28px">'
+    + cHead('03','私たちが大切にしていること','')
     + '<div class="ab-c3">'
-    + barrier(I('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',20),'先生は忙しい','相談したくても、時間がなくて気をつかう…')
-    + barrier(I('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/>',20),'親には相談しづらい','心配をかけたくないし、価値観が違うかも。')
-    + barrier(I('<rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 20h8M12 18v2"/>',20),'ネットでは信用できない','情報が多すぎて、何が正しいのか分からない。')
-    + '</div>'
-    + '<div style="text-align:center;min-width:210px">'
-    + '<div style="font-size:11.5px;font-weight:800;color:#94a1b5;letter-spacing:.1em">だから</div>'
-    + '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:28px;font-weight:800;color:#2f73e8;margin-top:6px">SenpaiNet</div>'
-    + '<p style="font-size:11.5px;color:#66738c;line-height:1.85;margin:12px 0 0">同じ道を通った先輩に、<br>気軽に相談できる場所をつくりました。</p></div>'
-    + '</div></div></section>';
+    + valCard(heart(22),'#fde8f0','#e0568a','経験を届ける','正解ではなく、経験を伝えることを大切にします。')
+    + valCard(I('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/>',22),'#e8f1fe','#2f73e8','気軽につながる','同じ学校の先輩だから、安心して相談できる環境をつくります。')
+    + valCard(I('<path d="M12 22V9M12 9C12 6 9 4 6 5c0 3 3 4 6 4zM12 9c0-3 3-5 6-4 0 3-3 4-6 4z"/>',22),'#e7f5ee','#1e9e63','一歩を応援する','あなたの悩みが、未来への一歩につながるように。')
+    + '</div></section></div>';
 
-  /* ---------- 使い方 ---------- */
-  function step(n, nc, nbg, icon, ibg, icol, title, body){
-    return '<div style="text-align:center">'
-      + '<div style="width:26px;height:26px;border-radius:50%;background:'+nbg+';color:'+nc+';font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">'+n+'</div>'
-      + '<div class="ill '+icon+'" style="width:96px;margin:0 auto"></div>'
-      + '<div style="font-size:13.5px;font-weight:800;color:#14233f;margin-top:14px">'+title+'</div>'
-      + '<p style="font-size:11.5px;color:#76839a;line-height:1.75;margin:6px 0 0">'+body+'</p></div>';
-  }
-  var arrow = '<div class="ab-arrow" style="display:flex;align-items:center;justify-content:center;color:#bcd3f5;padding-top:52px">'+I('<path d="M5 12h14M13 6l6 6-6 6"/>',22,2.4)+'</div>';
-  var howto = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:52px 28px 0"><div class="ab-split">'
-    + headBlock('SenpaiNetの使い方はカンタン','')
-    + '<div class="ab-flow">'
-    + step('1','#fff','#2f73e8','ill-plane','','','相談する','匿名で、知りたいことを投稿')
-    + arrow
-    + step('2','#fff','#1e9e63','ill-boy-laptop','','','先輩が回答','経験をもとに先輩が答えてくれる')
-    + arrow
-    + step('3','#fff','#e0568a','ill-medal','','','「ありがとう」でつながる','役に立ったら感謝を伝えよう！')
-    + '</div></div></section>';
-
-  /* ---------- 特徴 ---------- */
-  var feats = '<div style="background:#f4f8ff;border-top:1px solid #eaf0fa;border-bottom:1px solid #eaf0fa;margin-top:56px">'
-    + '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:44px 28px">'
-    + '<h2 style="margin:0 0 22px;font-size:21px;font-weight:900;color:#14233f">SenpaiNetの特徴</h2>'
+  /* ---------- 05 特徴 ---------- */
+  var feats = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:62px 28px 0">'
+    + cHead('05','SenpaiNetの特徴','')
     + '<div class="ab-c4">'
-    + card(I('<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><path d="M6 12h12"/>',22),'#e8f1fe','#2f73e8','匿名で安心','ニックネームで相談・回答。個人が特定される心配はありません。')
-    + card(I('<path d="M2 8l10-4 10 4-10 4z"/><path d="M6 10v5c0 1.6 3 3 6 3s6-1.4 6-3v-5"/>',22),'#eaf3ff','#3f6fd8','卒業生が回答','実際にその学校・大学を経験した先輩が丁寧に答えてくれます。')
-    + card(I('<path d="M7 4l5 7 5-7"/><path d="M12 11v9M8 15h8M8 18h8"/>',22),'#dff3f8','#0284a8','すべて無料','相談も回答もすべて無料。誰でも気軽に利用できます。')
-    + card(I('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>',22),'#e8f1fe','#2f73e8','運営がサポート','不適切な投稿は運営がチェック。安心して使える環境を整えています。')
-    + '</div></section></div>';
+    + card(I('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',22),'#e8f1fe','#2f73e8','完全匿名','名前を出さずに安心して相談できます。')
+    + card(I('<path d="M2 8l10-4 10 4-10 4z"/><path d="M6 10v5c0 1.6 3 3 6 3s6-1.4 6-3v-5"/>',22),'#eaf3ff','#3f6fd8','同じ学校の卒業生','ISS（同じ学校）に特化したリアルな先輩だから信頼できる。')
+    + card(I('<path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/>',22),'#dff3f8','#0284a8','学校コミュニティ','同じ学校の仲間とつながることができるクローズドな環境。')
+    + card(I('<path d="M21 11.5a8.4 8.4 0 0 1-11.7 7.7L3 21l1.9-6.1A8.4 8.4 0 1 1 21 11.5z"/>',22),'#efeafe','#7c5cf0','リアルな経験談','実際に経験した先輩の体験談が、あなたのヒントになる。')
+    + '</div></section>';
 
-  /* ---------- やりとりのイメージ ---------- */
-  var chat = '<div class="ab-card" style="padding:26px 24px;background:linear-gradient(180deg,#fbfdff,#fff)">'
+  /* ---------- 相談できる内容の例 ---------- */
+  var TOPIC = [
+    ['勉強法','ill-girl-book','成績を伸ばす勉強法を教えてほしい！'],
+    ['大学受験','ill-cap','受験勉強の進め方が知りたい'],
+    ['留学','ill-plane','留学の準備や生活について教えてほしい'],
+    ['部活','ill-trophy','部活と勉強の両立のコツは？'],
+    ['AO入試','ill-boy-laptop','AO入試の対策や体験談が聞きたい'],
+    ['一般受験','ill-check','一般受験の勉強計画を立てたい']
+  ].map(function(t){ return '<div data-nav="browse" class="ab-card card-hover" style="flex:0 0 190px;overflow:hidden;cursor:pointer">'
+    + '<div style="height:120px;background:linear-gradient(135deg,#eaf3ff,#e8f1fe);display:flex;align-items:center;justify-content:center"><div class="ill '+t[1]+'" style="width:82px"></div></div>'
+    + '<div style="padding:14px 16px 18px"><div style="font-size:14px;font-weight:800;color:#14233f">'+t[0]+'</div><p style="font-size:11px;color:#76839a;line-height:1.7;margin:6px 0 0">'+t[2]+'</p></div></div>'; }).join('');
+  var topicSec = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:62px 28px 0">'
+    + cHead('','相談できる内容の例','')
+    + '<div class="ab-scroll">'+TOPIC+'</div></section>';
+
+  /* ---------- 07 やりとり ---------- */
+  var chat = '<div class="ab-card" style="padding:26px 24px;background:linear-gradient(180deg,#fbfdff,#fff);max-width:860px;margin:0 auto">'
     + '<div style="display:flex;gap:12px;align-items:flex-start">'+avatar(38,'#eef1f8','#94a1b5')
-    + '<div><div style="background:#eef2f8;border-radius:14px 14px 14px 4px;padding:14px 16px;font-size:12.5px;color:#3a465f;line-height:1.85;max-width:380px">英語が苦手です…<br>長文読解の勉強法を教えてください！</div>'
-    + '<div style="font-size:10.5px;color:#94a1b5;margin-top:5px">2時間前・匿名</div></div></div>'
+    + '<div><div style="font-size:11px;font-weight:700;color:#8a97ac;margin-bottom:4px">在校生</div>'
+    + '<div style="background:#eef2f8;border-radius:14px 14px 14px 4px;padding:14px 16px;font-size:12.5px;color:#3a465f;line-height:1.85;max-width:420px">大学ってどう選びましたか？<br>受験勉強はいつから始めましたか？</div>'
+    + '<div style="font-size:10.5px;color:#94a1b5;margin-top:5px">10:30</div></div></div>'
     + '<div style="display:flex;gap:12px;align-items:flex-start;justify-content:flex-end;margin-top:18px">'
-    + '<div style="text-align:right"><div style="background:#e8f1fe;border:1px solid #d6e6fd;border-radius:14px 14px 4px 14px;padding:14px 16px;font-size:12.5px;color:#1b2942;line-height:1.85;max-width:400px;text-align:left">私は毎日少しずつ長文を読む習慣をつけて、わからない単語はノートにまとめていました！おすすめの参考書も紹介しますね。</div>'
-    + '<div style="font-size:10.5px;color:#94a1b5;margin-top:5px">○○大学 1年・2時間前</div></div>'+avatar(38,'#e6effe','#2f73e8')+'</div>'
-    + '<div style="text-align:center;margin-top:20px"><span style="display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:#e0568a;background:#fce8f1;padding:9px 18px;border-radius:999px">'+heart(15)+'役に立った！ありがとう</span></div></div>';
-  var chatSec = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:52px 28px 0"><div class="ab-split">'
-    + '<div>' + headBlock('先輩とのやりとりのイメージ','実際の相談・回答の流れを見てみましょう。')
-    + '<button data-nav="browse" style="margin-top:18px;cursor:pointer;background:#fff;color:#2f73e8;border:1.5px solid #bcd3f5;border-radius:999px;padding:11px 20px;font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:8px">実際の画面をみる '+I('<path d="M5 12h14M13 6l6 6-6 6"/>',14,2.4)+'</button></div>'
-    + chat + '</div></section>';
+    + '<div style="text-align:right"><div style="font-size:11px;font-weight:700;color:#2f73e8;margin-bottom:4px">卒業生</div>'
+    + '<div style="background:#e8f1fe;border:1px solid #d6e6fd;border-radius:14px 14px 4px 14px;padding:14px 16px;font-size:12.5px;color:#1b2942;line-height:1.85;max-width:440px;text-align:left">私は〇〇大学へ進学しました！部活も頑張りながら、高2の冬から本格的に勉強を始めました。具体的な勉強法もシェアするね！</div>'
+    + '<div style="font-size:10.5px;color:#94a1b5;margin-top:5px">10:45</div></div>'+avatar(38,'#e6effe','#2f73e8')+'</div>'
+    + '<div style="text-align:center;margin-top:20px"><span style="display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:#e0568a;background:#fce8f1;padding:9px 18px;border-radius:999px">'+heart(15)+'役に立った！</span>'
+    + '<div style="font-size:11.5px;color:#94a1b5;margin-top:10px">先輩の経験が、あなたの糧になる。</div></div></div>';
+  var chatSec = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:62px 28px 0">'
+    + cHead('07','先輩とのやりとりのイメージ','実際の相談から回答までの流れを見てみましょう。') + chat + '</section>';
 
-  /* ---------- 実績バンド ---------- */
-  function bigStat(icon, val, label, sub){
-    return '<div style="display:flex;align-items:center;gap:14px;justify-content:center">'
-      + '<span style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+icon+'</span>'
-      + '<div style="text-align:left"><div style="font-size:12px;color:#cfe0fb">'+label+'</div>'
-      + '<div class="num" style="font-size:34px;color:#fff;line-height:1.15">'+val+'</div>'
-      + '<div style="font-size:11px;color:#bdd5f7">'+sub+'</div></div></div>';
+  /* ---------- 08 実績バンド ---------- */
+  function bigStat(icon, val, label){
+    return '<div style="display:flex;align-items:center;gap:13px;justify-content:center">'
+      + '<span style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+icon+'</span>'
+      + '<div style="text-align:left"><div style="font-size:11.5px;color:#cfe0fb">'+label+'</div>'
+      + '<div class="num" style="font-size:30px;color:#fff;line-height:1.2">'+val+'</div></div></div>';
   }
-  var statBand = '<div style="background:linear-gradient(120deg,#2f73e8,#2560d0);margin-top:56px">'
-    + '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:38px 28px">'
-    + '<div style="text-align:center;font-size:15px;font-weight:800;color:#fff;margin-bottom:26px">たくさんの高校生と先輩がつながっています</div>'
-    + '<div class="rs-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">'
-    + bigStat(I('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/>',24),'2,300+','登録ユーザー数','高校生・卒業生')
-    + bigStat(I('<path d="M21 11.5a8.4 8.4 0 0 1-11.7 7.7L3 21l1.9-6.1A8.4 8.4 0 1 1 21 11.5z"/>',24),'12,400+','相談・回答数','累計の相談と回答')
-    + bigStat(I('<path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1l1.7 1.7L12 21.5l7.1-7.1 1.7-1.7a5 5 0 0 0 0-7.1z"/>',24),'98%','満足度','「役に立った」と回答')
+  var statBand = '<div style="background:linear-gradient(120deg,#2f73e8,#2560d0);margin-top:66px">'
+    + '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:40px 28px">'
+    + '<div style="text-align:center;font-size:15px;font-weight:800;color:#fff;margin-bottom:26px">多くの先輩とつながっています</div>'
+    + '<div class="rs-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">'
+    + bigStat(I('<path d="M21 11.5a8.4 8.4 0 0 1-11.7 7.7L3 21l1.9-6.1A8.4 8.4 0 1 1 21 11.5z"/>',22),st.total.toLocaleString()+'件','相談件数')
+    + bigStat(I('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/>',22),st.senpai.toLocaleString()+'人','登録先輩')
+    + bigStat(I('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',22),avgLabel+'時間以内','平均返信時間')
+    + bigStat(I('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>',22),st.rate+'%','相談の回答率')
     + '</div></section></div>';
 
-  /* ---------- こんな相談 ---------- */
-  var topics = [
-    ['受験','受験勉強の計画の立て方を教えて！','#e8f1fe','#2f73e8','<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>'],
-    ['大学','大学の授業ってどんな感じ？','#eaf3ff','#3f6fd8','<path d="M2 8l10-4 10 4-10 4z"/><path d="M6 10v5c0 1.6 3 3 6 3s6-1.4 6-3v-5"/>'],
-    ['留学','留学を考えています！準備は何から？','#e7f5ee','#1e9e63','<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/>'],
-    ['部活・サークル','部活と勉強の両立方法はありますか？','#efeafe','#7c5cf0','<path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1l1.7 1.7L12 21.5l7.1-7.1 1.7-1.7a5 5 0 0 0 0-7.1z"/>'],
-    ['就活','インターンって参加した方がいい？','#dff3f8','#0284a8','<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>']
-  ].map(function(t){ return '<div data-nav="browse" class="ab-card card-hover" style="flex:0 0 208px;padding:20px 16px;text-align:center;cursor:pointer">'
-    + '<div style="width:50px;height:50px;border-radius:50%;background:'+t[2]+';color:'+t[3]+';display:flex;align-items:center;justify-content:center;margin:0 auto">'+I(t[4],24)+'</div>'
-    + '<div style="font-size:13.5px;font-weight:800;color:#14233f;margin:13px 0 7px">'+t[0]+'</div>'
-    + '<p style="font-size:11px;color:#76839a;line-height:1.75;margin:0">'+t[1]+'</p></div>'; }).join('');
-  var topicSec = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:52px 28px 0">'
-    + '<h2 style="margin:0 0 20px;font-size:21px;font-weight:900;color:#14233f">こんな相談が投稿されています</h2>'
-    + '<div class="ab-scroll">'+topics+'</div></section>';
+  /* ---------- 09 これからもっと、つながる未来へ ---------- */
+  function futureCard(illCls, title, body){
+    return '<div class="ab-card" style="padding:0;overflow:hidden">'
+      + '<div style="height:118px;background:linear-gradient(135deg,#eef4ff,#e8f1fe);display:flex;align-items:center;justify-content:center"><div class="ill '+illCls+'" style="width:88px"></div></div>'
+      + '<div style="padding:18px 20px 22px"><div style="font-size:14.5px;font-weight:800;color:#2f73e8">'+title+'</div>'
+      + '<p style="font-size:12px;color:#76839a;line-height:1.85;margin:8px 0 0">'+body+'</p></div></div>';
+  }
+  var future = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:62px 28px 0">'
+    + cHead('09','これからもっと、つながる未来へ','')
+    + '<div class="ab-c3">'
+    + futureCard('ill-highfive','卒業コミュニティ','卒業してもつながれるコミュニティで、一生のつながりを。')
+    + futureCard('ill-girl-phone','ストーリー機能','Instagramのように、気軽に先輩の経験を見られる機能を。')
+    + futureCard('ill-mail','先輩からの発信の場','募集・イベント・アンケートなど、先輩から後輩へ情報を届ける場を。')
+    + '</div></section>';
 
-  /* ---------- 先輩の声 ---------- */
-  var stars = '<span style="color:#f5b400;font-size:12px;letter-spacing:1px">★★★★★</span>';
-  var voices = [
-    ['後輩の相談に乗ることで、自分の経験を振り返る良い機会にもなっています。','13回生・早稲田大学'],
-    ['自分もこのサービスを使って助けられたので、今度は恩返しの気持ちで回答しています。','12回生・慶應義塾大学'],
-    ['気軽に相談できる雰囲気がすごく良いと思います。質問しやすいのが魅力です。','14回生・上智大学']
-  ].map(function(v){ return '<div class="ab-card" style="flex:0 0 320px;padding:20px 20px">'
-    + '<div style="display:flex;gap:12px;align-items:flex-start">'+avatar(40,'#e6effe','#2f73e8')
-    + '<p style="font-size:12.5px;color:#3a465f;line-height:1.9;margin:0">'+v[0]+'</p></div>'
-    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid #eef1f7">'
-    + '<span style="font-size:11.5px;font-weight:700;color:#66738c">'+v[1]+'</span>'+stars+'</div></div>'; }).join('');
-  var voiceSec = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:52px 28px 0">'
-    + '<h2 style="margin:0 0 20px;font-size:21px;font-weight:900;color:#14233f">先輩の声</h2>'
-    + '<div class="ab-scroll">'+voices+'</div></section>';
-
-  /* ---------- 安心・安全 ---------- */
-  var safety = [
-    ['<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>','完全匿名で利用可能','個人が特定されることはありません。'],
-    ['<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 12l2 2 4-4"/>','投稿は運営がチェック','不適切な内容は迅速に確認されます。'],
-    ['<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>','通報・ブロック機能','困ったときはすぐに運営に連絡できます。'],
-    ['<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>','個人情報は非公開','メールアドレスなどの個人情報は公開されません。']
-  ].map(function(t){ return '<div style="display:flex;gap:12px;align-items:flex-start">'
-    + '<span style="width:40px;height:40px;border-radius:12px;background:#e8f1fe;color:#2f73e8;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+I(t[0],20)+'</span>'
-    + '<div><div style="font-size:12.5px;font-weight:800;color:#2f73e8">'+t[1]+'</div><p style="font-size:11px;color:#76839a;line-height:1.75;margin:5px 0 0">'+t[2]+'</p></div></div>'; }).join('');
-  var safetySec = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:52px 28px 0">'
-    + '<h2 style="margin:0 0 22px;font-size:21px;font-weight:900;color:#14233f">安心・安全への取り組み</h2>'
-    + '<div class="ab-c4">'+safety+'</div></section>';
-
-  /* ---------- 最終CTA ---------- */
-  var ctaArt = '<svg viewBox="0 0 220 150" width="190" height="130" style="flex-shrink:0" class="rs-hide-sm">'
-    + '<path d="M20 150 v-38 a34 34 0 0 1 68 0 v38 z" fill="#8fb4f7"/><circle cx="54" cy="76" r="26" fill="#f7cbaa"/>'
-    + '<path d="M28 76 a26 26 0 0 1 52 0 q4 -34 -26 -34 q-30 0 -26 34z" fill="#22304d"/>'
-    + '<path d="M104 150 v-34 a31 31 0 0 1 62 0 v34 z" fill="#fff"/><circle cx="135" cy="84" r="24" fill="#f7cbaa"/>'
-    + '<path d="M111 84 a24 24 0 0 1 48 0 q4 -32 -24 -32 q-28 0 -24 32z" fill="#22304d"/>'
-    + '<g><circle cx="30" cy="34" r="17" fill="#fff"/><path d="M30 42c-4.6-3.1-7.7-5.5-7.7-8.4 0-2 1.6-2.9 3.3-2 .8.4 1.5 1.3 1.7 1.8.3-.5 1-1.4 1.7-1.8 1.7-.9 3.3 0 3.3 2 0 2.9-3.1 5.3-7.7 8.4z" fill="#e0568a" transform="translate(4.2 0)"/></g>'
-    + '</svg>';
-  var cta = '<div style="background:linear-gradient(120deg,#2f73e8,#2f6ae0);margin-top:56px">'
-    + '<section class="rs-stack-sm rs-pad" style="max-width:1180px;margin:0 auto;padding:40px 28px;display:flex;align-items:center;justify-content:center;gap:34px">'
-    + ctaArt
+  /* ---------- 10 最終CTA ---------- */
+  var ctaPlane = '<svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="rs-hide-sm"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>';
+  var cta = '<div style="background:linear-gradient(120deg,#2f73e8,#2f6ae0);margin-top:66px">'
+    + '<section class="rs-stack-sm rs-pad" style="max-width:1180px;margin:0 auto;padding:44px 28px;display:flex;align-items:center;justify-content:center;gap:34px">'
     + '<div style="text-align:center">'
-    + '<div style="font-size:26px;font-weight:900;color:#fff;line-height:1.5">あなたの一歩を、先輩が支えます。</div>'
-    + '<p style="font-size:13px;color:#dbe7ff;margin:12px 0 22px">さあ、今日からつながってみよう。</p>'
+    + '<div style="font-size:26px;font-weight:900;color:#fff;line-height:1.5">その悩み、先輩に相談してみよう。</div>'
+    + '<p style="font-size:13px;color:#dbe7ff;margin:12px 0 22px">あなたの一歩を、先輩が支えます。</p>'
     + '<div class="rs-btn-row" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">'
-    + '<button data-nav="post" style="cursor:pointer;border:none;background:#fff;color:#2f73e8;font-weight:800;font-size:14px;padding:14px 30px;border-radius:999px;display:inline-flex;align-items:center;gap:8px">相談してみる（無料）'+I('<path d="M5 12h14M13 6l6 6-6 6"/>',15,2.4)+'</button>'
-    + '<button data-nav="alumni" style="cursor:pointer;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.6);font-weight:700;font-size:14px;padding:14px 30px;border-radius:999px;display:inline-flex;align-items:center;gap:8px">先輩として参加する'+I('<path d="M5 12h14M13 6l6 6-6 6"/>',15,2.4)+'</button>'
-    + '</div></div></section></div>';
+    + '<button data-nav="post" style="cursor:pointer;border:none;background:#fff;color:#2f73e8;font-weight:800;font-size:14px;padding:14px 32px;border-radius:999px">相談してみる（無料）</button>'
+    + '<button data-nav="alumni" style="cursor:pointer;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.6);font-weight:700;font-size:14px;padding:14px 32px;border-radius:999px">先輩として参加する</button>'
+    + '</div></div>' + ctaPlane + '</section></div>';
 
-  return '<main>' + hero + need + hard + howto + feats + chatSec + statBand + topicSec + voiceSec + safetySec + cta + '</main>';
+  return '<main>' + hero + need + reason + whatis + values + feats + topicSec + chatSec + statBand + future + cta + '</main>';
 }
 
 function screenHTML(){
