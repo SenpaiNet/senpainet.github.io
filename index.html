@@ -472,31 +472,10 @@ var state = {
   browseStatus: 'all', browseBmOnly: false,
   newsFilter: 'all', newsPage: 1,
   newsPrefs: { ops:true, event:true, campaign:false, maint:true },
-  newsItems: [
-    { id:'nw1', cat:'maintenance', important:true, title:'システムメンテナンスのお知らせ', body:'システムの安定運用のため、下記の日程でメンテナンスを実施いたします。', date:'2024年5月15日' },
-    { id:'nw2', cat:'event', title:'「OB・OG交流会」開催のお知らせ', body:'様々な業界で活躍する先輩たちと直接話せるチャンス！', date:'2024年5月12日' },
-    { id:'nw3', cat:'notice', title:'プロフィール検索機能の改善について', body:'先輩検索がより便利になりました。詳しくはこちらをご確認ください。', date:'2024年5月10日' },
-    { id:'nw4', cat:'campaign', title:'友達紹介キャンペーン実施中！', body:'友達を紹介して、Amazonギフト券をもらおう！', date:'2024年5月8日' },
-    { id:'nw5', cat:'feature', title:'メッセージの既読機能を追加しました', body:'メッセージの既読・未読が分かるようになりました。', date:'2024年5月5日' },
-    { id:'nw6', cat:'notice', title:'コミュニティ機能を公開しました', body:'回生・大学・テーマ別のコミュニティで卒業生同士がつながれます。', date:'2024年5月1日' },
-    { id:'nw7', cat:'event', title:'オンライン進路相談会を開催します', body:'現役大学生の先輩に、大学生活や受験について質問できます。', date:'2024年4月28日' },
-    { id:'nw8', cat:'feature', title:'スクロールで読みやすくなりました', body:'ホーム画面の表示をなめらかに改善しました。', date:'2024年4月25日' },
-    { id:'nw9', cat:'campaign', important:true, title:'新入生応援キャンペーン実施中', body:'新入生の皆さんを対象に、豪華特典をプレゼント！', date:'2024年4月20日' },
-    { id:'nw10', cat:'maintenance', title:'定期メンテナンス完了のご報告', body:'4月18日のメンテナンスは予定どおり完了しました。', date:'2024年4月18日' },
-    { id:'nw11', cat:'notice', title:'利用規約改定のお知らせ', body:'利用規約の一部を改定しました。内容をご確認ください。', date:'2024年4月15日' }
-  ],
-  newsSchedule: [
-    { cat:'maintenance', title:'システムメンテナンス', when:'5月20日（月）02:00 - 05:00' },
-    { cat:'event', title:'OB・OG交流会', when:'5月25日（土）14:00 - 17:00' },
-    { cat:'feature', title:'機能アップデート予定', when:'6月1日（土）' }
-  ],
+  newsItems: [],
+  newsSchedule: [],
   // 先輩（卒業生）からのお知らせ・宣伝。お知らせページで最も目立つ位置に表示。
-  senpaiNews: [
-    { id:'sn1', kaisei:12, affil:'東京大学', tag:'セミナー', title:'現役東大生による無料オンライン勉強会', body:'受験期の勉強計画の立て方を、実体験をもとにお話しします。中高生ならどなたでも参加OKです！', date:'2026年7月3日', cta:'参加する' },
-    { id:'sn2', kaisei:10, affil:'研修医', tag:'相談会', title:'医学部を目指す後輩へ｜進路相談会', body:'医学部受験のリアルや大学生活について、少人数でざっくばらんに話せる会を開きます。', date:'2026年7月1日', cta:'申し込む' },
-    { id:'sn3', kaisei:14, affil:'早稲田大学', tag:'募集', title:'文化祭の合同企画メンバー募集', body:'在校生と卒業生でコラボ企画を考えています。興味のある人はぜひ声をかけてください！', date:'2026年6月28日', cta:'話を聞く' },
-    { id:'sn4', kaisei:8, affil:'ITエンジニア', tag:'イベント', title:'ITの仕事が分かるオンライン職業体験', body:'プログラミング未経験でも大丈夫。実際の仕事の様子を見ながら質問できます。', date:'2026年6月25日', cta:'詳しく見る' }
-  ],
+  senpaiNews: [],
   notifications: [],
   consultations: [
     { id:'oc_rikei', grade:4, category:'shinro', popular:false, title:'理系と文系で迷っています...', body:'将来やりたいことがまだ決まっておらず、理系と文系のどちらに進むべきか悩んでいます。それぞれのメリット・デメリットを教えてほしいです。', likes:22, nAnswers:9, time:'2時間前', views:184, firstReplyHours:1, postedAt:0, liked:false, bookmarked:false,
@@ -3073,15 +3052,18 @@ function newsHTML(){
     + '</aside>';
 
   // ---- center ----
+  // 注目のお知らせ（先頭）。お知らせが無いときは表示しない。
   var featured = state.newsItems[0];
-  var fc = newsCats[featured.cat];
-  var hero = '<div style="background:linear-gradient(120deg,#e3edff 0%,#eef4ff 60%,#f4f8ff 100%);border:1px solid #dbe7fb;border-radius:18px;padding:26px 28px;display:flex;gap:18px;align-items:center;overflow:hidden">'
-    + '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:10px">'+newsBadge(featured)+'<span style="font-size:12.5px;color:#66738c">'+featured.date+'</span></div>'
-    + '<div style="font-size:21px;font-weight:900;color:#14233f;margin:12px 0 8px">'+esc(featured.title)+'</div>'
-    + '<p style="font-size:13.5px;color:#5a6678;line-height:1.8;margin:0 0 14px;max-width:420px">下記の日程でシステムメンテナンスを実施いたします。メンテナンス中はサービスをご利用いただけません。</p>'
-    + '<div style="display:inline-block;background:rgba(255,255,255,.7);border:1px solid #dbe7fb;border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:700;color:#1b2942">日時：5月20日（月）02:00 - 05:00（予定）</div>'
-    + '<div style="margin-top:16px"><span data-toast="お知らせの詳細は準備中です" style="display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:#2f73e8;cursor:pointer">詳しく見る →</span></div></div>'
-    + '<div style="flex-shrink:0;width:200px" class="rs-hide-sm"><div class="ill ill-mail" style="width:200px"></div></div></div>';
+  var hero = '';
+  if(featured){
+    hero = '<h2 style="font-size:18px;font-weight:800;color:#1b2942;margin:6px 0 16px">運営からのお知らせ</h2>'
+      + '<div style="background:linear-gradient(120deg,#e3edff 0%,#eef4ff 60%,#f4f8ff 100%);border:1px solid #dbe7fb;border-radius:18px;padding:26px 28px;display:flex;gap:18px;align-items:center;overflow:hidden">'
+      + '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:10px">'+newsBadge(featured)+'<span style="font-size:12.5px;color:#66738c">'+featured.date+'</span></div>'
+      + '<div style="font-size:21px;font-weight:900;color:#14233f;margin:12px 0 8px">'+esc(featured.title)+'</div>'
+      + '<p style="font-size:13.5px;color:#5a6678;line-height:1.8;margin:0 0 14px;max-width:420px">'+esc(featured.body||'')+'</p>'
+      + '<div style="margin-top:4px"><span data-toast="お知らせの詳細は準備中です" style="display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:#2f73e8;cursor:pointer">詳しく見る →</span></div></div>'
+      + '<div style="flex-shrink:0;width:200px" class="rs-hide-sm"><div class="ill ill-mail" style="width:200px"></div></div></div>';
+  }
 
   var chips = [['すべて','all']].concat(Object.keys(newsCats).map(function(k){ return [newsCats[k].label,k]; }))
     .map(function(d){ var active=f===d[1]; return '<span data-news-filter="'+d[1]+'" style="font-size:12.5px;font-weight:700;padding:7px 15px;border-radius:8px;cursor:pointer;white-space:nowrap;background:'+(active?'#2f73e8':'#fff')+';color:'+(active?'#fff':'#3a465f')+';border:1.5px solid '+(active?'#2f73e8':'#dae2ee')+'">'+d[0]+'</span>'; }).join('');
@@ -3114,7 +3096,6 @@ function newsHTML(){
     + '<h1 style="margin:0;font-size:27px;font-weight:900;color:#14233f">お知らせ</h1>'
     + '<p style="margin:8px 0 22px;font-size:13.5px;color:#66738c">SenpaiNetからの最新情報をお届けします。</p>'
     + senpaiNewsSection()
-    + '<h2 style="font-size:18px;font-weight:800;color:#1b2942;margin:6px 0 16px">運営からのお知らせ</h2>'
     + hero
     + '<h2 style="font-size:18px;font-weight:800;color:#1b2942;margin:30px 0 16px">新着のお知らせ</h2>'
     + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;flex-wrap:wrap"><div style="display:flex;flex-wrap:wrap;gap:8px">'+chips+'</div>'
@@ -3129,16 +3110,12 @@ function newsHTML(){
   }).join('');
   function prefRow(icon,label,key){ return '<div style="display:flex;align-items:center;gap:11px;padding:9px 0"><span style="display:flex;color:#66738c;flex-shrink:0">'+icon+'</span><span style="flex:1;font-size:13px;color:#3a465f">'+label+'</span>'+newsSwitch(key,state.newsPrefs[key])+'</div>'; }
   var right = '<aside class="news-side" style="display:flex;flex-direction:column;gap:16px;position:sticky;top:82px">'
-    // 注目のお知らせ
-    + '<div style="background:#fff;border:1px solid #e7edf6;border-radius:16px;padding:16px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;color:#2f73e8"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a3 3 0 0 1 0 6"/><path d="M3 10v4a1 1 0 0 0 1 1h3l7 4V5L7 9H4a1 1 0 0 0-1 1z"/></svg><span style="font-size:13.5px;font-weight:800;color:#1b2942">注目のお知らせ</span></div>'
-    + '<div style="background:linear-gradient(135deg,#e7f7ee 0%,#f1fbf5 100%);border:1px solid #cdefd9;border-radius:14px;padding:16px 18px">'
-    + '<div style="font-size:14.5px;font-weight:900;color:#178a4e;line-height:1.5">「新入生応援キャンペーン」実施中！</div>'
-    + '<p style="font-size:12px;color:#4b7c62;line-height:1.75;margin:8px 0 14px">新入生の皆さんを対象に、豪華特典をプレゼント！</p>'
-    + '<button data-toast="キャンペーン詳細は準備中です" style="cursor:pointer;border:none;background:#1e9e63;color:#fff;font-weight:700;font-size:12.5px;padding:9px 16px;border-radius:9px;display:inline-flex;align-items:center;gap:6px">詳しく見る →</button></div></div>'
-    // 今後の予定
-    + '<div style="background:#fff;border:1px solid #e7edf6;border-radius:16px;padding:16px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;color:#2f73e8"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg><span style="font-size:13.5px;font-weight:800;color:#1b2942">今後の予定</span></div>'
-    + sched
-    + '<div data-toast="予定一覧は準備中です" style="text-align:center;margin-top:8px;font-size:12.5px;font-weight:700;color:#2f73e8;cursor:pointer">すべての予定を見る →</div></div>'
+    // 今後の予定（予定が無いときは表示しない）
+    + (state.newsSchedule.length
+        ? '<div style="background:#fff;border:1px solid #e7edf6;border-radius:16px;padding:16px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;color:#2f73e8"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg><span style="font-size:13.5px;font-weight:800;color:#1b2942">今後の予定</span></div>'
+          + sched
+          + '<div data-toast="予定一覧は準備中です" style="text-align:center;margin-top:8px;font-size:12.5px;font-weight:700;color:#2f73e8;cursor:pointer">すべての予定を見る →</div></div>'
+        : '')
     // 受け取り設定
     + '<div style="background:#fff;border:1px solid #e7edf6;border-radius:16px;padding:16px"><div style="font-size:13.5px;font-weight:800;color:#1b2942;margin-bottom:2px">お知らせの受け取り設定</div><p style="font-size:11.5px;color:#94a1b5;line-height:1.6;margin:0 0 8px">受け取りたいお知らせの種類を設定できます。</p>'
     + prefRow(newsIcon('notice',17),'運営からのお知らせ','ops')
