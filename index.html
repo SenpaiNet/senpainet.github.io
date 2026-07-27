@@ -402,7 +402,7 @@ var state = {
   // 卒業生登録：得意分野タグ・通知先メール・メール通知の希望
   setupTags: [], setupEmail: '', setupNotify: true,
   answering: false, answerText: '', answerAnon: false,
-  myAnswerIds: {}, answerEditIdx: null, answerEditText: '',
+  myAnswerIds: {}, myAnswers: {}, answerEditIdx: null, answerEditText: '',
   replyTo: null, replyText: '',
   browseSort: 'new', browseLimit: 4, answerSort: 'new',
   userName: '在校生ユーザー', userKaisei: 18, userUniv: '', userFaculty: '', userTags: [], menuOpen: false, loggedIn: false, pendingSignIn: false, mypageTab: 'overview',
@@ -491,11 +491,7 @@ var state = {
     { id:'sn3', kaisei:14, affil:'早稲田大学', tag:'募集', title:'文化祭の合同企画メンバー募集', body:'在校生と卒業生でコラボ企画を考えています。興味のある人はぜひ声をかけてください！', date:'2026年6月28日', cta:'話を聞く' },
     { id:'sn4', kaisei:8, affil:'ITエンジニア', tag:'イベント', title:'ITの仕事が分かるオンライン職業体験', body:'プログラミング未経験でも大丈夫。実際の仕事の様子を見ながら質問できます。', date:'2026年6月25日', cta:'詳しく見る' }
   ],
-  notifications: [
-    { id:'n1', title:'新しい回答が届きました', body:'「理系の大学に決まりません」に14回生の先輩が回答しました。', time:'10分前', unread:true },
-    { id:'n2', title:'あなたの回答が役に立ちました', body:'あなたの回答に「役に立った」が3件つきました。', time:'2時間前', unread:true },
-    { id:'n3', title:'相談が解決済みになりました', body:'「英語の勉強法を教えてください！」が解決済みになりました。', time:'1日前', unread:false }
-  ],
+  notifications: [],
   consultations: [
     { id:'oc_rikei', grade:4, category:'shinro', popular:false, title:'理系と文系で迷っています...', body:'将来やりたいことがまだ決まっておらず、理系と文系のどちらに進むべきか悩んでいます。それぞれのメリット・デメリットを教えてほしいです。', likes:22, nAnswers:9, time:'2時間前', views:184, firstReplyHours:1, postedAt:0, liked:false, bookmarked:false,
       answers:[ { kaisei:14, meta:'', time:'1時間前', body:'好きな科目で選ぶのが一番だと思います。理系は専門を深く学べますが、文系も視野が広がりますよ。まずは興味のある分野から考えてみてください。', helpful:6, marked:false } ] },
@@ -548,6 +544,67 @@ function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,
 function find(id){ for(var i=0;i<state.consultations.length;i++){ if(state.consultations[i].id===id) return state.consultations[i]; } return null; }
 function selectedC(){ return find(state.selectedId); }
 function findNotif(id){ for(var i=0;i<state.notifications.length;i++){ if(state.notifications[i].id===id) return state.notifications[i]; } return null; }
+// 自分の投稿記録（myPosts / myAnswers）と公開データから通知を組み立てる。
+// 匿名性を保つため、他人のアクションを直接受け取るのではなく「自分の投稿への反応」を検出する。
+function computeNotifications(){
+  if(!state.loggedIn){ state.notifications = []; return; }
+  var list = [];
+  // 自分の相談への新着回答
+  (state.myPosts || []).forEach(function(p){
+    var c = find(p.cid); if(!c) return;
+    var total = (c.answers || []).length;
+    var seen = p.seenAnswers || 0;
+    if(total > seen){
+      list.push({ id:'na_'+p.cid, cid:p.cid,
+        title:'新しい回答が届きました',
+        body:'「'+(c.title || p.title || '相談')+'」に'+(total - seen)+'件の回答が届きました。',
+        time:(c.answers[0] && c.answers[0].time) || '', unread:true, _sort:(c.postedAt||0) });
+    }
+  });
+  // 自分の回答への新着返信
+  Object.keys(state.myAnswers || {}).forEach(function(aid){
+    var meta = state.myAnswers[aid]; if(!meta || !meta.cid) return;
+    var c = find(meta.cid); if(!c) return;
+    var ans = (c.answers || []).filter(function(a){ return a.id === aid; })[0]; if(!ans) return;
+    var total = (ans.replies || []).length;
+    var seen = meta.seenReplies || 0;
+    if(total > seen){
+      list.push({ id:'nr_'+aid, cid:meta.cid,
+        title:'あなたの回答に返信がありました',
+        body:'「'+(c.title || '相談')+'」のあなたの回答に'+(total - seen)+'件の返信がつきました。',
+        time:'', unread:true, _sort:(meta.createdAt||0) });
+    }
+  });
+  list.sort(function(a,b){ return (b._sort||0) - (a._sort||0); });
+  state.notifications = list;
+}
+// 通知1件を確認済みにする（既読カウントを更新して保存）
+function markNotifSeen(n){
+  if(!n) return;
+  if(n.id.indexOf('na_') === 0){
+    var p = (state.myPosts || []).filter(function(x){ return x.cid === n.cid; })[0];
+    var c = find(n.cid);
+    if(p && c){ p.seenAnswers = (c.answers || []).length;
+      if(state.authUser && state.authUser.uid && window.snDb && window.snDb.addMyPost) window.snDb.addMyPost(state.authUser.uid, p.cid, p); }
+  } else if(n.id.indexOf('nr_') === 0){
+    var aid = n.id.slice(3);
+    var meta = state.myAnswers[aid]; var c2 = find(n.cid);
+    var ans = c2 ? (c2.answers || []).filter(function(a){ return a.id === aid; })[0] : null;
+    if(meta && ans){ meta.seenReplies = (ans.replies || []).length;
+      if(state.authUser && state.authUser.uid && window.snDb && window.snDb.addMyAnswer) window.snDb.addMyAnswer(state.authUser.uid, aid, meta); }
+  }
+  computeNotifications();
+}
+// すべての通知を確認済みにする
+function markAllNotifsSeen(){
+  (state.myPosts || []).forEach(function(p){ var c = find(p.cid); if(c){ p.seenAnswers = (c.answers||[]).length;
+    if(state.authUser && state.authUser.uid && window.snDb && window.snDb.addMyPost) window.snDb.addMyPost(state.authUser.uid, p.cid, p); } });
+  Object.keys(state.myAnswers || {}).forEach(function(aid){ var meta = state.myAnswers[aid]; var c = find(meta && meta.cid);
+    var ans = c ? (c.answers||[]).filter(function(a){ return a.id===aid; })[0] : null;
+    if(meta && ans){ meta.seenReplies = (ans.replies||[]).length;
+      if(state.authUser && state.authUser.uid && window.snDb && window.snDb.addMyAnswer) window.snDb.addMyAnswer(state.authUser.uid, aid, meta); } });
+  computeNotifications();
+}
 function toTop(){ try{ window.scrollTo(0,0); }catch(e){} }
 
 // Convert a relative-time label ("30分前" / "2時間前" / "1日前" / "たった今") to
@@ -763,8 +820,11 @@ function submitAnswer(){
       // あとから本人が編集・削除できるよう、所有者を記録する（回答本体は匿名のまま）
       if(state.authUser && state.authUser.uid){
         state.myAnswerIds[id] = true;
+        // 自分の回答として記録（返信の通知に seenReplies を使う）
+        var meta = { cid:c.id, seenReplies:(localAns.replies||[]).length, createdAt:Date.now() };
+        state.myAnswers[id] = meta;
         if(window.snDb.addAnswerOwner) window.snDb.addAnswerOwner(id, state.authUser.uid, c.id);
-        if(window.snDb.addMyAnswer) window.snDb.addMyAnswer(state.authUser.uid, id, { cid:c.id, createdAt:Date.now() });
+        if(window.snDb.addMyAnswer) window.snDb.addMyAnswer(state.authUser.uid, id, meta);
       }
     });
   }
@@ -2232,7 +2292,7 @@ function legalHTML(key){
   return '<main class="rs-pad" style="max-width:820px;margin:0 auto;padding:30px 28px 70px">'
     + '<span data-support="" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#5a6678;cursor:pointer;margin-bottom:16px">'+svg.backSm+'サポートに戻る</span>'
     + '<h1 class="rs-page-h1" style="margin:0;font-size:26px;font-weight:900;color:#1b2942">'+esc(d.title)+'</h1>'
-    + '<div style="font-size:12px;color:#9aa6ba;margin-top:8px">制定日：'+d.established+' ／ 最終改定日：'+d.updated+'</div>'
+    + '<div style="font-size:12px;color:#9aa6ba;margin-top:8px">制定日：'+d.established+' ／ 最終改定日：'+d.updated+'</div>'
     + '<p style="font-size:13.5px;color:#44516b;line-height:1.95;margin:20px 0 0">'+esc(d.intro)+'</p>'
     + secs
     + '</main>';
@@ -4497,8 +4557,8 @@ function setupDelegation(){
     }
     if(t.hasAttribute('data-mypost')){ var p=state.myPosts[+t.getAttribute('data-mypost')]; if(p) toast('「'+p.title+'」（'+p.status+'）'); return; }
     if(t.hasAttribute('data-more-toast')) return toast('これ以上の項目はありません');
-    if(t.hasAttribute('data-notif')){ var n=findNotif(t.getAttribute('data-notif')); if(n){ n.unread=false; closeModal(); render(); } return; }
-    if(t.hasAttribute('data-notif-read')){ state.notifications.forEach(function(n){ n.unread=false; }); closeModal(); render(); toast('すべて既読にしました'); return; }
+    if(t.hasAttribute('data-notif')){ var n=findNotif(t.getAttribute('data-notif')); closeModal(); if(n){ markNotifSeen(n); if(n.cid){ openDetail(n.cid); } else { render(); } } return; }
+    if(t.hasAttribute('data-notif-read')){ markAllNotifsSeen(); closeModal(); render(); toast('すべて既読にしました'); return; }
     // ---- 運営（管理者）コンソール ----
     if(t.hasAttribute('data-admin')){ closeModal(); state.adminTab='dashboard'; go('admin'); return; }
     if(t.hasAttribute('data-admin-login')){ if(window.snAuthApi && window.snAuthApi.signIn){ window.snAuthApi.signIn(); } else { toast('Firebaseが未設定です'); } return; }
@@ -4927,7 +4987,7 @@ window.snOnAuthChange = function(user, authorized, configured, profile){
     if(profile.faculty != null) state.userFaculty = profile.faculty;
     if(Array.isArray(profile.tags)) state.userTags = profile.tags;
   }
-  if(!user){ state.myPosts = []; state.myAnswerIds = {}; }
+  if(!user){ state.myPosts = []; state.myAnswerIds = {}; state.myAnswers = {}; state.notifications = []; }
   state.pendingSignIn = false;
   // ボタンからログインした直後だけ画面を移動する
   if(wasPending && user){
@@ -4937,8 +4997,14 @@ window.snOnAuthChange = function(user, authorized, configured, profile){
   render();
 };
 // ログインユーザーの投稿履歴（マイページ用）
-window.snOnMyPosts = function(list){ if(!Array.isArray(list)) return; state.myPosts = list; render(); };
-window.snOnMyAnswers = function(ids){ state.myAnswerIds = ids || {}; render(); };
+window.snOnMyPosts = function(list){ if(!Array.isArray(list)) return; state.myPosts = list; computeNotifications(); render(); };
+window.snOnMyAnswers = function(map){
+  map = map || {};
+  state.myAnswers = map;
+  var ids = {}; Object.keys(map).forEach(function(k){ ids[k] = true; });
+  state.myAnswerIds = ids;
+  computeNotifications(); render();
+};
 // 運営メンバー一覧（管理コンソール用）
 window.snOnAdmins = function(list){
   state.adminMembers = Array.isArray(list) ? list : [];
@@ -4987,6 +5053,7 @@ window.snOnConsultations = function(list){
   // （これがないと新しい投稿が一覧の末尾に埋もれて見つけにくい）
   list.sort(function(a, b){ return (b.postedAt || b.createdAt || 0) - (a.postedAt || a.createdAt || 0); });
   state.consultations = list;
+  computeNotifications();
   render();
 };
 // Firebase モジュールが読み込めない/未設定でも管理画面が固まらないようにする保険
@@ -5285,12 +5352,12 @@ render();
             window.snOnMyPosts(arr);
           } catch (e) {}
         }
-        // 自分の回答の一覧（編集・削除の可否判定に使う）
+        // 自分の回答の一覧（編集・削除の可否判定＋通知に使う）
         if (user && window.snOnMyAnswers) {
           try {
             const as = await getDocs(collection(db, "users", user.uid, "myAnswers"));
-            const ids = {}; as.forEach((ad) => { ids[ad.id] = true; });
-            window.snOnMyAnswers(ids);
+            const map = {}; as.forEach((ad) => { const o = ad.data() || {}; o.aid = ad.id; map[ad.id] = o; });
+            window.snOnMyAnswers(map);
           } catch (e) {}
         }
       });
