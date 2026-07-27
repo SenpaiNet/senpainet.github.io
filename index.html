@@ -215,9 +215,10 @@
   .sec-link{transition:background .15s,border-color .15s,box-shadow .15s}
   .sec-link:hover{background:#e8f1fe;border-color:#bcd3f5;box-shadow:0 4px 12px rgba(47,115,232,.12)}
 
-  /* ご意見募集バナー（ホーム） */
-  .fb-sec{max-width:1180px;margin:44px auto 0;padding:0 28px}
-  .fb-card{position:relative;overflow:hidden;background:linear-gradient(120deg,#e8f1ff 0%,#f3f8ff 55%,#eef4ff 100%);border:1px solid #dbe7fb;border-radius:24px;display:grid;grid-template-columns:1.12fr .88fr;gap:20px;align-items:center;padding:34px 44px}
+  /* ご意見募集バナー（ホーム・全幅） */
+  .fb-sec{margin:44px 0 0}
+  .fb-card{background:linear-gradient(120deg,#e8f1ff 0%,#f3f8ff 55%,#eef4ff 100%);border-top:1px solid #dbe7fb;border-bottom:1px solid #dbe7fb;padding:40px 28px}
+  .fb-inner{position:relative;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.12fr .88fr;gap:24px;align-items:center}
   .fb-pill{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid #dfe9f8;border-radius:999px;padding:7px 15px;font-size:12.5px;font-weight:700;color:#4a5670}
   .fb-pill b{color:#2f73e8}
   .fb-title{margin:18px 0 0;font-size:clamp(23px,3.2vw,33px);font-weight:900;line-height:1.42;color:#14233f;letter-spacing:-.01em}
@@ -233,7 +234,8 @@
   .fb-b2{top:26%;left:-6%}
   .fb-b3{top:14%;right:-6%}
   @media (max-width:860px){
-    .fb-card{grid-template-columns:1fr;padding:28px 26px}
+    .fb-card{padding:30px 24px}
+    .fb-inner{grid-template-columns:1fr}
     .fb-illo{display:none}
   }
 
@@ -1371,7 +1373,7 @@ function feedbackBanner(){
   var bubble = function(cls, emoji, text){
     return '<div class="fb-bubble '+cls+'"><span>'+emoji+'</span><span>'+text+'</span></div>';
   };
-  return '<section class="fb-sec reveal"><div class="fb-card">'
+  return '<section class="fb-sec reveal"><div class="fb-card"><div class="fb-inner">'
     + '<div>'
     + '<div class="fb-pill">'+cap+'<b>SenpaiNet</b><span style="color:#c3cee0">｜</span>より使いやすいサービスにするために</div>'
     + '<h2 class="fb-title">ご意見・<span class="blue">バグ報告</span>・機能のご要望を<br><span class="fb-hl">募集しています！</span></h2>'
@@ -1384,7 +1386,7 @@ function feedbackBanner(){
     + bubble('fb-b2','💡','こんな機能が<br>あったら嬉しい！')
     + bubble('fb-b3','❤️','もっと使いやすく<br>なると思います！')
     + '</div>'
-    + '</div></section>';
+    + '</div></div></section>';
 }
 function homeHTML(){
   var st = computeStats();
