@@ -29,7 +29,7 @@ initializeApp();
 const db = getFirestore();
 
 // 公開サイトのURL（メール本文のリンクに使用）
-const SITE_URL = "https://ykonishi2006.github.io/senpainet/";
+const SITE_URL = "https://senpainet.github.io/";
 
 exports.notifySenpaiOnTaggedConsultation = onDocumentCreated(
   { document: "mailQueue/{queueId}", region: "asia-northeast1" },

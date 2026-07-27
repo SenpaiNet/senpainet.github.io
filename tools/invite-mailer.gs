@@ -29,7 +29,7 @@
  */
 
 // 招待リンク（管理コンソール）
-var CONSOLE_URL = 'https://ykonishi2006.github.io/senpainet/#admin';
+var CONSOLE_URL = 'https://senpainet.github.io/#admin';
 
 // 1日あたりの送信上限（悪用されたときの被害を抑えるため）
 var DAILY_LIMIT = 20;
@@ -91,7 +91,7 @@ function inviteHtml(to, by, name) {
   var BLUE = '#2f73e8';
   var INK = '#14233f';
   var MUTED = '#66738c';
-  var LOGO = 'https://ykonishi2006.github.io/senpainet/assets/logo/logo-horizontal.png';
+  var LOGO = 'https://senpainet.github.io/assets/logo/logo-horizontal.png';
 
   function step(n, title, desc) {
     return '' +

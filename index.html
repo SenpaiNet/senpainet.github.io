@@ -812,7 +812,7 @@ function reportAuthor(r){ return (r && r.authorId) ? findById(state.adminUsers, 
 // そのためURLを知られても、送れるのは SenpaiNet の招待文に限られる（+1日の送信上限あり）。
 var INVITE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw-hD9VH3O-tGSa-IOnPbrWgIHgxvzbSw9iBN520DNm3x_5Zrs1imiN70lTZZs6AthxWg/exec';
 // 実行中のドメインから作るので、github.io でも独自ドメインでも自動で正しくなる
-var INVITE_URL = (typeof location !== 'undefined' ? location.origin : 'https://ykonishi2006.github.io/senpainet') + '/#admin';
+var INVITE_URL = (typeof location !== 'undefined' ? location.origin : 'https://senpainet.github.io') + '/#admin';
 
 function inviteMail(email, by, name){
   return {
@@ -4869,7 +4869,7 @@ render();
        1. https://console.firebase.google.com でプロジェクトを作成
        2. Authentication → Sign-in method で「Google」を有効化
        3. Authentication → Settings → 承認済みドメイン に
-          「ykonishi2006.github.io」（と、ローカル確認用に「localhost」）を追加
+          「senpainet.github.io」（と、ローカル確認用に「localhost」）を追加
        4. プロジェクトの設定 → マイアプリ（ウェブ）の firebaseConfig を下の
           firebaseConfig に貼り付け（apiKey 等は公開されても問題ない値です）
        5. 下の ADMIN_EMAILS に、閲覧を許可する運営メンバーの Gmail を追加
