@@ -218,32 +218,22 @@
   .sec-link{transition:background .15s,border-color .15s,box-shadow .15s}
   .sec-link:hover{background:#e8f1fe;border-color:#bcd3f5;box-shadow:0 4px 12px rgba(47,115,232,.12)}
 
-  /* ご意見募集バナー（ホーム・全幅・広告調） */
-  .fb-sec{margin:52px 0 0}
-  .fb-card{position:relative;overflow:hidden;background:linear-gradient(115deg,#1f4fd0 0%,#2f73e8 52%,#4d92ff 100%);padding:44px 28px}
-  /* 装飾の光の円（広告らしさ） */
-  .fb-card::before{content:"";position:absolute;top:-120px;right:-80px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),rgba(255,255,255,0) 70%)}
-  .fb-card::after{content:"";position:absolute;bottom:-140px;left:-60px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.12),rgba(255,255,255,0) 70%)}
-  .fb-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.12fr .88fr;gap:28px;align-items:center}
-  .fb-badge{display:inline-flex;align-items:center;gap:8px;background:#ffd43b;color:#3d2f06;border-radius:999px;padding:7px 16px;font-size:12.5px;font-weight:900;letter-spacing:.02em;box-shadow:0 4px 12px rgba(0,0,0,.12)}
-  .fb-title{margin:16px 0 0;font-size:clamp(25px,3.6vw,38px);font-weight:900;line-height:1.34;color:#fff;letter-spacing:-.01em;text-shadow:0 1px 1px rgba(0,0,0,.06)}
-  .fb-title .blue{color:#ffe27a}
-  .fb-hl{background:linear-gradient(transparent 56%,rgba(255,212,59,.85) 56%);padding:0 3px;border-radius:2px}
-  .fb-sub{margin:16px 0 0;font-size:14.5px;line-height:1.9;color:#eaf1ff;font-weight:500}
-  .fb-btn{margin-top:26px;display:inline-flex;align-items:center;gap:12px;cursor:pointer;border:none;background:#ffd43b;color:#3d2f06;font-weight:900;font-size:16px;padding:16px 34px;border-radius:14px;box-shadow:0 10px 24px rgba(0,0,0,.20)}
+  /* ご意見募集バナー（ホーム・全幅・控えめ） */
+  .fb-sec{margin:44px 0 0}
+  .fb-card{position:relative;overflow:hidden;background:linear-gradient(120deg,#eef4ff 0%,#f4f8ff 60%,#eef4ff 100%);border-top:1px solid #dbe7fb;border-bottom:1px solid #dbe7fb;padding:24px 28px}
+  .fb-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center}
+  .fb-badge{display:inline-flex;align-items:center;gap:7px;background:#e3ecfb;color:#2f5fe0;border-radius:999px;padding:5px 12px;font-size:11.5px;font-weight:800}
+  .fb-title{margin:11px 0 0;font-size:clamp(17px,2vw,21px);font-weight:900;line-height:1.5;color:#14233f}
+  .fb-title .blue{color:#2f73e8}
+  .fb-hl{background:linear-gradient(transparent 62%,#ffdf85 62%);padding:0 2px}
+  .fb-sub{margin:8px 0 0;font-size:12.5px;line-height:1.8;color:#5a6678}
+  .fb-btn{flex-shrink:0;display:inline-flex;align-items:center;gap:9px;cursor:pointer;border:none;background:#2f5fe0;color:#fff;font-weight:800;font-size:13.5px;padding:12px 22px;border-radius:11px;box-shadow:0 5px 14px rgba(47,95,224,.22);white-space:nowrap}
   .fb-btn .fb-arrow{transition:transform .18s ease}
-  .fb-btn:hover .fb-arrow{transform:translateX(4px)}
-  .fb-photo{position:relative;background:#fff;border-radius:20px;padding:14px 14px 0;box-shadow:0 20px 44px rgba(10,25,60,.28)}
-  .fb-photo img{display:block;width:100%;height:auto;border-radius:0 0 8px 8px}
-  .fb-bubble{position:absolute;background:#fff;border:1px solid #eef2f8;border-radius:14px;padding:9px 13px;font-size:11.5px;font-weight:700;color:#3a465f;line-height:1.55;box-shadow:0 12px 26px rgba(10,25,60,.20);display:flex;gap:8px;align-items:flex-start;white-space:nowrap}
-  .fb-bubble span:first-child{flex-shrink:0}
-  .fb-b1{top:-16px;left:26%}
-  .fb-b2{top:30%;left:-26px}
-  .fb-b3{top:12%;right:-26px}
-  @media (max-width:860px){
-    .fb-card{padding:34px 24px}
-    .fb-inner{grid-template-columns:1fr}
-    .fb-photo{display:none}
+  .fb-btn:hover .fb-arrow{transform:translateX(3px)}
+  .fb-photo{display:none}
+  @media (max-width:720px){
+    .fb-card{padding:22px 22px}
+    .fb-inner{grid-template-columns:1fr;gap:14px}
   }
   @media (prefers-reduced-motion:reduce){ .fb-btn:hover .fb-arrow{transform:none} }
 
@@ -1374,26 +1364,16 @@ function featuresHTML(){
 }
 
 /* ============ HOME ============ */
-// ホームの「ご意見・バグ報告・機能要望」募集バナー（広告調）
+// ホームの「ご意見・バグ報告・機能要望」募集バナー（控えめ）
 function feedbackBanner(){
-  var memo = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#3d2f06" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h5M9 17h4"/></svg>';
-  var arrow = '<svg class="fb-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3d2f06" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-  var bubble = function(cls, emoji, text){
-    return '<div class="fb-bubble '+cls+'"><span>'+emoji+'</span><span>'+text+'</span></div>';
-  };
+  var arrow = '<svg class="fb-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
   return '<section class="fb-sec reveal"><div class="fb-card"><div class="fb-inner">'
     + '<div>'
     + '<div class="fb-badge">📣 ご意見・ご要望 募集中</div>'
-    + '<h2 class="fb-title">ご意見・<span class="blue">バグ報告</span>・機能のご要望を<br><span class="fb-hl">募集しています！</span></h2>'
-    + '<p class="fb-sub">SenpaiNetをより良いサービスにするため、みなさんの声をぜひお聞かせください。<br>いただいた声は、これからの改善に活かします。</p>'
-    + '<button class="fb-btn" data-support="contact">'+memo+'ご意見・ご要望フォームはこちら'+arrow+'</button>'
+    + '<h2 class="fb-title">ご意見・<span class="blue">バグ報告</span>・機能のご要望を<span class="fb-hl">募集しています</span></h2>'
+    + '<p class="fb-sub">みなさんの声を、これからの改善に活かします。</p>'
     + '</div>'
-    + '<div class="fb-photo">'
-    + '<img src="assets/illustrations/feedback-person.png" alt="" loading="lazy">'
-    + bubble('fb-b1','🐛','ここが<br>うまく動かない…')
-    + bubble('fb-b2','💡','こんな機能が<br>あったら嬉しい！')
-    + bubble('fb-b3','❤️','もっと使いやすく<br>なると思います！')
-    + '</div>'
+    + '<button class="fb-btn" data-support="contact">ご意見・ご要望フォーム'+arrow+'</button>'
     + '</div></div></section>';
 }
 function homeHTML(){
