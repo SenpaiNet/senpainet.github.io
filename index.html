@@ -215,6 +215,28 @@
   .sec-link{transition:background .15s,border-color .15s,box-shadow .15s}
   .sec-link:hover{background:#e8f1fe;border-color:#bcd3f5;box-shadow:0 4px 12px rgba(47,115,232,.12)}
 
+  /* ご意見募集バナー（ホーム） */
+  .fb-sec{max-width:1180px;margin:44px auto 0;padding:0 28px}
+  .fb-card{position:relative;overflow:hidden;background:linear-gradient(120deg,#e8f1ff 0%,#f3f8ff 55%,#eef4ff 100%);border:1px solid #dbe7fb;border-radius:24px;display:grid;grid-template-columns:1.12fr .88fr;gap:20px;align-items:center;padding:34px 44px}
+  .fb-pill{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid #dfe9f8;border-radius:999px;padding:7px 15px;font-size:12.5px;font-weight:700;color:#4a5670}
+  .fb-pill b{color:#2f73e8}
+  .fb-title{margin:18px 0 0;font-size:clamp(23px,3.2vw,33px);font-weight:900;line-height:1.42;color:#14233f;letter-spacing:-.01em}
+  .fb-title .blue{color:#2f73e8}
+  .fb-hl{background:linear-gradient(transparent 58%,#ffdf85 58%);padding:0 3px}
+  .fb-sub{margin:16px 0 0;font-size:14px;line-height:1.9;color:#4a5670}
+  .fb-btn{margin-top:24px;display:inline-flex;align-items:center;gap:12px;cursor:pointer;border:none;background:#2f5fe0;color:#fff;font-weight:800;font-size:15px;padding:15px 30px;border-radius:14px;box-shadow:0 8px 20px rgba(47,95,224,.28)}
+  .fb-illo{position:relative}
+  .fb-illo img{display:block;width:100%;height:auto}
+  .fb-bubble{position:absolute;background:#fff;border:1px solid #e8edf6;border-radius:14px;padding:8px 13px;font-size:11.5px;font-weight:700;color:#3a465f;line-height:1.55;box-shadow:0 10px 24px rgba(15,23,42,.10);display:flex;gap:8px;align-items:flex-start;white-space:nowrap}
+  .fb-bubble span:first-child{flex-shrink:0}
+  .fb-b1{top:-2%;left:34%}
+  .fb-b2{top:26%;left:-6%}
+  .fb-b3{top:14%;right:-6%}
+  @media (max-width:860px){
+    .fb-card{grid-template-columns:1fr;padding:28px 26px}
+    .fb-illo{display:none}
+  }
+
   /* 使い方（howto）: 色帯の中に白い見出し板＋ステップカードを並べる */
   .howto-band{border-radius:22px;padding:32px 28px 34px;margin-bottom:22px}
   .howto-banner{position:relative;background:#fff;border-radius:10px;padding:17px 30px;text-align:center;max-width:720px;margin:0 auto 36px}
@@ -1342,6 +1364,28 @@ function featuresHTML(){
 }
 
 /* ============ HOME ============ */
+// ホームの「ご意見・バグ報告・機能要望」募集バナー
+function feedbackBanner(){
+  var cap = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2f73e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8l10-4 10 4-10 4z"/><path d="M6 10v5c0 1.6 3 3 6 3s6-1.4 6-3v-5"/></svg>';
+  var memo = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h5M9 17h4"/></svg>';
+  var bubble = function(cls, emoji, text){
+    return '<div class="fb-bubble '+cls+'"><span>'+emoji+'</span><span>'+text+'</span></div>';
+  };
+  return '<section class="fb-sec reveal"><div class="fb-card">'
+    + '<div>'
+    + '<div class="fb-pill">'+cap+'<b>SenpaiNet</b><span style="color:#c3cee0">｜</span>より使いやすいサービスにするために</div>'
+    + '<h2 class="fb-title">ご意見・<span class="blue">バグ報告</span>・機能のご要望を<br><span class="fb-hl">募集しています！</span></h2>'
+    + '<p class="fb-sub">SenpaiNetをより良いサービスにするため、<br>みなさんの声をぜひお聞かせください。</p>'
+    + '<button class="fb-btn" data-support="contact">'+memo+'ご意見・ご要望フォームはこちら　→</button>'
+    + '</div>'
+    + '<div class="fb-illo">'
+    + '<img src="assets/illustrations/feedback-person.png" alt="" loading="lazy">'
+    + bubble('fb-b1','🐛','ここが<br>うまく動かない…')
+    + bubble('fb-b2','💡','こんな機能が<br>あったら嬉しい！')
+    + bubble('fb-b3','❤️','もっと使いやすく<br>なると思います！')
+    + '</div>'
+    + '</div></section>';
+}
 function homeHTML(){
   var st = computeStats();
   var avgLabel = st.avgHours > 0 ? String(st.avgHours < 10 ? Math.round(st.avgHours * 10) / 10 : Math.round(st.avgHours)) : '—';
@@ -1410,6 +1454,8 @@ function homeHTML(){
     + '<div><div style="font-size:15px;font-weight:700;color:#1b2942">私も同じ悩みがありました！</div><div style="font-size:12.5px;color:#5a6678;line-height:1.7;margin-top:4px">オープンキャンパスは絶対行くべきです。実際に行ってみると、雰囲気や学びたいことが具体的にイメージできますよ！</div></div></div></div>'
     + '</div></div></section>'
     + '</div>'
+    /* ご意見・要望の募集バナー（特徴の上） */
+    + feedbackBanner()
     /* features */
     + featuresHTML()
     /* mission / 実績 */
