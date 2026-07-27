@@ -1225,7 +1225,7 @@ function mobileMenuHTML(){
   function item(label, attr, active){
     return '<div '+attr+' class="nav-row" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;font-size:15px;font-weight:'+(active?700:500)+';color:'+(active?'#2f73e8':'#3a465f')+';border-bottom:1px solid #edf1f8;cursor:pointer">'+label+'<span class="nav-row-chev" style="color:#bcc6d6">›</span></div>';
   }
-  var navDefs = [['ホーム','data-nav="home"','home'],['SenpaiNetについて','data-nav="about"','about'],['相談を探す','data-nav="browse"','browse'],['相談する','data-nav="post"','post'],['先輩の方へ','data-nav="alumni"','alumni'],['コミュニティ','data-nav="community"','community'],['お知らせ','data-nav="news"','news'],['使い方','data-nav="howto"','howto']];
+  var navDefs = [['ホーム','data-nav="home"','home'],['SenpaiNetについて','data-nav="about"','about'],['相談を探す','data-nav="browse"','browse'],['相談する','data-nav="post"','post'],['先輩の方へ','data-nav="alumni"','alumni'],['コミュニティ','data-nav="community"','community'],['お知らせ','data-nav="news"','news'],['使い方','data-nav="howto"','howto']].filter(function(d){ return COMMUNITY_PUBLIC || d[2] !== 'community'; });
   var items = navDefs.map(function(d){ return item(d[0], d[1], d[2] && state.screen===d[2]); }).join('');
   var actions;
   if(!state.loggedIn){
@@ -1244,7 +1244,7 @@ function mobileMenuHTML(){
 
 /* ============ HEADER ============ */
 function headerHTML(){
-  var navDefs = [['ホーム','nav','home'],['SenpaiNetについて','nav','about'],['相談を探す','nav','browse'],['相談する','nav','post'],['先輩の方へ','nav','alumni'],['コミュニティ','nav','community'],['お知らせ','nav','news'],['使い方','nav','howto']];
+  var navDefs = [['ホーム','nav','home'],['SenpaiNetについて','nav','about'],['相談を探す','nav','browse'],['相談する','nav','post'],['先輩の方へ','nav','alumni'],['コミュニティ','nav','community'],['お知らせ','nav','news'],['使い方','nav','howto']].filter(function(d){ return COMMUNITY_PUBLIC || d[2] !== 'community'; });
   var nav = navDefs.map(function(d){
     var label=d[0], kind=d[1], key=d[2];
     var active = kind==='nav' && state.screen===key;
@@ -4284,7 +4284,7 @@ function screenHTML(){
     case 'home': return homeHTML();
     case 'about': return aboutHTML();
     case 'news': return newsHTML();
-    case 'community': return communityHTML();
+    case 'community': return COMMUNITY_PUBLIC ? communityHTML() : homeHTML();
     case 'outreach': return outreachHTML();
     case 'browse': return consBrowseHTML();
     case 'post': return (!state.loggedIn && state.pstep !== 3) ? postGateHTML() : postHTML();
@@ -4902,7 +4902,10 @@ function postValid(){ return !!(state.pcat && state.ptitle.trim() && state.pbody
 
 /* ============ BOOT ============ */
 // 既知の画面へは #hash で直接アクセスできる（例: #admin で運営コンソール）
+// コミュニティは指示があるまで非公開（ナビ・直接URLのどちらからも開けない）
+var COMMUNITY_PUBLIC = false;
 var KNOWN_SCREENS = { home:1, news:1, community:1, outreach:1, browse:1, post:1, alumni:1, howto:1, mypage:1, support:1, terms:1, privacy:1, about:1, admin:1 };
+if(!COMMUNITY_PUBLIC) delete KNOWN_SCREENS.community;
 function applyHash(){ var h=(location.hash||'').replace(/^#/,''); if(KNOWN_SCREENS[h]){ state.screen=h; if(h==='admin') state.adminTab='dashboard'; } }
 applyHash();
 window.addEventListener('hashchange', function(){ applyHash(); render(); toTop(); });
