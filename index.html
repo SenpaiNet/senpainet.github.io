@@ -4285,28 +4285,14 @@ function aboutHTML(){
     ['部活','ill-trophy','部活と勉強の両立のコツは？'],
     ['AO入試','ill-boy-laptop','AO入試の対策や体験談が聞きたい'],
     ['一般受験','ill-check','一般受験の勉強計画を立てたい']
-  ].map(function(t){ return '<div data-nav="browse" class="ab-card card-hover" style="flex:0 0 190px;margin-right:16px;overflow:hidden;cursor:pointer">'
-    + '<div style="height:120px;background:linear-gradient(135deg,#eaf3ff,#e8f1fe);display:flex;align-items:center;justify-content:center"><div class="ill '+t[1]+'" style="width:82px"></div></div>'
-    + '<div style="padding:14px 16px 18px"><div style="font-size:14px;font-weight:800;color:#14233f">'+t[0]+'</div><p style="font-size:11px;color:#76839a;line-height:1.7;margin:6px 0 0">'+t[2]+'</p></div></div>'; }).join('');
+  ].map(function(t){ return '<div data-nav="browse" class="ab-card card-hover" style="flex:0 0 250px;margin-right:20px;overflow:hidden;cursor:pointer">'
+    + '<div style="height:160px;background:linear-gradient(135deg,#eaf3ff,#e8f1fe);display:flex;align-items:center;justify-content:center"><div class="ill '+t[1]+'" style="width:110px"></div></div>'
+    + '<div style="padding:18px 20px 22px"><div style="font-size:16px;font-weight:800;color:#14233f">'+t[0]+'</div><p style="font-size:12.5px;color:#76839a;line-height:1.75;margin:8px 0 0">'+t[2]+'</p></div></div>'; }).join('');
   var topicSec = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:62px 28px 0">'
     + cHead('','相談できる内容の例','')
     // 2セット並べて -50% までアニメーションさせることで途切れず無限ループする
     + '<div class="ab-marquee"><div class="ab-marquee-track">'+TOPIC+TOPIC+'</div></div></section>';
 
-  /* ---------- 07 やりとり ---------- */
-  var chat = '<div class="ab-card" style="padding:26px 24px;background:linear-gradient(180deg,#fbfdff,#fff);max-width:860px;margin:0 auto">'
-    + '<div style="display:flex;gap:12px;align-items:flex-start">'+avatar(38,'#eef1f8','#94a1b5')
-    + '<div><div style="font-size:11px;font-weight:700;color:#8a97ac;margin-bottom:4px">在校生</div>'
-    + '<div style="background:#eef2f8;border-radius:14px 14px 14px 4px;padding:14px 16px;font-size:12.5px;color:#3a465f;line-height:1.85;max-width:420px">大学ってどう選びましたか？<br>受験勉強はいつから始めましたか？</div>'
-    + '<div style="font-size:10.5px;color:#94a1b5;margin-top:5px">10:30</div></div></div>'
-    + '<div style="display:flex;gap:12px;align-items:flex-start;justify-content:flex-end;margin-top:18px">'
-    + '<div style="text-align:right"><div style="font-size:11px;font-weight:700;color:#2f73e8;margin-bottom:4px">卒業生</div>'
-    + '<div style="background:#e8f1fe;border:1px solid #d6e6fd;border-radius:14px 14px 4px 14px;padding:14px 16px;font-size:12.5px;color:#1b2942;line-height:1.85;max-width:440px;text-align:left">私は〇〇大学へ進学しました！部活も頑張りながら、高2の冬から本格的に勉強を始めました。具体的な勉強法もシェアするね！</div>'
-    + '<div style="font-size:10.5px;color:#94a1b5;margin-top:5px">10:45</div></div>'+avatar(38,'#e6effe','#2f73e8')+'</div>'
-    + '<div style="text-align:center;margin-top:20px"><span style="display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:#e0568a;background:#fce8f1;padding:9px 18px;border-radius:999px">'+heart(15)+'役に立った！</span>'
-    + '<div style="font-size:11.5px;color:#94a1b5;margin-top:10px">先輩の経験が、あなたの糧になる。</div></div></div>';
-  var chatSec = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:62px 28px 0">'
-    + cHead('07','先輩とのやりとりのイメージ','実際の相談から回答までの流れを見てみましょう。') + chat + '</section>';
 
   /* ---------- 08 実績バンド ---------- */
   function bigStat(icon, val, label){
@@ -4352,7 +4338,7 @@ function aboutHTML(){
     + '<button data-nav="alumni" style="cursor:pointer;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.6);font-weight:700;font-size:14px;padding:14px 32px;border-radius:999px">先輩として参加する</button>'
     + '</div></div>' + ctaPlane + '</section></div>';
 
-  return '<main>' + hero + need + reason + whatis + values + feats + topicSec + chatSec + statBand + future + cta + '</main>';
+  return '<main>' + hero + need + reason + whatis + values + feats + topicSec + statBand + future + cta + '</main>';
 }
 
 function screenHTML(){
