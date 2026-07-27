@@ -47,14 +47,32 @@ service cloud.firestore {
       allow delete: if isAdmin() || isOwner(id);
     }
 
+    // 回答の所有者。回答本体を匿名に保つため、uid はこちらに分けて持つ。
+    // ルールの get() は読み取り権限に関係なく参照できるので本人確認に使える。
+    function isAnswerOwner(aid) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/answerOwners/$(aid))
+        && get(/databases/$(database)/documents/answerOwners/$(aid)).data.uid == request.auth.uid;
+    }
+    match /answerOwners/{aid} {
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read, delete: if isAnswerOwner(aid) || isAdmin();
+    }
+
     // 回答：各相談のサブコレクション。公開読み取り／作成は誰でも（本文制限あり）／
-    //       編集・削除は運営のみ（他人の回答を消せない）
+    //       編集・削除は本人と運営のみ。本人が変えられるのは本文まわりだけ。
     match /consultations/{cid}/answers/{aid} {
       allow read: if true;
       allow create: if request.resource.data.body is string
                     && request.resource.data.body.size() > 0
                     && request.resource.data.body.size() <= 4000;
-      allow update, delete: if isAdmin();
+      allow update: if isAdmin()
+                    || (isAnswerOwner(aid)
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body', 'editedAt'])
+                        && request.resource.data.body is string
+                        && request.resource.data.body.size() > 0
+                        && request.resource.data.body.size() <= 4000);
+      allow delete: if isAdmin() || isAnswerOwner(aid);
     }
 
     // 返信：回答のサブコレクション。公開読み取り／作成は誰でも／編集・削除は運営のみ
