@@ -197,6 +197,12 @@
   .ab-c3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
   .ab-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:start}
   .ab-scroll{display:flex;gap:16px;overflow-x:auto;padding:4px 2px 12px;scroll-behavior:smooth}
+  /* 相談できる内容の例：自動で横に流れる（マーキー） */
+  .ab-marquee{overflow:hidden;padding:4px 0 12px}
+  .ab-marquee-track{display:flex;width:max-content;animation:ab-marq 45s linear infinite}
+  .ab-marquee:hover .ab-marquee-track{animation-play-state:paused}
+  @keyframes ab-marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion:reduce){ .ab-marquee{overflow-x:auto} .ab-marquee-track{animation:none} }
   .ab-need{display:flex;align-items:flex-start;justify-content:center;gap:6px;flex-wrap:wrap}
   .ab-whatrow{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
   @media (max-width:760px){ .ab-need,.ab-whatrow{gap:16px} }
@@ -4221,6 +4227,7 @@ function aboutHTML(){
     + '<div style="font:800 17px/1 \'Plus Jakarta Sans\',sans-serif;color:#2f73e8;margin-top:3px">SenpaiNet</div></div>'
     + '</div></section>';
 
+    
   /* ---------- 02 私たちが作った理由 ---------- */
   var reason = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:62px 28px 0">'
     + '<div class="ab-split" style="grid-template-columns:1fr 1.08fr;align-items:center;gap:42px">'
@@ -4278,12 +4285,13 @@ function aboutHTML(){
     ['部活','ill-trophy','部活と勉強の両立のコツは？'],
     ['AO入試','ill-boy-laptop','AO入試の対策や体験談が聞きたい'],
     ['一般受験','ill-check','一般受験の勉強計画を立てたい']
-  ].map(function(t){ return '<div data-nav="browse" class="ab-card card-hover" style="flex:0 0 190px;overflow:hidden;cursor:pointer">'
+  ].map(function(t){ return '<div data-nav="browse" class="ab-card card-hover" style="flex:0 0 190px;margin-right:16px;overflow:hidden;cursor:pointer">'
     + '<div style="height:120px;background:linear-gradient(135deg,#eaf3ff,#e8f1fe);display:flex;align-items:center;justify-content:center"><div class="ill '+t[1]+'" style="width:82px"></div></div>'
     + '<div style="padding:14px 16px 18px"><div style="font-size:14px;font-weight:800;color:#14233f">'+t[0]+'</div><p style="font-size:11px;color:#76839a;line-height:1.7;margin:6px 0 0">'+t[2]+'</p></div></div>'; }).join('');
   var topicSec = '<section class="rs-pad" style="max-width:1180px;margin:0 auto;padding:62px 28px 0">'
     + cHead('','相談できる内容の例','')
-    + '<div class="ab-scroll">'+TOPIC+'</div></section>';
+    // 2セット並べて -50% までアニメーションさせることで途切れず無限ループする
+    + '<div class="ab-marquee"><div class="ab-marquee-track">'+TOPIC+TOPIC+'</div></div></section>';
 
   /* ---------- 07 やりとり ---------- */
   var chat = '<div class="ab-card" style="padding:26px 24px;background:linear-gradient(180deg,#fbfdff,#fff);max-width:860px;margin:0 auto">'
