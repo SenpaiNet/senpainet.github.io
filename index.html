@@ -730,6 +730,28 @@ function handleModalForm(kind, form){
     state.outreachPosts.unshift({ id:'o_'+Date.now(), kind:fieldVal(form,'kind')||'other', kaisei:state.userKaisei, univ:state.userUniv||'', title:title, body:body, deadline:fieldVal(form,'deadline'), responses:0, responded:false, time:'たった今', you:true });
     state.outreachFilter = 'all';
     closeModal(); toast('在校生に発信しました'); go('outreach');
+  } else if(kind==='news'){
+    var nid = fieldVal(form,'id');
+    var ntitle = fieldVal(form,'title'), nbody = fieldVal(form,'body');
+    if(!ntitle || !nbody) return;
+    var ncat = fieldVal(form,'cat') || 'notice';
+    var ndate = fieldVal(form,'date') || todayJP();
+    var impEl = form.querySelector('[name="important"]'); var nimp = !!(impEl && impEl.checked);
+    if(nid){
+      // 既存を編集
+      var ex = findById(state.newsItems, nid);
+      if(ex){ ex.cat=ncat; ex.title=ntitle; ex.body=nbody; ex.date=ndate; ex.important=nimp; ex.updatedAt=Date.now(); }
+      if(window.snDb && window.snDb.updateNews) window.snDb.updateNews(nid, { cat:ncat, title:ntitle, body:nbody, date:ndate, important:nimp, updatedAt:Date.now() });
+      closeModal(); render(); toast('お知らせを更新しました');
+    } else {
+      // 新規作成（新しいものが先頭・注目に来るよう createdAt を持たせる）
+      var newId = 'n_'+Date.now();
+      var item = { id:newId, cat:ncat, title:ntitle, body:nbody, date:ndate, important:nimp, createdAt:Date.now(), updatedAt:Date.now() };
+      state.newsItems.unshift(item);
+      if(window.snDb && window.snDb.addNews) window.snDb.addNews(item);
+      state.newsFilter = 'all'; state.newsPage = 1;
+      closeModal(); render(); toast('お知らせを公開しました');
+    }
   }
 }
 
@@ -2977,6 +2999,40 @@ function senpaiNewsSection(){
     + '<div style="display:flex;flex-direction:column;gap:12px">'+cards+'</div></section>';
 }
 
+// 今日の日付（日本語表記）。お知らせの既定の日付に使う。
+function todayJP(){ var d = new Date(); return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日'; }
+
+// 運営お知らせの新規作成／編集フォーム（モーダル）
+function newsEditModal(id){
+  var it = id ? findById(state.newsItems, id) : null;
+  var isEdit = !!it;
+  function lbl(t, opt){ return '<label style="display:block;font-size:13px;font-weight:700;color:#3a465f;margin:0 0 6px">'+t+(opt?' <span style="font-weight:500;color:#94a1b5;font-size:11px">'+opt+'</span>':'')+'</label>'; }
+  var inputCss = 'width:100%;border:1.5px solid #dde4f1;border-radius:10px;padding:11px 13px;font-size:14px;outline:none;margin-bottom:16px';
+  var catOpts = Object.keys(newsCats).map(function(k){ var sel = (it && it.cat===k) || (!it && k==='notice'); return '<option value="'+k+'"'+(sel?' selected':'')+'>'+newsCats[k].label+'</option>'; }).join('');
+  return '<form data-modal-form="news" style="padding:28px 26px 24px">'
+    + '<input type="hidden" name="id" value="'+esc(id||'')+'">'
+    + '<h2 style="font-size:18px;font-weight:900;color:#14233f;margin:0 0 4px">'+(isEdit?'お知らせを編集':'お知らせを新規作成')+'</h2>'
+    + '<p style="font-size:12.5px;color:#66738c;margin:0 0 18px">公開ページ「お知らせ」に表示されます。</p>'
+    + lbl('カテゴリ') + '<select name="cat" style="'+inputCss+';background:#fff">'+catOpts+'</select>'
+    + lbl('タイトル') + '<input name="title" required value="'+esc(it?it.title:'')+'" placeholder="例：夏季メンテナンスのお知らせ" style="'+inputCss+'">'
+    + lbl('内容') + '<textarea name="body" required placeholder="お知らせの本文を入力してください" style="'+inputCss+';height:120px;line-height:1.7;resize:vertical">'+esc(it?it.body:'')+'</textarea>'
+    + lbl('日付') + '<input name="date" value="'+esc(it?it.date:todayJP())+'" placeholder="例：2026年8月31日" style="'+inputCss+'">'
+    + '<label style="display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:#3a465f;margin:2px 0 20px;cursor:pointer"><input type="checkbox" name="important"'+(it&&it.important?' checked':'')+' style="width:17px;height:17px;cursor:pointer">「重要」として目立たせる</label>'
+    + '<button type="submit" style="width:100%;border:none;cursor:pointer;background:#2f73e8;color:#fff;font-weight:700;font-size:15px;padding:13px;border-radius:12px">'+(isEdit?'変更を保存':'公開する')+'</button>'
+    + '</form>';
+}
+
+// 公開ページ：お知らせの詳細（全文）
+function newsDetailModal(id){
+  var it = findById(state.newsItems, id); if(!it) return '';
+  var c = newsCats[it.cat] || newsCats.notice;
+  return '<div style="padding:28px 28px 26px">'
+    + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'+newsBadge(it)+'<span style="font-size:12.5px;color:#94a1b5">'+esc(it.date||'')+'</span></div>'
+    + '<h2 style="font-size:20px;font-weight:900;color:#14233f;margin:0 0 14px;line-height:1.5">'+esc(it.title)+'</h2>'
+    + '<div style="font-size:14px;color:#3a465f;line-height:1.95;white-space:pre-wrap">'+esc(it.body||'')+'</div>'
+    + '</div>';
+}
+
 function newsHTML(){
   var f = state.newsFilter;
   // ---- left rail ----
@@ -3015,7 +3071,7 @@ function newsHTML(){
       + '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:10px">'+newsBadge(featured)+'<span style="font-size:12.5px;color:#66738c">'+featured.date+'</span></div>'
       + '<div style="font-size:21px;font-weight:900;color:#14233f;margin:12px 0 8px">'+esc(featured.title)+'</div>'
       + '<p style="font-size:13.5px;color:#5a6678;line-height:1.8;margin:0 0 14px;max-width:420px">'+esc(featured.body||'')+'</p>'
-      + '<div style="margin-top:4px"><span data-toast="お知らせの詳細は準備中です" style="display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:#2f73e8;cursor:pointer">詳しく見る →</span></div></div>'
+      + '<div style="margin-top:4px"><span data-news-open="'+esc(featured.id)+'" style="display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:#2f73e8;cursor:pointer">詳しく見る →</span></div></div>'
       + '<div style="flex-shrink:0;width:200px" class="rs-hide-sm"><div class="ill ill-mail" style="width:200px"></div></div></div>';
   }
 
@@ -3028,7 +3084,7 @@ function newsHTML(){
   var page = Math.min(state.newsPage, totalPages);
   var pageItems = all.slice((page-1)*pageSize, page*pageSize);
   var rows = pageItems.length ? pageItems.map(function(it){ var c=newsCats[it.cat];
-    return '<div data-toast="お知らせの詳細は準備中です" class="news-row" style="display:flex;align-items:center;gap:16px;padding:18px 20px;border-bottom:1px solid #eef1f7;cursor:pointer">'
+    return '<div data-news-open="'+esc(it.id)+'" class="news-row" style="display:flex;align-items:center;gap:16px;padding:18px 20px;border-bottom:1px solid #eef1f7;cursor:pointer">'
       + '<div style="width:46px;height:46px;border-radius:12px;background:'+c.bg+';color:'+c.color+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+newsIcon(it.cat,22)+'</div>'
       + '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">'+newsBadge(it)+'<span style="font-size:15px;font-weight:800;color:#1b2942">'+esc(it.title)+'</span></div>'
       + '<div style="font-size:12.5px;color:#66738c;line-height:1.6;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(it.body)+'</div></div>'
@@ -3804,7 +3860,7 @@ function adminNews(){
       + admTd('<span style="font-weight:700;color:#1b2942">'+esc(it.title)+'</span>'+(it.important?' '+admBadge('重要','#c0392b','#fbe4e2'):''))
       + admTd(admBadge((c&&c.label)||it.cat,(c&&c.color)||'#2f73e8',(c&&c.bg)||'#e8f1fe'))
       + admTd('<span style="color:#94a1b5">'+esc(it.date)+'</span>')
-      + admTd('<span style="display:inline-flex;gap:7px">'+admActionBtn('編集','data-toast="編集フォームは準備中です"','')+admActionBtn('削除','data-admin-news-del="'+it.id+'"','danger')+'</span>')
+      + admTd('<span style="display:inline-flex;gap:7px">'+admActionBtn('編集','data-news-edit="'+it.id+'"','')+admActionBtn('削除','data-admin-news-del="'+it.id+'"','danger')+'</span>')
       + '</tr>';
   }).join('');
   var snRows = state.senpaiNews.map(function(sn){ var tc=SENPAI_TAG_COLORS[sn.tag]||{c:'#2f73e8',bg:'#e8f1fe'};
@@ -3815,9 +3871,10 @@ function adminNews(){
       + admTd('<span style="display:inline-flex;gap:7px">'+admActionBtn('編集','data-toast="編集フォームは準備中です"','')+admActionBtn('削除','data-admin-sn-del="'+sn.id+'"','danger')+'</span>')
       + '</tr>';
   }).join('');
-  var newBtn = admActionBtn('＋ 新規作成','data-toast="新規作成フォームは準備中です"','primary');
-  return admPageHead('お知らせ管理','運営・先輩のお知らせを管理できます。')
-    + admCard('運営からのお知らせ（'+state.newsItems.length+'件）', newBtn, admTable(['タイトル','カテゴリ','日付','操作'], opRows))
+  var newBtn = admActionBtn('＋ 新規作成','data-news-new="1"','primary');
+  var opEmpty = state.newsItems.length ? '' : '<div style="padding:26px;text-align:center;color:#94a1b5;font-size:13px">まだお知らせがありません。「＋ 新規作成」から追加してください。</div>';
+  return admPageHead('お知らせ管理','運営からのお知らせを作成・編集・削除できます。公開ページ「お知らせ」に即時反映されます。')
+    + admCard('運営からのお知らせ（'+state.newsItems.length+'件）', newBtn, (state.newsItems.length ? admTable(['タイトル','カテゴリ','日付','操作'], opRows) : opEmpty))
     + '<div style="height:18px"></div>'
     + admCard('先輩からのお知らせ（'+state.senpaiNews.length+'件）','', admTable(['タイトル','種別','投稿者','操作'], snRows));
 }
@@ -4335,7 +4392,7 @@ function on(sel,evt,fn){ var n=document.getElementById(sel); if(n) n.addEventLis
 // handlers across re-renders, which would fire toggles multiple times.
 function setupDelegation(){
   document.body.addEventListener('click', function(e){
-    var t = e.target.closest('[data-nav],[data-open],[data-like],[data-bookmark],[data-chip],[data-grade],[data-helpful],[data-auth],[data-google],[data-info],[data-support],[data-legal],[data-mytab],[data-setup-status],[data-setup-grade],[data-setup-tag],[data-setup-notify],[data-mp-tag],[data-mp-notify],[data-mp-notify-save],[data-ptag],[data-setup-done],[data-setup-skip],[data-community-open],[data-community-back],[data-community-like],[data-community-post],[data-cm-filter],[data-cm-setsort],[data-cm-sort],[data-cm-feedtab],[data-cm-follow],[data-cm-post],[data-cm-bookmark],[data-community-feed-open],[data-news-filter],[data-news-page],[data-news-pref],[data-qa-cat],[data-qa-status],[data-qa-follow],[data-qa-reset],[data-qa-post],[data-toast],[data-outreach-new],[data-outreach-respond],[data-outreach-filter],[data-bell],[data-sns],[data-browse-sort],[data-browse-more],[data-answer-sort],[data-ansort],[data-answer-anon],[data-answer-edit],[data-answer-edit-cancel],[data-answer-edit-save],[data-answer-del],[data-answer-del-confirm],[data-reply-open],[data-reply-cancel],[data-post-more],[data-post-edit],[data-scroll],[data-profile],[data-logout],[data-logout-confirm],[data-mypost],[data-more-toast],[data-notif],[data-notif-read],[data-admin],[data-admin-login],[data-admin-logout],[data-admin-tab],[data-admin-view],[data-admin-report-view],[data-admin-open-cons],[data-admin-back],[data-admin-hide],[data-admin-user],[data-admin-news-del],[data-admin-sn-del],[data-admin-report-resolve],[data-admin-report-del],[data-admin-add-member],[data-admin-remove-member],[data-admin-resend-invite],[data-invite-copy],[data-admin-contact-view],[data-admin-contact-resolve],[data-admin-contact-del],[data-admin-cons-reset],[data-admin-del-cons],[data-admin-del-cons-confirm],[data-admin-del-ans],[data-admin-del-ans-confirm],[data-admin-tag-add],[data-admin-tag-edit],[data-admin-tag-cancel],[data-admin-tag-save],[data-admin-tag-up],[data-admin-tag-del],[data-admin-tag-del-confirm],[data-edit-open],[data-edit-tag],[data-edit-save],[data-del-open],[data-del-confirm],[data-report-open],[data-report-reason],[data-report-submit],[data-admin-remove-confirm],[data-report-confirm],[data-report-reason-fill],[data-report-warn],[data-report-suspend],[data-report-delete],[data-report-dismiss],[data-menu]');
+    var t = e.target.closest('[data-nav],[data-open],[data-like],[data-bookmark],[data-chip],[data-grade],[data-helpful],[data-auth],[data-google],[data-info],[data-support],[data-legal],[data-mytab],[data-setup-status],[data-setup-grade],[data-setup-tag],[data-setup-notify],[data-mp-tag],[data-mp-notify],[data-mp-notify-save],[data-ptag],[data-setup-done],[data-setup-skip],[data-community-open],[data-community-back],[data-community-like],[data-community-post],[data-cm-filter],[data-cm-setsort],[data-cm-sort],[data-cm-feedtab],[data-cm-follow],[data-cm-post],[data-cm-bookmark],[data-community-feed-open],[data-news-filter],[data-news-page],[data-news-pref],[data-qa-cat],[data-qa-status],[data-qa-follow],[data-qa-reset],[data-qa-post],[data-toast],[data-outreach-new],[data-outreach-respond],[data-outreach-filter],[data-bell],[data-sns],[data-browse-sort],[data-browse-more],[data-answer-sort],[data-ansort],[data-answer-anon],[data-answer-edit],[data-answer-edit-cancel],[data-answer-edit-save],[data-answer-del],[data-answer-del-confirm],[data-reply-open],[data-reply-cancel],[data-post-more],[data-post-edit],[data-scroll],[data-profile],[data-logout],[data-logout-confirm],[data-mypost],[data-more-toast],[data-notif],[data-notif-read],[data-admin],[data-admin-login],[data-admin-logout],[data-admin-tab],[data-admin-view],[data-admin-report-view],[data-admin-open-cons],[data-admin-back],[data-admin-hide],[data-admin-user],[data-admin-news-del],[data-news-new],[data-news-edit],[data-news-open],[data-admin-sn-del],[data-admin-report-resolve],[data-admin-report-del],[data-admin-add-member],[data-admin-remove-member],[data-admin-resend-invite],[data-invite-copy],[data-admin-contact-view],[data-admin-contact-resolve],[data-admin-contact-del],[data-admin-cons-reset],[data-admin-del-cons],[data-admin-del-cons-confirm],[data-admin-del-ans],[data-admin-del-ans-confirm],[data-admin-tag-add],[data-admin-tag-edit],[data-admin-tag-cancel],[data-admin-tag-save],[data-admin-tag-up],[data-admin-tag-del],[data-admin-tag-del-confirm],[data-edit-open],[data-edit-tag],[data-edit-save],[data-del-open],[data-del-confirm],[data-report-open],[data-report-reason],[data-report-submit],[data-admin-remove-confirm],[data-report-confirm],[data-report-reason-fill],[data-report-warn],[data-report-suspend],[data-report-delete],[data-report-dismiss],[data-menu]');
     if(!t) return;
     if(t.hasAttribute('data-like') || t.hasAttribute('data-bookmark') || t.hasAttribute('data-helpful')) e.stopPropagation();
 
@@ -4508,7 +4565,10 @@ function setupDelegation(){
     if(t.hasAttribute('data-admin-open-cons')){ state.adminSelectedId = t.getAttribute('data-admin-open-cons'); state.adminTab='consultations'; render(); toTop(); return; }
     if(t.hasAttribute('data-admin-hide')){ var ac=find(t.getAttribute('data-admin-hide')); if(ac){ ac.hidden=!ac.hidden; if(window.snDb && window.snDb.updateConsultation) window.snDb.updateConsultation(ac.id, {hidden: ac.hidden}); render(); toast(ac.hidden?'相談を非表示にしました':'相談を再表示しました'); } return; }
     if(t.hasAttribute('data-admin-user')){ var au=findById(state.adminUsers, t.getAttribute('data-admin-user')); if(au){ au.status=au.status==='suspended'?'active':'suspended'; render(); toast(au.status==='suspended'?'ユーザーを利用停止にしました':'利用停止を解除しました'); } return; }
-    if(t.hasAttribute('data-admin-news-del')){ var nid=t.getAttribute('data-admin-news-del'); state.newsItems=state.newsItems.filter(function(n){ return n.id!==nid; }); render(); toast('お知らせを削除しました'); return; }
+    if(t.hasAttribute('data-news-new')){ return openModal(newsEditModal(null), 480); }
+    if(t.hasAttribute('data-news-edit')){ return openModal(newsEditModal(t.getAttribute('data-news-edit')), 480); }
+    if(t.hasAttribute('data-news-open')){ return openModal(newsDetailModal(t.getAttribute('data-news-open')), 520); }
+    if(t.hasAttribute('data-admin-news-del')){ var nid=t.getAttribute('data-admin-news-del'); state.newsItems=state.newsItems.filter(function(n){ return n.id!==nid; }); if(window.snDb && window.snDb.deleteNews) window.snDb.deleteNews(nid); render(); toast('お知らせを削除しました'); return; }
     if(t.hasAttribute('data-admin-sn-del')){ var sid=t.getAttribute('data-admin-sn-del'); state.senpaiNews=state.senpaiNews.filter(function(n){ return n.id!==sid; }); render(); toast('先輩のお知らせを削除しました'); return; }
     // ---- 通報への対応（警告／アカウント停止／投稿の削除） ----
     // ---- 運営メンバーの追加・解除 ----
@@ -4995,6 +5055,12 @@ window.snOnContacts = function(list){
   state.adminContacts = list.concat(keep);
   render();
 };
+// Firestore から運営お知らせ一覧を受け取る（新しい順）。公開ページと管理タブの両方で使う。
+window.snOnNews = function(list){
+  if(!Array.isArray(list)) return;
+  state.newsItems = list;
+  render();
+};
 // Firestore から通報一覧を受け取る。ローカルにしかない分（送信直後・サンプル）は残す。
 window.snOnReports = function(list){
   state.adminReportsLoaded = true;
@@ -5212,6 +5278,18 @@ render();
         },
         updateContact: async (id, patch) => { try { await setDoc(doc(db, "contacts", id), patch, { merge: true }); } catch (e) {} },
         deleteContact: async (id) => { try { await deleteDoc(doc(db, "contacts", id)); } catch (e) {} },
+        // 運営からのお知らせ（公開：読み取りは全員／作成・編集・削除は運営のみ＝ルールで保護）
+        addNews: async (n) => { try { await setDoc(doc(db, "news", n.id), n); } catch (e) {} },
+        updateNews: async (id, patch) => { try { await setDoc(doc(db, "news", id), patch, { merge: true }); } catch (e) {} },
+        deleteNews: async (id) => { try { await deleteDoc(doc(db, "news", id)); } catch (e) {} },
+        loadNews: async () => {
+          try {
+            const snap = await getDocs(collection(db, "news"));
+            const arr = []; snap.forEach((ds) => { const o = ds.data() || {}; o.id = ds.id; arr.push(o); });
+            arr.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            if (window.snOnNews) window.snOnNews(arr);
+          } catch (e) {}
+        },
         // 通報対応の通知（理由つき）をキューに積む。Apps Script が通報者・投稿者へ送る
         enqueueModerationNotice: async (n) => { try { await setDoc(doc(db, "moderationNotices", n.id), n); } catch (e) {} },
         // 利用者からの通報を保存する（作成は誰でも可／閲覧は運営のみ＝ルールで保護）
@@ -5290,6 +5368,7 @@ render();
       }
       loadConsultations();
       window.snDb.loadTags();
+      window.snDb.loadNews();
 
       const allowList = ADMIN_EMAILS.map(e => e.toLowerCase());
       async function isAuthorized(user) {

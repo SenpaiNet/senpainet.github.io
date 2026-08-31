@@ -150,6 +150,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // 運営からのお知らせ：公開ページに表示するため読み取りは全員、作成・編集・削除は運営のみ。
+    match /news/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
     // 通知キュー（タグ付き相談の通知依頼）。作成は誰でも、閲覧・処理は運営/サーバーのみ。
     match /mailQueue/{id} {
       allow create: if request.resource.data.consultationId is string
