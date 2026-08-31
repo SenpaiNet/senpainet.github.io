@@ -117,6 +117,24 @@
 
   @media (max-width:560px){ .sp-grid{grid-template-columns:1fr !important} }
 
+  /* ===== スマホ最適化（全ページ共通の底上げ） ===== */
+  img,svg,video,table{max-width:100%}
+  /* 電話幅：特大フォントと詰まりを緩和し、読みやすく */
+  @media (max-width:560px){
+    .sf-card{padding:20px 18px !important}                      /* splitFeatureカードの内側余白を圧縮 */
+    .mb-num{font-size:34px !important}                          /* 実績の特大数字を縮小 */
+    .grade-grid{grid-template-columns:repeat(3,1fr) !important} /* 学年ボタンを3列に */
+    .rs-page-h1{font-size:23px !important;line-height:1.4 !important}
+  }
+  /* 極小幅（〜380px）：さらにガター/文字を詰める */
+  @media (max-width:380px){
+    .rs-pad{padding-left:13px !important;padding-right:13px !important}
+    .rs-page-h1{font-size:21px !important}
+    .rs-hero-h1{font-size:24px !important}
+    .mb-num{font-size:30px !important}
+    .sf-card{padding:18px 15px !important}
+  }
+
   /* community dashboard */
   .cm-card{transition:box-shadow .18s,transform .18s,border-color .18s}
   .cm-card:hover{box-shadow:0 14px 30px rgba(15,23,42,.10);border-color:#cfe0fb;transform:translateY(-2px)}
@@ -1304,7 +1322,7 @@ function splitFeature(o){
   var cardLink = o.cardLink
     ? '<div '+o.cardLink.attr+' style="display:flex;align-items:center;justify-content:center;gap:9px;padding-top:20px;border-top:1px solid #eef1f7;font-size:13.5px;font-weight:800;color:#2f73e8;cursor:pointer">'+o.cardLink.label+arrow+'</div>'
     : '';
-  var card = '<div style="background:#fff;border:1px solid #eef2f8;border-radius:'+(flip?'80px 28px 28px 28px':'28px 80px 28px 28px')+';padding:26px 32px;box-shadow:0 30px 70px rgba(31,95,208,.12)">'+o.rows+cardLink+'</div>';
+  var card = '<div class="sf-card" style="background:#fff;border:1px solid #eef2f8;border-radius:'+(flip?'80px 28px 28px 28px':'28px 80px 28px 28px')+';padding:26px 32px;box-shadow:0 30px 70px rgba(31,95,208,.12)">'+o.rows+cardLink+'</div>';
   var text = '<div style="padding:6px 4px">'
     + (o.eyebrow ? '<div style="font-size:11.5px;font-weight:800;color:#2f73e8;letter-spacing:.16em;margin-bottom:12px">'+o.eyebrow+'</div>' : '')
     + '<h2 style="margin:0;font-size:27px;font-weight:900;color:#14233f;line-height:1.5;letter-spacing:-.01em">'+o.title+'</h2>'
@@ -1396,7 +1414,7 @@ function homeHTML(){
     [String(avgLabel),'時間','相談の回答が届く平均時間']
   ];
   var _msItems = _ms.map(function(s,i){ return '<div style="margin:0 0 '+(i<3?'26px':'0')+'">'
-    + '<div style="font-size:44px;font-weight:900;color:#2f73e8;line-height:1;letter-spacing:-.02em"><span style="color:#bcd3f5">#</span>'+s[0]+'<span style="font-size:19px;font-weight:800;margin-left:3px">'+s[1]+'</span></div>'
+    + '<div class="mb-num" style="font-size:44px;font-weight:900;color:#2f73e8;line-height:1;letter-spacing:-.02em"><span style="color:#bcd3f5">#</span>'+s[0]+'<span style="font-size:19px;font-weight:800;margin-left:3px">'+s[1]+'</span></div>'
     + '<div style="font-size:14px;font-weight:700;color:#1b2942;margin-top:9px">'+s[2]+'</div></div>'; }).join('');
   var missionBand = splitFeature({ rows:_msItems, eyebrow:'OUR MISSION', title:'ひとりで抱えこまない<br>場所をつくる。', desc:'進路や勉強、学校生活の悩みは、身近な人ほど相談しづらいもの。SenpaiNetは、同じ学校を歩いた先輩に匿名で相談できる場所です。', link:{label:'詳しくみる', attr:'data-nav="about"'}, flip:false, photo:'assets/photos/window.png' });
 
@@ -2443,7 +2461,7 @@ function setupHTML(){
   var body = '';
   if(status==='current'){
     body = '<div style="margin-top:26px"><label style="display:block;font-size:13px;font-weight:700;color:#3a465f;margin-bottom:10px">学年を選んでください</label>'
-      + '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">'+gradeButtons+'</div>'
+      + '<div class="grade-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">'+gradeButtons+'</div>'
       + '<p style="font-size:12px;color:#76839a;margin:10px 0 0">今年度（'+sy+'年度）の学年で選んでください。進級・卒業に合わせて毎年度自動で切り替わります。</p></div>';
   } else if(status==='grad'){
     body = '<div style="margin-top:26px;display:flex;flex-direction:column;gap:18px">'
