@@ -403,7 +403,7 @@ function kaiseiFromGrade(g){ return currentChu1Kaisei() - (g - 1); }
 
 /* ============ STATE ============ */
 var state = {
-  screen: 'home', query: '', activeCat: 'all', activeGrade: 'all', selectedId: 'oc_univ',
+  screen: 'home', query: '', activeCat: 'all', activeGrade: 'all', selectedId: null,
   pstep: 1, pcat: '', ptitle: '', pbody: '', pMoreOpen: false, pContext: '', pTags: [],
   // 卒業生登録：得意分野タグ・通知先メール・メール通知の希望
   setupTags: [], setupEmail: '', setupNotify: true,
@@ -416,32 +416,9 @@ var state = {
   communityGroup: null, communityText: '',
   communityFilter: 'all', communityFeedTab: 'all', communitySort: 'popular', followedUsers: {},
   outreachFilter: 'all',
-  outreachPosts: [
-    { id:'o1', kind:'survey', kaisei:12, univ:'早稲田大学', title:'高校生の進路選択に関するアンケート（卒論）', body:'卒業研究で、進路を決めるときに何を重視したかを調べています。5分ほどのアンケートにご協力いただけると助かります！', deadline:'8月31日', responses:24, responded:false, time:'2時間前' },
-    { id:'o2', kind:'event', kaisei:13, univ:'京都大学', title:'夏休みオンライン進路相談会を開催します', body:'現役大学生の先輩に、大学生活や受験について何でも聞ける会です。学年問わず参加OK。', deadline:'8月10日', responses:41, responded:false, time:'1日前' },
-    { id:'o3', kind:'briefing', kaisei:11, univ:'東京大学', title:'理系学部のリアルを話す座談会', body:'理系に興味がある在校生向けに、学部の違いや研究のことを話します。中学生も歓迎！', deadline:'7月20日', responses:33, responded:false, time:'3時間前' },
-    { id:'o4', kind:'intern', kaisei:14, univ:'大阪大学', title:'母校の文化祭ボランティアを募集', body:'今年の文化祭を、卒業生としてお手伝いしてくれる人を探しています。当日運営のサポートです。', deadline:'9月15日', responses:12, responded:false, time:'2日前' }
-  ],
-  communityPosts: [
-    { id:'cp1', group:'shukatsu', category:'shukatsu', title:'サマーインターン、何社応募しましたか？', kaisei:14, univ:'早稲田大学', body:'そろそろサマーインターンの応募が始まりますね！みなさんはどのくらいの企業に応募する予定ですか？業界や職種もぜひ教えてください！', likes:87, liked:false, replies:22, time:'3時間前', bookmarked:false },
-    { id:'cp1b', group:'shukatsu', category:'shukatsu', title:'ES添削をお願いしたいです！', kaisei:14, univ:'早稲田大学', body:'ガクチカと自己PRを書いたのですが、なかなか自信が持てなくて…どなたか添削していただけないでしょうか？よろしくお願いします！', likes:24, liked:false, replies:8, time:'2時間前', bookmarked:false },
-    { id:'cp2', group:'shukatsu', category:'shukatsu', title:'OB訪問のアポの取り方', kaisei:13, univ:'横浜国立大学', body:'OB訪問のアポの取り方で悩んでいます。高校の先輩でこの会社にいる方いませんか？', likes:4, liked:false, replies:3, time:'1日前', bookmarked:false },
-    { id:'cp3', group:'daigaku', category:'daigaku', title:'自炊が続きません…', kaisei:14, univ:'京都大学', body:'一人暮らしで自炊がなかなか続きません。作り置きのコツやおすすめのレシピがあれば教えてほしいです。', likes:12, liked:false, replies:9, time:'5時間前', bookmarked:false },
-    { id:'cp4', group:'daigaku', category:'daigaku', title:'文系のゼミ選び、迷い中', kaisei:13, univ:'明治大学', body:'2年でゼミ選び中。文系で楽しかったゼミの話が聞きたいです。', likes:6, liked:false, replies:4, time:'2日前', bookmarked:false },
-    { id:'cp5', group:'network', category:'doso', title:'IT系オンライン交流会やりませんか', kaisei:11, univ:'東京大学', body:'IT系で働いてる卒業生でオンライン交流会やりませんか？回生問わず募集です。', likes:15, liked:false, replies:7, time:'3時間前', bookmarked:false },
-    { id:'cp6', group:'kaisei', category:'doso', title:'同窓会の幹事やります！', kaisei:14, univ:'大阪大学', body:'同窓会の幹事やります！今年の年末、母校の近くで集まれたらと思っています。', likes:9, liked:false, replies:6, time:'6時間前', bookmarked:false },
-    { id:'cp7', group:'univ', category:'daigaku', title:'履修の相談のります', kaisei:13, univ:'', body:'同じ大学に進んだ後輩がいたら、履修の相談のります〜。', likes:3, liked:false, replies:2, time:'1日前', bookmarked:false },
-    { id:'cp8', group:'programming', category:'it', title:'React学ぶならまず何から？', kaisei:15, univ:'東京工業大学', body:'情報系志望で、独学でReactを触り始めました。最初にやっておくべき教材があれば知りたいです！', likes:19, liked:false, replies:6, time:'4時間前', bookmarked:false },
-    { id:'cp9', group:'programming', category:'it', title:'エラーが解決できず詰んでます', kaisei:12, univ:'東京大学', body:'個人開発でAPI連携のエラーが解決できません。同じ分野の先輩がいたら相談に乗ってほしいです。', likes:7, liked:false, replies:4, time:'8時間前', bookmarked:false },
-    { id:'cp10', group:'network', category:'ryugaku', title:'交換留学、準備期間はどのくらい？', kaisei:12, univ:'上智大学', body:'来年の交換留学を考えています。出願準備は何ヶ月前から始めましたか？', likes:11, liked:false, replies:5, time:'7時間前', bookmarked:false },
-    { id:'cp11', group:'network', category:'kenkyu', title:'卒論のテーマ決め、迷っています', kaisei:11, univ:'筑波大学', body:'卒論のテーマが絞れません。同じ分野で研究してた先輩、決め方のコツ教えてください。', likes:8, liked:false, replies:3, time:'10時間前', bookmarked:false },
-    { id:'cp12', group:'network', category:'bukatsu', title:'OB戦、今年もやりましょう！', kaisei:13, univ:'', body:'部活のOB戦、今年もやりたい人いますか？日程調整してみます。', likes:13, liked:false, replies:6, time:'1日前', bookmarked:false }
-  ],
-  communityUsers: [
-    { id:'u1', kaisei:15, univ:'東京大学', answers:132 },
-    { id:'u2', kaisei:14, univ:'慶應義塾大学', answers:98 },
-    { id:'u3', kaisei:13, univ:'早稲田大学', answers:76 }
-  ],
+  outreachPosts: [],
+  communityPosts: [],
+  communityUsers: [],
   // ---- 運営（管理者）コンソール ----
   adminTab: 'dashboard', adminSelectedId: null, adminReportId: null,
   reportTarget: null, reportReason: '', reportNote: '', adminReportsLoaded: false,
@@ -454,20 +431,8 @@ var state = {
   adminMembers: [], adminMembersLoaded: false, adminMembersLoading: false, adminMembersError: false, adminNewEmail: '', adminNewName: '',
   // Firebase 認証（Googleログイン＋招待制の許可リスト）
   authReady: false, authConfigured: false, authUser: null, adminAuthorized: false,
-  adminUsers: [
-    { id:'au1', handle:'匿名ユーザー #1042', kaisei:20, role:'在校生', posts:5, answers:0, joined:'2026-04', status:'active', warnings:0 },
-    { id:'au2', handle:'匿名ユーザー #0871', kaisei:17, role:'在校生', posts:3, answers:12, joined:'2025-06', status:'active', warnings:0 },
-    { id:'au3', handle:'匿名ユーザー #0559', kaisei:14, role:'卒業生', posts:0, answers:63, joined:'2024-05', status:'active', warnings:0 },
-    { id:'au4', handle:'匿名ユーザー #0210', kaisei:13, role:'卒業生', posts:1, answers:142, joined:'2024-05', status:'active', warnings:0 },
-    { id:'au5', handle:'匿名ユーザー #1120', kaisei:19, role:'在校生', posts:8, answers:2, joined:'2026-05', status:'suspended', warnings:0 },
-    { id:'au6', handle:'匿名ユーザー #0733', kaisei:16, role:'卒業生', posts:2, answers:38, joined:'2025-04', status:'active', warnings:0 }
-  ],
-  adminReports: [
-    { id:'r1', type:'相談', authorId:'au2', targetType:'consultation', targetId:'oc_test', target:'定期テストで成績を上げるコツは？', reason:'不適切な表現の疑い', reporter:'在校生', time:'15分前', status:'pending' },
-    { id:'r2', type:'回答', authorId:'au3', targetType:'answer', targetId:'oc_rikei', answerIndex:0, target:'その進路はやめた方がいいと思う…', reason:'誹謗中傷の疑い', reporter:'在校生', time:'1時間前', status:'pending' },
-    { id:'r3', type:'コミュニティ投稿', authorId:'au3', targetType:'community', targetId:'cp3', target:'自炊が続きません…', reason:'スパム／営利目的', reporter:'卒業生', time:'3時間前', status:'pending' },
-    { id:'r4', type:'相談', authorId:'au1', targetType:'consultation', targetId:'oc_yaritai', target:'将来やりたいことが見つかりません', reason:'カテゴリ違い', reporter:'自動検知', time:'昨日', status:'resolved' }
-  ],
+  adminUsers: [],
+  adminReports: [],
   qaCat: 'all', qaStatus: 'all', qaSort: 'new', qaFollowing: false, qaQuery: '',
   browseStatus: 'all', browseBmOnly: false,
   newsFilter: 'all', newsPage: 1,
@@ -477,35 +442,8 @@ var state = {
   // 先輩（卒業生）からのお知らせ・宣伝。お知らせページで最も目立つ位置に表示。
   senpaiNews: [],
   notifications: [],
-  consultations: [
-    { id:'oc_rikei', grade:4, category:'shinro', popular:false, title:'理系と文系で迷っています...', body:'将来やりたいことがまだ決まっておらず、理系と文系のどちらに進むべきか悩んでいます。それぞれのメリット・デメリットを教えてほしいです。', likes:22, nAnswers:9, time:'2時間前', views:184, firstReplyHours:1, postedAt:0, liked:false, bookmarked:false,
-      answers:[ { kaisei:14, meta:'', time:'1時間前', body:'好きな科目で選ぶのが一番だと思います。理系は専門を深く学べますが、文系も視野が広がりますよ。まずは興味のある分野から考えてみてください。', helpful:6, marked:false } ] },
-    { id:'oc_test', grade:2, category:'benkyo', popular:false, title:'定期テストで成績を上げるコツは？', body:'なかなか成績が伸びず悩んでいます。先輩がやってよかった勉強法や、テスト前の過ごし方を教えてください！', likes:16, nAnswers:7, time:'4時間前', views:152, firstReplyHours:3, postedAt:0, liked:false, bookmarked:false,
-      answers:[ { kaisei:15, meta:'', time:'3時間前', body:'毎日少しずつ復習するのが効きました。前日に詰め込むより、コツコツ派の方が本番で安定しますよ。', helpful:4, marked:false } ] },
-    { id:'oc_school', grade:4, category:'gakko', popular:false, title:'高校生活をもっと楽しむには？', body:'クラスに馴染めていなくて毎日がつまらないです。高校生活を楽しむコツがあれば教えてください！', likes:14, nAnswers:5, time:'6時間前', views:98, firstReplyHours:2, postedAt:0, liked:false, bookmarked:false,
-      answers:[ { kaisei:16, meta:'', time:'5時間前', body:'部活や委員会など、共通の話題がある場に飛び込むと友達ができやすかったです！焦らず少しずつで大丈夫。', helpful:3, marked:false } ] },
-    { id:'oc_univ', grade:5, category:'shinro', popular:false, title:'大学選びで迷っています...', body:'自分に合う大学がわからなくて不安です。オープンキャンパスは行くべきでしょうか？', likes:24, nAnswers:6, time:'2時間前', views:321, firstReplyHours:2, postedAt:0, liked:false, bookmarked:false,
-      answers:[
-        { kaisei:11, meta:'4年目の回答', time:'2時間前', body:'私はオープンキャンパスにたくさん行きました！実際の雰囲気や、授業の内容を知ることで自分に合うかどうかがわかると思います。行ける範囲でいくつか回ってみるのがおすすめです！', helpful:18, marked:false },
-        { kaisei:12, meta:'', time:'3時間前', body:'オープンキャンパスは絶対行くべきです！大学の雰囲気や学生の様子を知ると、入学後の自分をイメージしやすくなりますよ〜', helpful:12, marked:false },
-        { kaisei:13, meta:'', time:'5時間前', body:'パンフレットだけでは分からない「通学のイメージ」が掴めます。最寄り駅から歩いてみるのもおすすめです。', helpful:9, marked:false },
-        { kaisei:15, meta:'', time:'6時間前', body:'模擬授業に出ると、その分野が本当に好きか確かめられます。気になる学部はチェックしてみてください。', helpful:7, marked:false },
-        { kaisei:14, meta:'', time:'8時間前', body:'オンライン説明会もありますが、可能なら現地が一番。在学生に直接質問できる機会を活用しました。', helpful:5, marked:false },
-        { kaisei:12, meta:'', time:'1日前', body:'迷っているなら、まず1校行ってみると比較の基準ができます。選びやすくなりますよ。', helpful:4, marked:false }
-      ] },
-    { id:'oc_english', grade:6, category:'shinro', popular:true, title:'英語が苦手です...', body:'模試の英語の点数が伸びなくて不安です。効率的な勉強法があれば教えてほしいです！', likes:24, nAnswers:6, time:'1時間前', views:140, firstReplyHours:0.5, postedAt:0, liked:false, bookmarked:false,
-      answers:[ { kaisei:13, meta:'', time:'30分前', body:'毎日5分でも英語に触れるのが大事です。単語アプリと音読を続けたら、半年で偏差値が10上がりました！', helpful:5, marked:false } ] },
-    { id:'oc_bukatsu', grade:3, category:'benkyo', popular:true, title:'部活と勉強の両立が...', body:'練習が毎日遅くまであって、勉強時間が取れません。両立のコツはありますか？', likes:18, nAnswers:8, time:'2時間前', views:120, firstReplyHours:1, postedAt:0, liked:false, bookmarked:false,
-      answers:[ { kaisei:15, meta:'', time:'1時間前', body:'スキマ時間の活用がカギです。通学中に単語、寝る前に10分の復習を習慣にしていました。', helpful:4, marked:false } ] },
-    { id:'oc_career', grade:5, category:'career', popular:true, title:'大学選びで迷っています...', body:'将来やりたいことが決まっていません。大学はどうやって選べばいいですか？', likes:31, nAnswers:12, time:'3時間前', views:210, firstReplyHours:2, postedAt:0, liked:false, bookmarked:false,
-      answers:[ { kaisei:12, meta:'', time:'2時間前', body:'やりたいことが無くても大丈夫。幅広く学べる学部を選ぶと、入学後に見つけやすいですよ。', helpful:7, marked:false } ] },
-    { id:'oc_yaritai', grade:5, category:'career', popular:false, title:'将来やりたいことが見つかりません', body:'やりたいことが見つからず、進路に悩んでいます。先輩はどうやって見つけましたか？', likes:9, nAnswers:4, time:'1日前', views:88, firstReplyHours:6, postedAt:0, liked:false, bookmarked:true,
-      answers:[ { kaisei:13, meta:'', time:'1日前', body:'色々な人の話を聞くうちに見つかりました。まずは興味の種を広げてみてください。', helpful:3, marked:false } ] }
-  ],
-  myPosts: [
-    { category:'shinro', title:'理系の大学に決まりません', nAnswers:2, time:'2日前', status:'回答受付中' },
-    { category:'benkyo', title:'英語の勉強法を教えてください！', nAnswers:1, time:'5日前', status:'解決済み' }
-  ]
+  consultations: [],
+  myPosts: []
 };
 
 // ホーム実績を実データから自動集計（投稿・回答が増えるたびに反映）
@@ -516,10 +454,10 @@ function computeStats(){
   var rate = total ? Math.round(answered / total * 100) : 0;
   var replied = cs.filter(function(c){ return c.firstReplyHours != null; });
   var avg = replied.length ? replied.reduce(function(s,c){ return s + c.firstReplyHours; }, 0) / replied.length : 0;
-  // 回答に参加した先輩（回生）のユニーク数 ＋ ログイン中ユーザー
+  // 回答に参加した先輩（回生）のユニーク数。ログイン中の卒業生本人も加える。
   var set = {};
   cs.forEach(function(c){ c.answers.forEach(function(a){ if(a.kaisei != null) set[a.kaisei] = 1; }); });
-  set[state.userKaisei] = 1;
+  if(state.loggedIn && statusOf(state.userKaisei).type==='grad') set[state.userKaisei] = 1;
   var senpai = Object.keys(set).length;
   return { total: total, rate: rate, avgHours: avg, senpai: senpai };
 }
@@ -1497,10 +1435,10 @@ function homeHTML(){
     + featuresHTML()
     /* mission / 実績 */
     + missionBand
-    /* 人気の相談例 */
-    + splitFeature({ rows:popularRows, eyebrow:'POPULAR', title:'よく読まれている相談を<br>のぞいてみよう。', desc:'同じ学校の後輩がどんなことで悩み、先輩がどう答えているのか。読むだけでも進路や勉強のヒントが見つかります。', link:{label:'すべて見る', attr:'data-nav="browse"'}, cardLink:{label:'もっと見る', attr:'data-nav="browse"'}, flip:true, photo:'assets/photos/desk.png' })
-    /* 先輩からの募集・お誘い */
-    + splitFeature({ rows:outreachRows, eyebrow:'FROM SENPAI', title:'先輩から届く、<br>誘いと募集。', desc:'在校生・卒業生からのイベントやアンケート、経験談などの募集情報をチェックできます。', link:{label:'すべて見る', attr:'data-nav="outreach"'}, cardLink:{label:'もっと見る', attr:'data-nav="outreach"'}, flip:false, photo:'assets/photos/students.png' })
+    /* 人気の相談例（相談があるときだけ表示） */
+    + (popRaw.length ? splitFeature({ rows:popularRows, eyebrow:'POPULAR', title:'よく読まれている相談を<br>のぞいてみよう。', desc:'同じ学校の後輩がどんなことで悩み、先輩がどう答えているのか。読むだけでも進路や勉強のヒントが見つかります。', link:{label:'すべて見る', attr:'data-nav="browse"'}, cardLink:{label:'もっと見る', attr:'data-nav="browse"'}, flip:true, photo:'assets/photos/desk.png' }) : '')
+    /* 先輩からの募集・お誘い（募集があるときだけ表示） */
+    + (outRaw.length ? splitFeature({ rows:outreachRows, eyebrow:'FROM SENPAI', title:'先輩から届く、<br>誘いと募集。', desc:'在校生・卒業生からのイベントやアンケート、経験談などの募集情報をチェックできます。', link:{label:'すべて見る', attr:'data-nav="outreach"'}, cardLink:{label:'もっと見る', attr:'data-nav="outreach"'}, flip:false, photo:'assets/photos/students.png' }) : '')
     // FAQ preview (抜粋) — full list is on the サポート page
     + '<section class="rs-pad reveal" style="max-width:1180px;margin:84px auto 100px;padding:0 28px">'
     + sectionHead(secIcon('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.5 2.5 0 1 1 3.6 2.4c-.8.4-1.1 1-1.1 1.9"/><path d="M12 17h.01"/>'),
@@ -1732,21 +1670,27 @@ function postHTML(){
       compass:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2.2 5.3-5.3 2.2 2.2-5.3z"/></svg>',
       plane:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>'
     };
-    var popRows = [[popIcons.briefcase,'就活','1,287件'],[popIcons.cap,'大学生活','342件'],[popIcons.book,'勉強・学習','298件'],[popIcons.compass,'進路・キャリア','156件'],[popIcons.plane,'留学','102件']]
+    // カテゴリ別の相談件数を実データから集計（多い順）。相談が無ければカード自体を出さない。
+    var catIcon = { shinro:popIcons.compass, benkyo:popIcons.book, gakko:popIcons.cap, bukatsu:popIcons.briefcase, ningen:popIcons.compass, career:popIcons.briefcase, other:popIcons.book };
+    var catCount = {};
+    state.consultations.forEach(function(c){ if(c.hidden) return; catCount[c.category] = (catCount[c.category]||0) + 1; });
+    var catRows = Object.keys(catCount).sort(function(a,b){ return catCount[b]-catCount[a]; }).slice(0,5)
+      .map(function(k){ var m = cats[k]||cats.other; return [catIcon[k]||popIcons.book, m.label, catCount[k]+'件']; });
+    var popRows = catRows
       .map(function(r){ return '<div data-nav="browse" style="display:flex;align-items:center;gap:12px;padding:10px 4px;cursor:pointer"><span style="display:flex;color:#2f73e8;width:20px;justify-content:center">'+r[0]+'</span><span style="flex:1;font-size:13px;color:#3a465f;font-weight:600">'+r[1]+'</span><span style="font-size:12.5px;color:#94a1b5">'+r[2]+'</span></div>'; }).join('');
-    var popCard = '<div style="background:#fff;border:1px solid #e7edf6;border-radius:16px;padding:18px 20px">'
+    var popCard = catRows.length ? ('<div style="background:#fff;border:1px solid #e7edf6;border-radius:16px;padding:18px 20px">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:14px;font-weight:800;color:#14233f">よく選ばれているカテゴリ</span><span data-nav="browse" style="cursor:pointer;font-size:12px;font-weight:700;color:#2f73e8">もっと見る</span></div>'
-      + popRows + '</div>';
+      + popRows + '</div>') : '';
 
     var recent = state.consultations.filter(function(c){return !c.hidden;}).slice(0,3).map(function(c){ var m=cats[c.category];
       return '<div data-open="'+c.id+'" style="padding:11px 2px;border-bottom:1px solid #f0f3f9;cursor:pointer">'
         + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:10.5px;font-weight:700;color:'+m.color+';background:'+m.bg+';padding:2px 9px;border-radius:7px">'+m.label+'</span><span style="font-size:11px;color:#94a1b5">'+c.time+'</span></div>'
         + '<div style="font-size:12.5px;font-weight:600;color:#1b2942;margin-top:6px;line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(c.title)+'</div></div>';
     }).join('');
-    var recentCard = '<div style="background:#fff;border:1px solid #e7edf6;border-radius:16px;padding:18px 20px">'
+    var recentCard = recent ? ('<div style="background:#fff;border:1px solid #e7edf6;border-radius:16px;padding:18px 20px">'
       + '<div style="font-size:14px;font-weight:800;color:#14233f;margin-bottom:6px">最近の相談（公開中）</div>'
       + recent
-      + '<div data-nav="browse" style="text-align:center;margin-top:12px;font-size:12.5px;font-weight:700;color:#2f73e8;cursor:pointer">相談を探してみる ›</div></div>';
+      + '<div data-nav="browse" style="text-align:center;margin-top:12px;font-size:12.5px;font-weight:700;color:#2f73e8;cursor:pointer">相談を探してみる ›</div></div>') : '';
 
     body = '<div class="rs-post" style="display:grid;grid-template-columns:1.7fr 1fr;gap:24px;align-items:start">'
       + '<div>'+formCard+reassure+'</div>'
@@ -2315,11 +2259,12 @@ function alumniHTML(){
       + '<div style="font-size:26px;font-weight:900;color:#14233f;line-height:1.25">'+val+'<span style="font-size:14px;font-weight:800">'+unit+'</span></div>'
       + '<div style="font-size:11.5px;color:'+subColor+';margin-top:1px">'+sub+'</div></div></div>';
   }
+  var stA = computeStats();
   var stats = '<section class="rs-pad" style="max-width:1180px;margin:-8px auto 0;padding:0 28px;position:relative;z-index:2">'
     + '<div class="rs-stats" style="background:#fff;border:1px solid #e7edf6;border-radius:18px;padding:26px 18px;display:grid;grid-template-columns:repeat(3,1fr);box-shadow:0 12px 30px rgba(31,95,208,.07)">'
-    + statC(icChat,'回答された相談','12,453','件','<span style="color:#1e9e63;font-weight:700">今月 +243件</span>','#1e9e63',false)
-    + statC(icPeople,'登録している先輩','2,387','人','<span style="color:#1e9e63;font-weight:700">今月 +68人</span>','#1e9e63',false)
-    + statC(icStar26,'満足度','98','%','（後輩アンケートより）','#94a1b5',true)
+    + statC(icChat,'投稿された相談',stA.total.toLocaleString(),'件','','#94a1b5',false)
+    + statC(icPeople,'回答した先輩',stA.senpai.toLocaleString(),'人','','#94a1b5',false)
+    + statC(icStar26,'相談の回答率',String(stA.rate),'%','','#94a1b5',true)
     + '</div></section>';
 
   // ---- merits ----
@@ -2336,27 +2281,6 @@ function alumniHTML(){
   var meritSection = '<section class="rs-pad" style="max-width:1180px;margin:52px auto 0;padding:0 28px">'
     + '<h2 style="text-align:center;margin:0 0 26px;font-size:22px;font-weight:900;color:#14233f">先輩として参加するメリット</h2>'
     + '<div class="rs-post" style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">'+merits+'</div></section>';
-
-  // ---- active seniors ----
-  var seniors = [
-    { kaisei:13, uni:'早稲田大学 商学部', ans:142, rate:'4.9' },
-    { kaisei:12, uni:'慶應義塾大学 総合政策学部', ans:98, rate:'5.0' },
-    { kaisei:14, uni:'東京大学 工学部', ans:76, rate:'4.8' },
-    { kaisei:12, uni:'上智大学 外国語学部', ans:63, rate:'4.8' },
-    { kaisei:11, uni:'一橋大学 経済学部', ans:58, rate:'4.7' }
-  ].map(function(p){
-    var badge = '<span style="position:absolute;right:0;bottom:2px;width:20px;height:20px;border-radius:50%;background:#2f73e8;border:2px solid #fff;display:flex;align-items:center;justify-content:center"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5"><path d="M20 6L9 17l-5-5"/></svg></span>';
-    return '<div style="flex:0 0 178px;background:#fff;border:1px solid #e7edf6;border-radius:16px;padding:20px 14px;text-align:center">'
-      + '<div style="position:relative;width:70px;margin:0 auto">'+avatar(70,'#e6effe','#2f73e8')+badge+'</div>'
-      + '<div style="font-size:14px;font-weight:800;color:#1b2942;margin-top:12px">'+p.kaisei+'回生</div>'
-      + '<div style="font-size:11.5px;color:#76839a;margin-top:3px;line-height:1.45;min-height:32px">'+esc(p.uni)+'</div>'
-      + '<div style="font-size:13px;color:#3a465f;margin-top:8px">回答 <span style="font-weight:900;font-size:17px;color:#14233f">'+p.ans+'</span>件</div>'
-      + '<div style="font-size:11.5px;color:#66738c;margin-top:8px"><span style="color:#f5b400">★</span> '+p.rate+' <span style="color:#94a1b5">(後輩の評価)</span></div></div>';
-  }).join('');
-  var seniorSection = '<section class="rs-pad" style="max-width:1180px;margin:52px auto 0;padding:0 28px">'
-    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><h2 style="margin:0;font-size:20px;font-weight:900;color:#14233f">活躍中の先輩たち</h2>'
-    + '<span data-toast="先輩一覧は準備中です" style="cursor:pointer;font-size:12.5px;font-weight:700;color:#2f73e8;white-space:nowrap">すべて見る ›</span></div>'
-    + '<div style="display:flex;gap:16px;overflow-x:auto;padding:2px 2px 10px;scroll-behavior:smooth">'+seniors+'</div></section>';
 
   // ---- 3 steps ----
   var stepData = [
@@ -2378,23 +2302,6 @@ function alumniHTML(){
     + '<h2 style="margin:0 0 20px;font-size:20px;font-weight:900;color:#14233f">回答までの3ステップ</h2>'
     + '<div style="display:flex;align-items:stretch;flex-wrap:wrap;gap:14px">'+stepCards+'</div></section>';
 
-  // ---- testimonials ----
-  var testi = [
-    ['自分の経験を誰かの役に立てることがこんなに嬉しいとは思いませんでした。回答するたびに、自分自身も成長できている気がします。','13回生・早稲田大学','就職・キャリア'],
-    ['後輩から「助かりました！」と言われると、本当にやってよかったなと思えます。小さな一言が誰かの人生を変えるかもしれないと思うと、やりがいがあります。','12回生・慶應義塾大学','大学生活'],
-    ['就活の時、先輩に助けてもらったので、今度は自分が恩返しできる番だと思って始めました。コミュニティの温かさを感じています。','14回生・上智大学','就職・キャリア']
-  ].map(function(t){
-    return '<div style="background:#fff;border:1px solid #e7edf6;border-radius:16px;padding:22px">'
-      + '<div style="font-size:34px;color:#2f73e8;font-weight:900;line-height:.5;height:20px;font-family:Georgia,serif">&ldquo;</div>'
-      + '<p style="font-size:13px;color:#3a465f;line-height:1.9;margin:12px 0 18px">'+esc(t[0])+'</p>'
-      + '<div style="display:flex;align-items:center;gap:10px">'+avatar(34,'#e6effe','#2f73e8')
-      + '<div><div style="font-size:12.5px;font-weight:700;color:#1b2942">'+esc(t[1])+'</div><div style="font-size:11px;color:#2f73e8;margin-top:2px">'+esc(t[2])+'</div></div></div></div>';
-  }).join('');
-  var testiSection = '<section class="rs-pad" style="max-width:1180px;margin:52px auto 0;padding:0 28px">'
-    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><h2 style="margin:0;font-size:20px;font-weight:900;color:#14233f">先輩の声（体験談）</h2>'
-    + '<span data-toast="体験談の一覧は準備中です" style="cursor:pointer;font-size:12.5px;font-weight:700;color:#2f73e8;white-space:nowrap">もっと見る ›</span></div>'
-    + '<div class="rs-post" style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">'+testi+'</div></section>';
-
   // ---- bottom CTA ----
   var cta = '<section class="rs-pad" style="max-width:1180px;margin:56px auto 0;padding:0 28px 20px">'
     + '<div class="rs-stack-sm" style="position:relative;overflow:hidden;background:linear-gradient(120deg,#2f73e8 0%,#2560d0 100%);border-radius:20px;padding:40px 40px;display:flex;align-items:center;justify-content:space-between;gap:24px">'
@@ -2406,7 +2313,7 @@ function alumniHTML(){
     + '<span data-nav="browse" style="cursor:pointer;color:#fff;font-size:13px;font-weight:700">登録せずに相談を見る ›</span></div>'
     + '</div></section>';
 
-  return '<div style="padding-bottom:60px">' + hero + stats + meritSection + seniorSection + stepSection + testiSection + cta + '</div>';
+  return '<div style="padding-bottom:60px">' + hero + stats + meritSection + stepSection + cta + '</div>';
 }
 function waitingCount(){ var n = state.consultations.filter(function(c){ return c.answers.length===0; }).length; return n>0 ? n : 128; }
 
