@@ -909,6 +909,17 @@ function sendInvite(email, by, name){
   openModal(inviteMailModal(email, by, name), 560);
 }
 
+// ログアウト確認ダイアログ
+function logoutConfirmModal(){
+  return '<div style="padding:30px 28px 26px">'
+    + '<h2 style="font-size:18px;font-weight:900;color:#14233f;margin:0 0 10px">ログアウトしますか？</h2>'
+    + '<p style="font-size:13px;color:#5a6678;line-height:1.9;margin:0 0 4px">またいつでもログインできます。相談の投稿や自分の相談・通知の確認には、再度ログインが必要です。</p>'
+    + '<div style="display:flex;gap:12px;justify-content:flex-end;margin-top:22px">'
+    + '<button data-modal-close-btn style="cursor:pointer;background:#fff;border:1.5px solid #d4dde9;color:#3a465f;font-weight:700;font-size:13.5px;padding:11px 22px;border-radius:10px">キャンセル</button>'
+    + '<button data-logout-confirm="1" style="cursor:pointer;border:none;background:#2f73e8;color:#fff;font-weight:700;font-size:13.5px;padding:11px 24px;border-radius:10px">ログアウトする</button>'
+    + '</div></div>';
+}
+
 // 自分の回答を削除する確認ダイアログ
 function answerDeleteModal(idx){
   var c = selectedC(); var a = c && c.answers ? c.answers[idx] : null;
@@ -4324,7 +4335,7 @@ function on(sel,evt,fn){ var n=document.getElementById(sel); if(n) n.addEventLis
 // handlers across re-renders, which would fire toggles multiple times.
 function setupDelegation(){
   document.body.addEventListener('click', function(e){
-    var t = e.target.closest('[data-nav],[data-open],[data-like],[data-bookmark],[data-chip],[data-grade],[data-helpful],[data-auth],[data-google],[data-info],[data-support],[data-legal],[data-mytab],[data-setup-status],[data-setup-grade],[data-setup-tag],[data-setup-notify],[data-mp-tag],[data-mp-notify],[data-mp-notify-save],[data-ptag],[data-setup-done],[data-setup-skip],[data-community-open],[data-community-back],[data-community-like],[data-community-post],[data-cm-filter],[data-cm-setsort],[data-cm-sort],[data-cm-feedtab],[data-cm-follow],[data-cm-post],[data-cm-bookmark],[data-community-feed-open],[data-news-filter],[data-news-page],[data-news-pref],[data-qa-cat],[data-qa-status],[data-qa-follow],[data-qa-reset],[data-qa-post],[data-toast],[data-outreach-new],[data-outreach-respond],[data-outreach-filter],[data-bell],[data-sns],[data-browse-sort],[data-browse-more],[data-answer-sort],[data-ansort],[data-answer-anon],[data-answer-edit],[data-answer-edit-cancel],[data-answer-edit-save],[data-answer-del],[data-answer-del-confirm],[data-reply-open],[data-reply-cancel],[data-post-more],[data-post-edit],[data-scroll],[data-profile],[data-logout],[data-mypost],[data-more-toast],[data-notif],[data-notif-read],[data-admin],[data-admin-login],[data-admin-logout],[data-admin-tab],[data-admin-view],[data-admin-report-view],[data-admin-open-cons],[data-admin-back],[data-admin-hide],[data-admin-user],[data-admin-news-del],[data-admin-sn-del],[data-admin-report-resolve],[data-admin-report-del],[data-admin-add-member],[data-admin-remove-member],[data-admin-resend-invite],[data-invite-copy],[data-admin-contact-view],[data-admin-contact-resolve],[data-admin-contact-del],[data-admin-cons-reset],[data-admin-del-cons],[data-admin-del-cons-confirm],[data-admin-del-ans],[data-admin-del-ans-confirm],[data-admin-tag-add],[data-admin-tag-edit],[data-admin-tag-cancel],[data-admin-tag-save],[data-admin-tag-up],[data-admin-tag-del],[data-admin-tag-del-confirm],[data-edit-open],[data-edit-tag],[data-edit-save],[data-del-open],[data-del-confirm],[data-report-open],[data-report-reason],[data-report-submit],[data-admin-remove-confirm],[data-report-confirm],[data-report-reason-fill],[data-report-warn],[data-report-suspend],[data-report-delete],[data-report-dismiss],[data-menu]');
+    var t = e.target.closest('[data-nav],[data-open],[data-like],[data-bookmark],[data-chip],[data-grade],[data-helpful],[data-auth],[data-google],[data-info],[data-support],[data-legal],[data-mytab],[data-setup-status],[data-setup-grade],[data-setup-tag],[data-setup-notify],[data-mp-tag],[data-mp-notify],[data-mp-notify-save],[data-ptag],[data-setup-done],[data-setup-skip],[data-community-open],[data-community-back],[data-community-like],[data-community-post],[data-cm-filter],[data-cm-setsort],[data-cm-sort],[data-cm-feedtab],[data-cm-follow],[data-cm-post],[data-cm-bookmark],[data-community-feed-open],[data-news-filter],[data-news-page],[data-news-pref],[data-qa-cat],[data-qa-status],[data-qa-follow],[data-qa-reset],[data-qa-post],[data-toast],[data-outreach-new],[data-outreach-respond],[data-outreach-filter],[data-bell],[data-sns],[data-browse-sort],[data-browse-more],[data-answer-sort],[data-ansort],[data-answer-anon],[data-answer-edit],[data-answer-edit-cancel],[data-answer-edit-save],[data-answer-del],[data-answer-del-confirm],[data-reply-open],[data-reply-cancel],[data-post-more],[data-post-edit],[data-scroll],[data-profile],[data-logout],[data-logout-confirm],[data-mypost],[data-more-toast],[data-notif],[data-notif-read],[data-admin],[data-admin-login],[data-admin-logout],[data-admin-tab],[data-admin-view],[data-admin-report-view],[data-admin-open-cons],[data-admin-back],[data-admin-hide],[data-admin-user],[data-admin-news-del],[data-admin-sn-del],[data-admin-report-resolve],[data-admin-report-del],[data-admin-add-member],[data-admin-remove-member],[data-admin-resend-invite],[data-invite-copy],[data-admin-contact-view],[data-admin-contact-resolve],[data-admin-contact-del],[data-admin-cons-reset],[data-admin-del-cons],[data-admin-del-cons-confirm],[data-admin-del-ans],[data-admin-del-ans-confirm],[data-admin-tag-add],[data-admin-tag-edit],[data-admin-tag-cancel],[data-admin-tag-save],[data-admin-tag-up],[data-admin-tag-del],[data-admin-tag-del-confirm],[data-edit-open],[data-edit-tag],[data-edit-save],[data-del-open],[data-del-confirm],[data-report-open],[data-report-reason],[data-report-submit],[data-admin-remove-confirm],[data-report-confirm],[data-report-reason-fill],[data-report-warn],[data-report-suspend],[data-report-delete],[data-report-dismiss],[data-menu]');
     if(!t) return;
     if(t.hasAttribute('data-like') || t.hasAttribute('data-bookmark') || t.hasAttribute('data-helpful')) e.stopPropagation();
 
@@ -4474,6 +4485,9 @@ function setupDelegation(){
     if(t.hasAttribute('data-scroll')){ var el=document.getElementById(t.getAttribute('data-scroll')); if(el) el.scrollIntoView({behavior:'smooth'}); return; }
     if(t.hasAttribute('data-profile')) return openModal(profileModal(), 420);
     if(t.hasAttribute('data-logout')){
+      return openModal(logoutConfirmModal(), 420);
+    }
+    if(t.hasAttribute('data-logout-confirm')){
       closeModal();
       if(window.snAuthApi && window.snAuthApi.signOut) window.snAuthApi.signOut();
       state.loggedIn=false; state.authUser=null; state.adminAuthorized=false; state.myPosts=[];
