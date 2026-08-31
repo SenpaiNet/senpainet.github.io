@@ -4537,7 +4537,12 @@ function setupDelegation(){
       var acid = t.getAttribute('data-admin-del-cons-confirm');
       var act = find(acid); var atitle = act ? act.title : '';
       state.consultations = state.consultations.filter(function(c){ return c.id !== acid; });
+      // 自分が投稿者だった場合は、マイページの記録（myPosts）も Firestore ごと削除する
+      var ownedByMe = state.myPosts.some(function(p){ return p.cid === acid; });
       state.myPosts = state.myPosts.filter(function(p){ return p.cid !== acid; });
+      if(ownedByMe && state.authUser && state.authUser.uid && window.snDb && window.snDb.deleteMyPost){
+        window.snDb.deleteMyPost(state.authUser.uid, acid);
+      }
       if(state.adminSelectedId === acid) state.adminSelectedId = null;
       if(window.snDb && window.snDb.deleteConsultation) window.snDb.deleteConsultation(acid);
       closeModal(); render(); toast('「'+atitle+'」を削除しました');
@@ -4937,8 +4942,23 @@ window.snOnAuthChange = function(user, authorized, configured, profile){
   }
   render();
 };
+// 相談本体が削除された「自分の相談」記録（myPosts）を自動整理する。
+// 相談一覧は全件（非表示含む）を読み込むため、一覧に存在しない cid ＝ 削除済みと判断できる。
+// 運営（管理画面）から自分の投稿を削除した場合など、myPosts だけが残るのを掃除する。
+function reconcileMyPosts(){
+  if(!state.consultationsLoaded) return;              // 相談の読み込み完了前は判定しない（誤削除防止）
+  if(!Array.isArray(state.myPosts) || !state.myPosts.length) return;
+  var present = {};
+  state.consultations.forEach(function(c){ present[c.id] = 1; });
+  var orphans = state.myPosts.filter(function(p){ return p.cid && !present[p.cid]; });
+  if(!orphans.length) return;
+  state.myPosts = state.myPosts.filter(function(p){ return !p.cid || present[p.cid]; });
+  if(state.authUser && state.authUser.uid && window.snDb && window.snDb.deleteMyPost){
+    orphans.forEach(function(p){ window.snDb.deleteMyPost(state.authUser.uid, p.cid); });
+  }
+}
 // ログインユーザーの投稿履歴（マイページ用）
-window.snOnMyPosts = function(list){ if(!Array.isArray(list)) return; state.myPosts = list; computeNotifications(); render(); };
+window.snOnMyPosts = function(list){ if(!Array.isArray(list)) return; state.myPosts = list; reconcileMyPosts(); computeNotifications(); render(); };
 window.snOnMyAnswers = function(map){
   map = map || {};
   state.myAnswers = map;
@@ -4994,6 +5014,8 @@ window.snOnConsultations = function(list){
   // （これがないと新しい投稿が一覧の末尾に埋もれて見つけにくい）
   list.sort(function(a, b){ return (b.postedAt || b.createdAt || 0) - (a.postedAt || a.createdAt || 0); });
   state.consultations = list;
+  state.consultationsLoaded = true;   // 全件読込完了 → myPosts の整合チェック可能に
+  reconcileMyPosts();
   computeNotifications();
   render();
 };
