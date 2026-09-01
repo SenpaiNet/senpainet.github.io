@@ -193,8 +193,8 @@
   /* 相談を探す：絞り込みサイドバーはモバイルで初期折りたたみ＋トグル展開 */
   .qa-filtertoggle{display:none}
   @media (max-width:1120px){
-    .qa-grid .qa-filter{display:none;position:static !important}
-    .qa-grid.filters-open .qa-filter{display:block}
+    .qa-grid .qa-filter{display:none !important;position:static !important}
+    .qa-grid.filters-open .qa-filter{display:flex !important}
     .qa-filtertoggle{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
       background:#fff;border:1.5px solid #dde4f1;border-radius:12px;padding:13px 16px;margin-bottom:16px;
       font-size:14px;font-weight:700;color:#1b2942;cursor:pointer}
