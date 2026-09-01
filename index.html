@@ -194,13 +194,17 @@
   .qa-filtertoggle{display:none}
   @media (max-width:1120px){
     .qa-grid .qa-filter{display:none !important;position:static !important}
-    .qa-grid.filters-open .qa-filter{display:flex !important}
+    .qa-grid.filters-open .qa-filter{display:flex !important;animation:qaFilterIn .3s cubic-bezier(.22,.61,.36,1)}
     .qa-filtertoggle{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
       background:#fff;border:1.5px solid #dde4f1;border-radius:12px;padding:13px 16px;margin-bottom:16px;
-      font-size:14px;font-weight:700;color:#1b2942;cursor:pointer}
-    .qa-filtertoggle .chev{transition:transform .18s}
+      font-size:14px;font-weight:700;color:#1b2942;cursor:pointer;transition:border-color .18s,box-shadow .18s}
+    .qa-filtertoggle.open{border-color:#bcd3f5;box-shadow:0 4px 14px rgba(47,115,232,.12)}
+    .qa-filtertoggle:active{transform:scale(.99)}
+    .qa-filtertoggle .chev{transition:transform .26s cubic-bezier(.22,.61,.36,1)}
     .qa-filtertoggle.open .chev{transform:rotate(180deg)}
   }
+  @keyframes qaFilterIn{ from{opacity:0;transform:translateY(-10px);clip-path:inset(0 0 100% 0)} to{opacity:1;transform:translateY(0);clip-path:inset(0 0 0 0)} }
+  @media (prefers-reduced-motion:reduce){ .qa-grid.filters-open .qa-filter{animation:none} .qa-filtertoggle .chev{transition:none} }
   /* 先輩からのお知らせ (prominent) */
   .senpai-card{transition:box-shadow .15s,transform .15s,border-color .15s}
   .senpai-card:hover{box-shadow:0 8px 20px rgba(47,115,232,.12);transform:translateY(-1px);border-color:#c3daf7}
