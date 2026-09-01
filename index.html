@@ -190,6 +190,17 @@
   /* news (お知らせ) dashboard */
   .news-grid{display:grid;grid-template-columns:248px minmax(0,1fr) 300px;gap:24px;align-items:start}
   @media (max-width:1120px){ .news-grid{grid-template-columns:1fr} .news-side{display:none} }
+  /* 相談を探す：絞り込みサイドバーはモバイルで初期折りたたみ＋トグル展開 */
+  .qa-filtertoggle{display:none}
+  @media (max-width:1120px){
+    .qa-grid .qa-filter{display:none;position:static !important}
+    .qa-grid.filters-open .qa-filter{display:block}
+    .qa-filtertoggle{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+      background:#fff;border:1.5px solid #dde4f1;border-radius:12px;padding:13px 16px;margin-bottom:16px;
+      font-size:14px;font-weight:700;color:#1b2942;cursor:pointer}
+    .qa-filtertoggle .chev{transition:transform .18s}
+    .qa-filtertoggle.open .chev{transform:rotate(180deg)}
+  }
   /* 先輩からのお知らせ (prominent) */
   .senpai-card{transition:box-shadow .15s,transform .15s,border-color .15s}
   .senpai-card:hover{box-shadow:0 8px 20px rgba(47,115,232,.12);transform:translateY(-1px);border-color:#c3daf7}
@@ -452,7 +463,7 @@ var state = {
   adminUsers: [],
   adminReports: [],
   qaCat: 'all', qaStatus: 'all', qaSort: 'new', qaFollowing: false, qaQuery: '',
-  browseStatus: 'all', browseBmOnly: false,
+  browseStatus: 'all', browseBmOnly: false, browseFiltersOpen: false,
   newsFilter: 'all', newsPage: 1,
   newsPrefs: { ops:true, event:true, campaign:false, maint:true },
   newsItems: [],
@@ -3210,7 +3221,7 @@ function consBrowseHTML(){
   }).join('');
   var selStyle='width:100%;border:1.5px solid #dde4f1;border-radius:10px;padding:10px 12px;font-size:13px;color:#1b2942;background:#fff;outline:none';
   var gradeOpts=[['all','すべて'],[1,'中1'],[2,'中2'],[3,'中3'],[4,'高1'],[5,'高2'],[6,'高3']].map(function(o){ return '<option value="'+o[0]+'"'+(String(state.activeGrade)===String(o[0])?' selected':'')+'>'+o[1]+'</option>'; }).join('');
-  var left='<aside class="news-side" style="display:flex;flex-direction:column;position:sticky;top:82px">'
+  var left='<aside class="qa-filter" style="display:flex;flex-direction:column;position:sticky;top:82px">'
     + '<div style="background:#fff;border:1px solid #e7edf6;border-radius:16px;padding:16px">'
     + '<div style="font-size:15px;font-weight:900;color:#1b2942;padding:2px 8px 12px">カテゴリ</div>'+catList
     + '<div style="height:1px;background:#edf1f8;margin:14px 4px"></div>'
@@ -3251,10 +3262,17 @@ function consBrowseHTML(){
     + '<div style="background:#fff;border:1px solid #e7edf6;border-radius:16px;padding:16px"><div style="font-size:13.5px;font-weight:800;color:#1b2942;margin-bottom:6px">相談を探すコツ</div>'+tips+'</div>'
     + '</aside>';
 
+  // モバイル用：絞り込みの開閉トグル（適用中の条件があればバッジ表示）
+  var activeCount = (state.activeCat!=='all'?1:0) + (String(state.activeGrade)!=='all'?1:0) + (state.browseStatus!=='all'?1:0) + (state.browseBmOnly?1:0);
+  var filterIcon = '<span style="display:inline-flex;align-items:center;gap:9px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2f73e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>カテゴリ・絞り込み'
+    + (activeCount?'<span style="font-size:11px;font-weight:800;color:#fff;background:#2f73e8;border-radius:999px;min-width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px">'+activeCount+'</span>':'')+'</span>';
+  var toggle = '<button data-qa-filters="1" class="qa-filtertoggle'+(state.browseFiltersOpen?' open':'')+'">'+filterIcon
+    + '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a1b5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>';
   return '<main class="rs-pad" style="max-width:1260px;margin:0 auto;padding:28px 28px 80px">'
     + '<div style="display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:22px"><div><h1 style="margin:0;font-size:28px;font-weight:900;color:#14233f">相談を探す</h1><p style="margin:8px 0 0;font-size:13.5px;color:#66738c">気になる相談を見つけて、先輩の回答を参考にしよう。先輩は、後輩の相談に答えられます。</p></div>'
     + '<div class="rs-hide-sm" style="flex-shrink:0;width:180px">'+qaArt()+'</div></div>'
-    + '<div class="news-grid">'+left+center+right+'</div></main>';
+    + toggle
+    + '<div class="news-grid qa-grid'+(state.browseFiltersOpen?' filters-open':'')+'">'+left+center+right+'</div></main>';
 }
 
 /* ============ RENDER ============ */
@@ -4392,7 +4410,7 @@ function on(sel,evt,fn){ var n=document.getElementById(sel); if(n) n.addEventLis
 // handlers across re-renders, which would fire toggles multiple times.
 function setupDelegation(){
   document.body.addEventListener('click', function(e){
-    var t = e.target.closest('[data-nav],[data-open],[data-like],[data-bookmark],[data-chip],[data-grade],[data-helpful],[data-auth],[data-google],[data-info],[data-support],[data-legal],[data-mytab],[data-setup-status],[data-setup-grade],[data-setup-tag],[data-setup-notify],[data-mp-tag],[data-mp-notify],[data-mp-notify-save],[data-ptag],[data-setup-done],[data-setup-skip],[data-community-open],[data-community-back],[data-community-like],[data-community-post],[data-cm-filter],[data-cm-setsort],[data-cm-sort],[data-cm-feedtab],[data-cm-follow],[data-cm-post],[data-cm-bookmark],[data-community-feed-open],[data-news-filter],[data-news-page],[data-news-pref],[data-qa-cat],[data-qa-status],[data-qa-follow],[data-qa-reset],[data-qa-post],[data-toast],[data-outreach-new],[data-outreach-respond],[data-outreach-filter],[data-bell],[data-sns],[data-browse-sort],[data-browse-more],[data-answer-sort],[data-ansort],[data-answer-anon],[data-answer-edit],[data-answer-edit-cancel],[data-answer-edit-save],[data-answer-del],[data-answer-del-confirm],[data-reply-open],[data-reply-cancel],[data-post-more],[data-post-edit],[data-scroll],[data-profile],[data-logout],[data-logout-confirm],[data-mypost],[data-more-toast],[data-notif],[data-notif-read],[data-admin],[data-admin-login],[data-admin-logout],[data-admin-tab],[data-admin-view],[data-admin-report-view],[data-admin-open-cons],[data-admin-back],[data-admin-hide],[data-admin-user],[data-admin-news-del],[data-news-new],[data-news-edit],[data-news-open],[data-admin-sn-del],[data-admin-report-resolve],[data-admin-report-del],[data-admin-add-member],[data-admin-remove-member],[data-admin-resend-invite],[data-invite-copy],[data-admin-contact-view],[data-admin-contact-resolve],[data-admin-contact-del],[data-admin-cons-reset],[data-admin-del-cons],[data-admin-del-cons-confirm],[data-admin-del-ans],[data-admin-del-ans-confirm],[data-admin-tag-add],[data-admin-tag-edit],[data-admin-tag-cancel],[data-admin-tag-save],[data-admin-tag-up],[data-admin-tag-del],[data-admin-tag-del-confirm],[data-edit-open],[data-edit-tag],[data-edit-save],[data-del-open],[data-del-confirm],[data-report-open],[data-report-reason],[data-report-submit],[data-admin-remove-confirm],[data-report-confirm],[data-report-reason-fill],[data-report-warn],[data-report-suspend],[data-report-delete],[data-report-dismiss],[data-menu]');
+    var t = e.target.closest('[data-nav],[data-open],[data-like],[data-bookmark],[data-chip],[data-grade],[data-helpful],[data-auth],[data-google],[data-info],[data-support],[data-legal],[data-mytab],[data-setup-status],[data-setup-grade],[data-setup-tag],[data-setup-notify],[data-mp-tag],[data-mp-notify],[data-mp-notify-save],[data-ptag],[data-setup-done],[data-setup-skip],[data-community-open],[data-community-back],[data-community-like],[data-community-post],[data-cm-filter],[data-cm-setsort],[data-cm-sort],[data-cm-feedtab],[data-cm-follow],[data-cm-post],[data-cm-bookmark],[data-community-feed-open],[data-news-filter],[data-news-page],[data-news-pref],[data-qa-cat],[data-qa-status],[data-qa-follow],[data-qa-reset],[data-qa-post],[data-qa-filters],[data-toast],[data-outreach-new],[data-outreach-respond],[data-outreach-filter],[data-bell],[data-sns],[data-browse-sort],[data-browse-more],[data-answer-sort],[data-ansort],[data-answer-anon],[data-answer-edit],[data-answer-edit-cancel],[data-answer-edit-save],[data-answer-del],[data-answer-del-confirm],[data-reply-open],[data-reply-cancel],[data-post-more],[data-post-edit],[data-scroll],[data-profile],[data-logout],[data-logout-confirm],[data-mypost],[data-more-toast],[data-notif],[data-notif-read],[data-admin],[data-admin-login],[data-admin-logout],[data-admin-tab],[data-admin-view],[data-admin-report-view],[data-admin-open-cons],[data-admin-back],[data-admin-hide],[data-admin-user],[data-admin-news-del],[data-news-new],[data-news-edit],[data-news-open],[data-admin-sn-del],[data-admin-report-resolve],[data-admin-report-del],[data-admin-add-member],[data-admin-remove-member],[data-admin-resend-invite],[data-invite-copy],[data-admin-contact-view],[data-admin-contact-resolve],[data-admin-contact-del],[data-admin-cons-reset],[data-admin-del-cons],[data-admin-del-cons-confirm],[data-admin-del-ans],[data-admin-del-ans-confirm],[data-admin-tag-add],[data-admin-tag-edit],[data-admin-tag-cancel],[data-admin-tag-save],[data-admin-tag-up],[data-admin-tag-del],[data-admin-tag-del-confirm],[data-edit-open],[data-edit-tag],[data-edit-save],[data-del-open],[data-del-confirm],[data-report-open],[data-report-reason],[data-report-submit],[data-admin-remove-confirm],[data-report-confirm],[data-report-reason-fill],[data-report-warn],[data-report-suspend],[data-report-delete],[data-report-dismiss],[data-menu]');
     if(!t) return;
     if(t.hasAttribute('data-like') || t.hasAttribute('data-bookmark') || t.hasAttribute('data-helpful')) e.stopPropagation();
 
@@ -4480,6 +4498,7 @@ function setupDelegation(){
     if(t.hasAttribute('data-news-page')){ state.newsPage = parseInt(t.getAttribute('data-news-page'),10)||1; render(); return; }
     if(t.hasAttribute('data-news-pref')){ var pk=t.getAttribute('data-news-pref'); state.newsPrefs[pk]=!state.newsPrefs[pk]; render(); return; }
     if(t.hasAttribute('data-qa-cat')){ state.activeCat = t.getAttribute('data-qa-cat'); render(); return; }
+    if(t.hasAttribute('data-qa-filters')){ state.browseFiltersOpen = !state.browseFiltersOpen; render(); return; }
     if(t.hasAttribute('data-qa-status')){ state.browseStatus = t.getAttribute('data-qa-status'); render(); return; }
     if(t.hasAttribute('data-qa-follow')){ state.browseBmOnly = !state.browseBmOnly; render(); return; }
     if(t.hasAttribute('data-qa-reset')){ state.activeCat='all'; state.activeGrade='all'; state.browseSort='new'; state.browseStatus='all'; state.browseBmOnly=false; state.query=''; render(); return; }
