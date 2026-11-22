@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>SenpaiNet トップ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@600&amp;family=Noto+Sans+JP:wght@400;700&amp;family=Zen+Kaku+Gothic+New:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff;color:#142b54;font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic UI",Meiryo,sans-serif;line-break:strict}
+h1,h2,h3,h4{font-family:"Zen Kaku Gothic New","Noto Sans JP",sans-serif;font-feature-settings:"palt";word-break:auto-phrase}
+a{color:#2370f1}a:hover{color:#1a56c9}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid #2370f1;outline-offset:2px}
+details summary{list-style:none;cursor:pointer}details summary::-webkit-details-marker{display:none}
+details[open] .faq-plus{transform:rotate(45deg)}
+.sn-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.sn-scr{transition:opacity 260ms ease}
+.sn-step-text{width:min(480px,46%);margin-left:auto}
+.sn-hero-text{max-width:540px}
+@media (max-width:860px){
+.sn-step{align-items:flex-end !important;padding-bottom:40px !important}
+.sn-step-text{width:100%;background:#ffffff;border-radius:16px;padding:24px;box-sizing:border-box;box-shadow:0 2px 8px rgba(0,40,90,0.08)}
+.sn-hero{align-items:flex-start !important;padding-top:112px !important}
+.sn-hero h1{font-size:32px !important;line-height:46px !important}
+}
+@media (prefers-reduced-motion:reduce){.sn-scr{transition:none}}
+</style>
+</helmet>
+<div style="width: 100%; background: #ffffff; box-sizing: border-box">
+
+<header style="position: fixed; top: 0; left: 0; right: 0; z-index: 30; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid #e3e8ef">
+<div style="max-width: 1120px; margin: 0 auto; padding: 14px clamp(24px, 4vw, 48px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none" aria-label="SenpaiNet トップへ">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2370f1" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.42 10.92a1 1 0 0 0-.02-1.84L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg>
+<span style="font-family: Lexend, sans-serif; font-weight: 600; font-size: 22px; letter-spacing: 0.01em"><span style="color: #142b54">Senpai</span><span style="color: #2370f1">Net</span></span>
+</a>
+<nav aria-label="メインメニュー" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; font-size: 14px; font-weight: 700">
+<a href="#features" style="color: #142b54; text-decoration: none">できること</a>
+<a href="Board.dc.html" style="color: #142b54; text-decoration: none">相談一覧</a>
+<a href="#flow" style="color: #142b54; text-decoration: none">使い方</a>
+<a href="#faq" style="color: #142b54; text-decoration: none">よくある質問</a>
+<sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ false }}">
+<a href="Board.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; box-sizing: border-box; color: #142b54; text-decoration: none; padding: 0 16px; border-radius: 9999px; background: #e8f1fe">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>マイページ<span style="width: 8px; height: 8px; border-radius: 50%; background: #ff766b" aria-label="新しい回答があります"></span></a>
+</sc-if>
+<sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
+<a href="Onboarding.dc.html" style="color: #142b54; text-decoration: none">ログイン</a>
+<a href="Onboarding.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box; padding: 0 20px; border-radius: 9999px; background: #2370f1; color: #ffffff; text-decoration: none">無料で登録する</a>
+</sc-if>
+</nav>
+</div>
+</header>
+
+<div id="sn-scrolly" style="position: relative">
+
+<div aria-hidden="true" style="position: sticky; top: 0; height: clamp(640px, 100vh, 960px); overflow: hidden; z-index: 1; pointer-events: none; perspective: 1600px">
+<div id="sn-sky" style="position: absolute; inset: 0; background: #a8dcf4; border-radius: 0 0 48px 48px; will-change: transform"></div>
+<div id="sn-d1" style="position: absolute; top: 18%; right: 8%; width: 96px; height: 96px; border-radius: 50%; background: #f5c518; will-change: transform"></div>
+<div id="sn-d2" style="position: absolute; bottom: 10%; left: 46%; width: 180px; height: 180px; border-radius: 50%; background: #1a85f8; will-change: transform"></div>
+<div id="sn-d3" style="position: absolute; top: 62%; right: 22%; width: 56px; height: 56px; border-radius: 50%; border: 10px solid #ffffff; will-change: transform"></div>
+<div id="sn-d4" style="position: absolute; top: 120%; left: 6%; width: 140px; height: 140px; border-radius: 50%; background: #e8f1fe; will-change: transform"></div>
+
+<div id="sn-phone" style="position: absolute; top: 54%; left: 50%; width: 290px; height: 600px; transform-style: preserve-3d; transform: translate(-50%, -50%) translate(290px, 0px) rotateZ(-6deg); will-change: transform">
+
+<div class="sn-face" style="box-sizing: border-box; padding: 12px; border-radius: 44px; background: #142b54; box-shadow: 0 24px 48px rgba(0, 40, 90, 0.25)">
+<div style="position: relative; width: 100%; height: 100%; border-radius: 34px; overflow: hidden; background: #f6f6f6">
+<span style="position: absolute; top: 10px; left: 50%; width: 84px; height: 24px; margin-left: -42px; border-radius: 9999px; background: #142b54; z-index: 5"></span>
+
+<div id="sn-scr0" class="sn-scr" style="position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 1">
+<div style="background: #ffffff; padding: 46px 16px 12px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid #e3e8ef">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<span style="font-family: Lexend, sans-serif; font-weight: 600; font-size: 16px"><span style="color: #142b54">Senpai</span><span style="color: #2370f1">Net</span></span>
+<span style="width: 28px; height: 28px; border-radius: 9999px; background: #e8f1fe; color: #2370f1; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></span>
+</div>
+<span style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 9999px; background: #f6f6f6; font-size: 11px; color: #5b6573"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>キーワードで相談を探す</span>
+<span style="display: flex; gap: 6px; overflow: hidden; white-space: nowrap">
+<span style="flex: none; font-size: 10px; font-weight: 700; color: #ffffff; background: #2370f1; border-radius: 9999px; padding: 4px 10px">すべて</span>
+<span style="flex: none; font-size: 10px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 4px 10px">#受験・進路</span>
+<span style="flex: none; font-size: 10px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 4px 10px">#文理選択</span>
+<span style="flex: none; font-size: 10px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 4px 10px">#部活動</span>
+</span>
+</div>
+<div style="flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow: hidden">
+<div style="background: #ffffff; border-radius: 8px; padding: 12px; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; gap: 6px">
+<span style="align-self: flex-start; font-size: 9px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 2px 8px">#文理選択</span>
+<span style="font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 12px; line-height: 18px; font-weight: 700; color: #142b54">理系か文系か、まだ決められません</span>
+<span style="display: flex; justify-content: space-between; font-size: 9px; color: #5b6573"><span>在校生・4年・運動部</span><span style="font-weight: 700; color: #1a56c9">回答 5件</span></span>
+</div>
+<div style="background: #ffffff; border-radius: 8px; padding: 12px; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; gap: 6px">
+<span style="align-self: flex-start; font-size: 9px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 2px 8px">#留学・国際</span>
+<span style="font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 12px; line-height: 18px; font-weight: 700; color: #142b54">高校で1年留学すると受験は不利になりますか</span>
+<span style="display: flex; justify-content: space-between; font-size: 9px; color: #5b6573"><span>在校生・3年・文化部</span><span style="font-weight: 700; color: #1a56c9">回答 3件</span></span>
+</div>
+<div style="background: #ffffff; border-radius: 8px; padding: 12px; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; gap: 6px">
+<span style="display: flex; gap: 4px"><span style="font-size: 9px; font-weight: 700; color: #ffffff; background: #2370f1; border-radius: 9999px; padding: 2px 8px">解決済み</span><span style="font-size: 9px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 2px 8px">#大学生活</span></span>
+<span style="font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 12px; line-height: 18px; font-weight: 700; color: #142b54">大学1年の授業はどれくらい忙しいですか</span>
+<span style="display: flex; justify-content: space-between; font-size: 9px; color: #5b6573"><span>在校生・6年・文系</span><span style="font-weight: 700; color: #1a56c9">回答 7件</span></span>
+</div>
+</div>
+<span style="position: absolute; right: 14px; bottom: 70px; width: 44px; height: 44px; border-radius: 9999px; background: #2370f1; color: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(35, 112, 241, 0.25)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></span>
+<div style="background: #ffffff; border-top: 1px solid #e3e8ef; padding: 8px 16px 14px; display: flex; justify-content: space-around; font-size: 9px; font-weight: 700">
+<span style="display: flex; flex-direction: column; align-items: center; gap: 2px; color: #2370f1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"></path></svg>相談</span>
+<span style="display: flex; flex-direction: column; align-items: center; gap: 2px; color: #5b6573"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>回答</span>
+<span style="display: flex; flex-direction: column; align-items: center; gap: 2px; color: #5b6573"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>マイページ</span>
+</div>
+</div>
+
+<div id="sn-scr1" class="sn-scr" style="position: absolute; inset: 0; display: flex; flex-direction: column; background: #ffffff; opacity: 0">
+<div style="padding: 46px 16px 12px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #e3e8ef; font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 13px; font-weight: 700; color: #142b54"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"></path></svg>相談を投稿する</div>
+<div style="flex: 1; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 10px; font-weight: 700; color: #142b54">タイトル</span>
+<span style="margin-top: -6px; padding: 9px 10px; border: 1px solid #2370f1; border-radius: 6px; font-size: 11px; color: #142b54">理系か文系か、まだ決められません</span>
+<span style="font-size: 10px; font-weight: 700; color: #142b54">相談の内容</span>
+<span style="margin-top: -6px; height: 112px; padding: 9px 10px; border: 1px solid #e3e8ef; border-radius: 6px; font-size: 10px; line-height: 16px; color: #142b54; overflow: hidden">数学は好きだけど得意ではなく、社会科目にも興味があります。先輩たちはどうやって決めましたか。</span>
+<span style="font-size: 10px; font-weight: 700; color: #142b54">カテゴリ（2つ選択中）</span>
+<span style="margin-top: -4px; display: flex; flex-wrap: wrap; gap: 5px">
+<span style="font-size: 10px; font-weight: 700; color: #ffffff; background: #2370f1; border-radius: 9999px; padding: 3px 9px">#文理選択</span>
+<span style="font-size: 10px; font-weight: 700; color: #ffffff; background: #2370f1; border-radius: 9999px; padding: 3px 9px">#受験・進路</span>
+<span style="font-size: 10px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 3px 9px">#部活動</span>
+<span style="font-size: 10px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 3px 9px">#大学生活</span>
+<span style="font-size: 10px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 3px 9px">#留学・国際</span>
+</span>
+<span style="display: flex; align-items: center; justify-content: space-between; padding: 9px 10px; background: #f6f6f6; border-radius: 6px; font-size: 10px; font-weight: 700; color: #142b54">匿名で投稿する<span style="width: 30px; height: 18px; border-radius: 9999px; background: #2370f1; position: relative"><span style="position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%; background: #ffffff"></span></span></span>
+</div>
+<div style="padding: 0 16px 22px"><span style="display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 9999px; background: #2370f1; color: #ffffff; font-size: 12px; font-weight: 700">先輩に相談する</span></div>
+</div>
+
+<div id="sn-scr2" class="sn-scr" style="position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0">
+<div style="background: #ffffff; padding: 46px 14px 12px; display: flex; flex-direction: column; gap: 6px">
+<span style="display: flex; gap: 4px"><span style="font-size: 9px; font-weight: 700; color: #ffffff; background: #2370f1; border-radius: 9999px; padding: 2px 8px">解決済み</span><span style="font-size: 9px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 2px 8px">#文理選択</span></span>
+<span style="font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 13px; line-height: 19px; font-weight: 700; color: #142b54">理系か文系か、まだ決められません</span>
+<span style="font-size: 10px; color: #5b6573">回答 5件</span>
+</div>
+<div style="flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow: hidden">
+<div style="background: #ffffff; border: 2px solid #f5c518; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 6px">
+<span style="align-self: flex-start; font-size: 9px; font-weight: 700; color: #142b54; background: #f5c518; border-radius: 9999px; padding: 2px 8px">ベストアンサー</span>
+<span style="font-size: 10px; font-weight: 700; color: #142b54">はると<span style="font-weight: 400; color: #5b6573"> ・ 卒業生・大学2回生・理系</span></span>
+<span style="font-size: 10px; line-height: 16px; color: #142b54">「大学で何を学びたいか」から逆算すると決めやすかったです。</span>
+<span style="align-self: flex-start; font-size: 9px; font-weight: 700; color: #ffffff; background: #2370f1; border-radius: 9999px; padding: 3px 9px">参考になった 13</span>
+</div>
+<div style="background: #ffffff; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08)">
+<span style="font-size: 10px; font-weight: 700; color: #142b54">みお<span style="font-weight: 400; color: #5b6573"> ・ 卒業生・大学3回生・文系</span></span>
+<span style="font-size: 10px; line-height: 16px; color: #142b54">「得意」より「続けられそうか」で考えてみてください。</span>
+<span style="align-self: flex-start; font-size: 9px; font-weight: 700; color: #142b54; border: 1px solid #e3e8ef; border-radius: 9999px; padding: 2px 9px">参考になった 8</span>
+</div>
+<div style="background: #ffffff; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08)">
+<span style="font-size: 10px; font-weight: 700; color: #142b54">そうた<span style="font-weight: 400; color: #5b6573"> ・ 在校生・6年・理系</span></span>
+<span style="font-size: 10px; line-height: 16px; color: #142b54">冬休み前の面談で相談してみるといいと思います。</span>
+</div>
+</div>
+</div>
+
+<div id="sn-scr3" class="sn-scr" style="position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0">
+<div style="background: #2370f1; height: 110px; flex: none"></div>
+<div style="margin: -40px 16px 0; background: #ffffff; border-radius: 10px; padding: 16px; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center">
+<span style="width: 56px; height: 56px; margin-top: -44px; border: 3px solid #ffffff; border-radius: 9999px; background: #e8f1fe; color: #1a56c9; display: flex; align-items: center; justify-content: center; font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 22px; font-weight: 700">み</span>
+<span style="font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 15px; font-weight: 700; color: #142b54">みお</span>
+<span style="display: flex; align-items: center; gap: 4px; font-size: 10px; color: #5b6573"><span style="font-weight: 700; color: #142b54; background: #e8f1fe; border-radius: 4px; padding: 1px 6px">卒業生</span>大学3回生・文系・文化部</span>
+<span style="font-size: 10px; line-height: 16px; color: #142b54">留学と受験の両立について話せます。</span>
+<span style="display: flex; width: 100%; padding-top: 8px; margin-top: 2px; border-top: 1px solid #e3e8ef">
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-family: Lexend, sans-serif; font-size: 16px; font-weight: 600; color: #2370f1">24</span><span style="font-size: 9px; color: #5b6573">回答</span></span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-family: Lexend, sans-serif; font-size: 16px; font-weight: 600; color: #2370f1">9</span><span style="font-size: 9px; color: #5b6573">ベストアンサー</span></span>
+</span>
+</div>
+<div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 10px; font-weight: 700; color: #142b54">答えられること</span>
+<span style="display: flex; flex-wrap: wrap; gap: 5px">
+<span style="font-size: 10px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 3px 9px">#留学・国際</span>
+<span style="font-size: 10px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 3px 9px">#受験・進路</span>
+<span style="font-size: 10px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 3px 9px">#大学生活</span>
+</span>
+</div>
+<div style="margin-top: auto; padding: 0 16px 22px"><span style="display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 9999px; background: #2370f1; color: #ffffff; font-size: 12px; font-weight: 700">この先輩に相談する</span></div>
+</div>
+
+</div>
+</div>
+
+<div class="sn-face" style="transform: rotateY(180deg); border-radius: 44px; background: #142b54; box-shadow: 0 24px 48px rgba(0, 40, 90, 0.25); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px">
+<span style="position: absolute; top: 22px; left: 22px; width: 64px; height: 64px; border-radius: 18px; background: #1a56c9"></span>
+<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#6ea4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.92a1 1 0 0 0-.02-1.84L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg>
+<span style="font-family: Lexend, sans-serif; font-weight: 600; font-size: 20px; color: #ffffff">SenpaiNet</span>
+</div>
+
+</div>
+</div>
+
+<div style="position: relative; z-index: 2; margin-top: calc(-1 * clamp(640px, 100vh, 960px))">
+
+<section class="sn-hero" id="sn-hero" style="height: clamp(640px, 100vh, 960px); box-sizing: border-box; padding: 72px 0 0; display: flex; align-items: center">
+<div style="width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 clamp(24px, 4vw, 48px); box-sizing: border-box">
+<div id="sn-hero-text" class="sn-hero-text" style="display: flex; flex-direction: column; gap: 24px">
+<p style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: #142b54">TGUISS 在校生と先輩をつなぐ相談の場</p>
+<h1 style="margin: 0; font-size: 40px; line-height: 56px; font-weight: 700; letter-spacing: 0.08em; color: #142b54">その悩み、<br>先輩に相談しよう</h1>
+<p style="margin: 0; font-size: 15px; line-height: 28px; letter-spacing: 0.04em; max-width: 30em">同じ学校を歩いた先輩が、進路や毎日の悩みに答えます。相談はタイトルと内容を書いて、カテゴリを選ぶだけ。いろいろな先輩から回答が届きます。</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 8px">
+<a href="NewQuestion.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 52px; box-sizing: border-box; padding: 0 28px; border-radius: 9999px; background: #cc3f35; color: #ffffff; font-size: 15px; font-weight: 700; letter-spacing: 0.04em; text-decoration: none; box-shadow: 0 6px 16px rgba(204, 63, 53, 0.25)">先輩に相談する
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a>
+<a href="Onboarding.dc.html" style="display: inline-flex; align-items: center; min-height: 52px; box-sizing: border-box; padding: 0 28px; border-radius: 9999px; background: #ffffff; color: #1a56c9; font-size: 15px; font-weight: 700; letter-spacing: 0.04em; text-decoration: none">先輩として登録する</a>
+</div>
+<a href="#features" style="display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; margin-top: 24px; min-height: 44px; font-family: Lexend, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: #142b54; text-decoration: none">Scroll
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></a>
+</div>
+</div>
+</section>
+
+<div id="features"></div>
+<sc-for list="{{ features }}" as="f" hint-placeholder-count="3">
+<section class="sn-step" id="{{ f.id }}" style="height: clamp(640px, 100vh, 960px); box-sizing: border-box; padding: 72px 0 0; display: flex; align-items: center">
+<div style="width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 clamp(24px, 4vw, 48px); box-sizing: border-box">
+<div class="sn-step-text" style="display: flex; flex-direction: column; gap: 16px">
+<sc-if value="{{ f.first }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px">
+<p style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: #2370f1">SenpaiNetでできること</p>
+<p style="margin: 0; font-family: Lexend, sans-serif; font-size: clamp(48px, 6vw, 72px); line-height: 1; font-weight: 600; letter-spacing: 0.01em; color: #2370f1">Features</p>
+</div>
+</sc-if>
+<p style="margin: 0; display: flex; align-items: center; gap: 12px; font-family: Lexend, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: #2370f1"><span>{{ f.num }}</span><span style="flex: none; width: 40px; height: 2px; background: #2370f1"></span><span style="color: #5b6573">/ 03</span></p>
+<h2 style="margin: 0; font-size: 28px; line-height: 40px; font-weight: 700; letter-spacing: 0.04em; white-space: pre-line">{{ f.title }}</h2>
+<p style="margin: 0; font-size: 15px; line-height: 28px; letter-spacing: 0.04em">{{ f.body }}</p>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 22px; font-weight: 700">
+<sc-for list="{{ f.points }}" as="p" hint-placeholder-count="2">
+<li style="display: flex; align-items: center; gap: 10px"><span style="flex: none; width: 24px; height: 24px; border-radius: 9999px; background: #e8f1fe; color: #2370f1; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span>{{ p }}</li>
+</sc-for>
+</ul>
+</div>
+</div>
+</section>
+</sc-for>
+
+</div>
+</div>
+
+<section id="about" style="max-width: 1120px; margin: 0 auto; padding: 96px clamp(24px, 4vw, 48px)">
+<div style="background: #b2ccf1; border-radius: 16px; padding: clamp(24px, 5vw, 48px); display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: #142b54">安心して相談できる理由</p>
+<p style="margin: 0; font-family: Lexend, sans-serif; font-size: clamp(48px, 6vw, 72px); line-height: 1; font-weight: 600; letter-spacing: 0.01em; color: #142b54">About</p>
+<h2 style="margin: 8px 0 0; font-size: 28px; line-height: 40px; font-weight: 700; letter-spacing: 0.04em">進路の悩みを、経験者に。</h2>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<div style="flex: 1 1 260px; background: #ffffff; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; gap: 12px">
+<span style="width: 44px; height: 44px; border-radius: 9999px; background: #e8f1fe; color: #2370f1; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.53 13.53 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" x2="22" y1="2" y2="22"></line></svg></span>
+<h3 style="margin: 0; font-size: 15px; line-height: 24px; font-weight: 700">名前を出さずに相談できる</h3>
+<p style="margin: 0; font-size: 13px; line-height: 22px">匿名で投稿すると、表示されるのは「在校生・学年」だけ。聞きにくいことも気軽に書けます。</p>
+</div>
+<div style="flex: 1 1 260px; background: #ffffff; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; gap: 12px">
+<span style="width: 44px; height: 44px; border-radius: 9999px; background: #e8f1fe; color: #2370f1; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
+<h3 style="margin: 0; font-size: 15px; line-height: 24px; font-weight: 700">同じ学校の先輩だけ</h3>
+<p style="margin: 0; font-size: 13px; line-height: 22px">登録できるのはTGUISSの在校生と卒業生だけ。同じ授業や行事を経験した人が答えます。</p>
+</div>
+<div style="flex: 1 1 260px; background: #ffffff; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; gap: 12px">
+<span style="width: 44px; height: 44px; border-radius: 9999px; background: #e8f1fe; color: #2370f1; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg></span>
+<h3 style="margin: 0; font-size: 15px; line-height: 24px; font-weight: 700">卒業してもつながる</h3>
+<p style="margin: 0; font-size: 13px; line-height: 22px">6年生は卒業と同時に自動で「先輩」に。今度はあなたが後輩の相談に答える番です。</p>
+</div>
+</div>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px" aria-label="相談できるカテゴリ">
+<sc-for list="{{ categories }}" as="c" hint-placeholder-count="12">
+<li><a href="Board.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box; padding: 0 18px; border-radius: 9999px; background: #ffffff; color: #1a56c9; font-size: 14px; font-weight: 700; letter-spacing: 0.04em; text-decoration: none">#{{ c }}</a></li>
+</sc-for>
+</ul>
+</div>
+</section>
+
+<section style="max-width: 1120px; margin: 0 auto; padding: 0 clamp(24px, 4vw, 48px) 96px; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: #2370f1">先輩紹介</p>
+<p style="margin: 0; font-family: Lexend, sans-serif; font-size: clamp(48px, 6vw, 72px); line-height: 1; font-weight: 600; letter-spacing: 0.01em; color: #2370f1">Senpai</p>
+</div>
+<a href="Board.dc.html" style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 14px; font-weight: 700; color: #1a56c9">先輩を探す<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px">
+<sc-for list="{{ senpai }}" as="s" hint-placeholder-count="3">
+<div style="background: #ffffff; border: 1px solid #e3e8ef; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="width: 52px; height: 52px; flex: none; border-radius: 9999px; background: #e8f1fe; color: #2370f1; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg></span>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 15px; line-height: 24px; font-weight: 700">[先輩の名前]</span>
+<span style="font-size: 12px; line-height: 18px; color: #5b6573">{{ s.meta }}</span>
+</div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 22px">[先輩からのひとこと。本人の言葉のまま載せます]</p>
+<span style="display: flex; flex-wrap: wrap; gap: 6px"><sc-for list="{{ s.tags }}" as="t" hint-placeholder-count="2"><span style="font-size: 12px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 3px 10px">#{{ t }}</span></sc-for></span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="background: #f6f6f6">
+<div style="max-width: 1120px; margin: 0 auto; padding: 96px clamp(24px, 4vw, 48px); display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: #2370f1">新着の相談</p>
+<p style="margin: 0; font-family: Lexend, sans-serif; font-size: clamp(48px, 6vw, 72px); line-height: 1; font-weight: 600; letter-spacing: 0.01em; color: #2370f1">Latest</p>
+</div>
+<a href="Board.dc.html" style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 14px; font-weight: 700; color: #1a56c9">相談をもっと見る<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px">
+<sc-for list="{{ latest }}" as="q" hint-placeholder-count="3">
+<a href="Question.dc.html" style="background: #ffffff; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; gap: 12px; text-decoration: none; color: #142b54">
+<span style="display: flex; flex-wrap: wrap; gap: 6px"><span style="font-size: 12px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 3px 10px">#{{ q.tag }}</span></span>
+<span style="font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 15px; line-height: 24px; font-weight: 700">{{ q.title }}</span>
+<span style="font-size: 13px; line-height: 22px; color: #5b6573">{{ q.excerpt }}</span>
+<span style="display: flex; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 10px; border-top: 1px solid #e3e8ef; font-size: 12px; line-height: 18px; color: #5b6573"><span>{{ q.who }}</span><span>回答 {{ q.answers }}件</span></span>
+</a>
+</sc-for>
+</div>
+<sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
+<p style="margin: 0; font-size: 13px; line-height: 22px; color: #5b6573">相談の全文と回答を読むには、登録してログインしてください。</p>
+</sc-if>
+</div>
+</section>
+
+<section id="flow" style="max-width: 1120px; margin: 0 auto; padding: 96px clamp(24px, 4vw, 48px); display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: #2370f1">使い方</p>
+<p style="margin: 0; font-family: Lexend, sans-serif; font-size: clamp(48px, 6vw, 72px); line-height: 1; font-weight: 600; letter-spacing: 0.01em; color: #2370f1">Flow</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 16px">
+<sc-for list="{{ flow }}" as="s" hint-placeholder-count="3">
+<div style="{{ s.panel }}">
+<p style="margin: 0; flex: 0 0 140px; font-family: Lexend, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: #142b54">{{ s.num }}</p>
+<div style="flex: 1 1 360px; display: flex; flex-direction: column; gap: 4px">
+<h3 style="margin: 0; font-size: 20px; line-height: 32px; font-weight: 700">{{ s.title }}</h3>
+<p style="margin: 0; font-size: 15px; line-height: 28px">{{ s.body }}</p>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section id="faq" style="background: #f6f6f6">
+<div style="max-width: 1120px; margin: 0 auto; padding: 96px clamp(24px, 4vw, 48px); display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: #2370f1">よくある質問</p>
+<p style="margin: 0; font-family: Lexend, sans-serif; font-size: clamp(48px, 6vw, 72px); line-height: 1; font-weight: 600; letter-spacing: 0.01em; color: #2370f1">FAQ</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{ faqs }}" as="f" hint-placeholder-count="4">
+<details style="background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08)">
+<summary style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 0 24px; font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 15px; font-weight: 700"><span>{{ f.q }}</span><svg class="faq-plus" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2370f1" stroke-width="1.75" stroke-linecap="round" aria-hidden="true" style="flex: none; transition: transform 200ms"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></summary>
+<p style="margin: 0; padding: 0 24px 24px; font-size: 15px; line-height: 28px; letter-spacing: 0.04em">{{ f.a }}</p>
+</details>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="background: #2370f1">
+<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 28px; line-height: 40px; font-weight: 700; letter-spacing: 0.04em; color: #ffffff">その悩み、先輩に相談しよう</h2>
+<p style="margin: 0; font-size: 15px; line-height: 28px; color: #ffffff">登録は無料です。在校生も卒業生も、学校のメールアドレスで登録できます。</p>
+</div>
+<a href="Onboarding.dc.html" style="display: inline-flex; align-items: center; min-height: 52px; box-sizing: border-box; padding: 0 32px; border-radius: 9999px; background: #ffffff; color: #1a56c9; font-size: 15px; font-weight: 700; letter-spacing: 0.04em; text-decoration: none">無料で登録する</a>
+</div>
+</section>
+
+<footer>
+<div style="max-width: 1120px; margin: 0 auto; padding: 40px clamp(24px, 4vw, 48px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; font-size: 12px; line-height: 18px; color: #5b6573">
+<span style="font-family: Lexend, sans-serif; font-weight: 600; font-size: 18px"><span style="color: #142b54">Senpai</span><span style="color: #2370f1">Net</span></span>
+<nav aria-label="フッター" style="display: flex; flex-wrap: wrap; gap: 20px">
+<a href="#" style="color: #5b6573">利用規約</a>
+<a href="#" style="color: #5b6573">プライバシーポリシー</a>
+<a href="#" style="color: #5b6573">コミュニティガイドライン</a>
+<a href="#" style="color: #5b6573">お問い合わせ</a>
+</nav>
+<span>運営：[運営者名]</span>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"loggedIn":{"editor":"boolean","default":false,"section":"表示"},"spin":{"editor":"boolean","default":true,"section":"アニメーション"},"$preview":{"width":1280,"height":8200}}'>
+class Component extends DCLogic {
+componentDidMount() {
+var self = this;
+this._raf = 0;
+this._tick = function () {
+if (self._raf) return;
+self._raf = window.requestAnimationFrame(function () { self._raf = 0; self.updateScene(); });
+};
+window.addEventListener('scroll', this._tick, { passive: true });
+window.addEventListener('resize', this._tick);
+this.updateScene();
+}
+componentWillUnmount() {
+window.removeEventListener('scroll', this._tick);
+window.removeEventListener('resize', this._tick);
+if (this._raf) window.cancelAnimationFrame(this._raf);
+}
+updateScene() {
+var root = document.getElementById('sn-scrolly');
+var phone = document.getElementById('sn-phone');
+if (!root || !phone) return;
+var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+var ease = function (t) { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
+var lerp = function (a, b, t) { return a + (b - a) * t; };
+var vw = window.innerWidth || 1280;
+var vh = clamp(window.innerHeight || 800, 640, 960);
+var scrolled = -root.getBoundingClientRect().top;
+var pos = clamp(scrolled / vh, 0, 3);
+var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+var spinOn = (this.props.spin ?? true) && !reduce;
+var k = Math.min(2, Math.floor(pos));
+var f = pos - k;
+if (pos >= 3) { k = 2; f = 1; }
+var t = ease((f - 0.45) / 0.55);
+var screen = k + (t >= 0.5 ? 1 : 0);
+var mobile = vw < 860;
+var cw = Math.min(1120, vw) - 96;
+var move = ease(Math.min(pos, 1));
+var x = mobile ? 0 : lerp(cw * 0.27, -cw * 0.24, move);
+var y = mobile ? lerp(vh * 0.2, -vh * 0.12, move) : 24;
+var tilt = lerp(-6, 0, move);
+var base = mobile ? 0.6 : Math.min(1, (vh - 150) / 600);
+var dip = spinOn ? 0.1 * Math.sin(Math.PI * t) : 0;
+var spin = spinOn ? (k + t) * 360 : 0;
+phone.style.transform = 'translate(-50%, -50%) translate(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px) rotateZ(' + tilt.toFixed(2) + 'deg) rotateY(' + spin.toFixed(1) + 'deg) scale(' + (base * (1 - dip)).toFixed(3) + ')';
+for (var i = 0; i < 4; i++) {
+var s = document.getElementById('sn-scr' + i);
+if (s) s.style.opacity = i === screen ? '1' : '0';
+}
+var set = function (id, v) { var el = document.getElementById(id); if (el) el.style.transform = v; };
+if (!reduce) {
+set('sn-sky', 'translateY(' + (-scrolled * 0.55).toFixed(1) + 'px)');
+set('sn-d1', 'translateY(' + (-scrolled * 0.35).toFixed(1) + 'px)');
+set('sn-d2', 'translate(' + (-scrolled * 0.08).toFixed(1) + 'px, ' + (-scrolled * 0.8).toFixed(1) + 'px)');
+set('sn-d3', 'translateY(' + (-scrolled * 0.5).toFixed(1) + 'px) rotate(' + (scrolled * 0.1).toFixed(1) + 'deg)');
+set('sn-d4', 'translateY(' + (-scrolled * 0.3).toFixed(1) + 'px)');
+}
+var heroText = document.getElementById('sn-hero-text');
+if (heroText) {
+var h = clamp(pos / 0.6, 0, 1);
+heroText.style.opacity = String(1 - h);
+heroText.style.transform = reduce ? '' : 'translateY(' + (-h * 40).toFixed(1) + 'px)';
+}
+for (var j = 1; j <= 3; j++) {
+var step = document.getElementById('sn-step' + j);
+if (!step) continue;
+var txt = step.querySelector('.sn-step-text');
+if (!txt) continue;
+var d = Math.abs(pos - j);
+var o = 1 - clamp((d - 0.15) / 0.45, 0, 1);
+txt.style.opacity = String(o);
+txt.style.transform = reduce ? '' : 'translateY(' + ((pos < j ? 1 : -1) * (1 - o) * 48).toFixed(1) + 'px)';
+}
+}
+renderVals() {
+var loggedIn = this.props.loggedIn ?? false;
+return {
+loggedIn: loggedIn,
+loggedOut: !loggedIn,
+features: [
+{ id: 'sn-step1', first: true, num: 'Feature 01', title: '書いて、選んで、\nすぐに相談', body: 'タイトルと内容を書いたら、ハッシュタグのようにカテゴリを選ぶだけ。答えてほしい先輩の文系・理系や部活も指定できます。', points: ['カテゴリは12種類から3つまで', '匿名でも投稿できる'] },
+{ id: 'sn-step2', first: false, num: 'Feature 02', title: 'いろいろな先輩から、\nいろいろな答え', body: '1つの相談に、文系の先輩も理系の先輩も答えられます。いちばん役に立った回答はベストアンサーに選べます。', points: ['「参考になった」で良い回答が上に', '回答が届いたらマイページとメールで通知'] },
+{ id: 'sn-step3', first: false, num: 'Feature 03', title: 'プロフィールで、\nどんな先輩かわかる', body: '学年、文系・理系、部活、卒業生なら大学の何回生か。回答と一緒に表示されるので、自分に近い先輩の話を見つけやすくなります。', points: ['大学名は見せない設定もできる', '気になる先輩に直接相談できる'] }
+],
+categories: ['受験・進路','大学生活','部活動','授業・勉強','文理選択','留学・国際','資格・検定','人間関係','学校生活','就活・キャリア','IB・課題研究','その他'],
+senpai: [
+{ meta: '卒業生・大学[ ]回生・理系', tags: ['受験・進路', '大学生活'] },
+{ meta: '卒業生・大学[ ]回生・文系', tags: ['留学・国際', 'IB・課題研究'] },
+{ meta: '卒業生・社会人', tags: ['就活・キャリア', '部活動'] }
+],
+latest: [
+{ tag: '文理選択', title: '理系か文系か、まだ決められません', excerpt: '数学は好きだけど得意ではなく、社会科目にも興味があります。先輩たちはどうやって決めましたか。', who: '在校生・4年・運動部', answers: 5 },
+{ tag: '留学・国際', title: '高校で1年留学すると受験は不利になりますか', excerpt: '5年生の夏から1年間の留学を考えています。帰国後の受験勉強が間に合うか心配です。', who: '在校生・3年・文化部', answers: 3 },
+{ tag: '部活動', title: '部活と勉強の両立、何年生まで続けましたか', excerpt: '引退の時期で迷っています。6年生まで続けた先輩の話を聞きたいです。', who: '匿名・在校生', answers: 0 }
+],
+flow: [
+{ num: 'Step 01', title: 'プロフィールを作って登録する', body: '学年、文系・理系、部活などを入力します。卒業生は大学の何回生かも登録します。', panel: 'background: #a8dcf4; border-radius: 16px; padding: clamp(24px, 4vw, 40px) clamp(24px, 5vw, 48px); display: flex; flex-wrap: wrap; align-items: center; gap: 24px' },
+{ num: 'Step 02', title: '相談を投稿する', body: 'タイトルと内容を書き、カテゴリを3つまで選びます。匿名で投稿することもできます。', panel: 'background: #b2ccf1; border-radius: 16px; padding: clamp(24px, 4vw, 40px) clamp(24px, 5vw, 48px); display: flex; flex-wrap: wrap; align-items: center; gap: 24px' },
+{ num: 'Step 03', title: '先輩たちから回答が届く', body: 'いろいろな先輩が答えてくれます。いちばん役に立った回答を「ベストアンサー」に選びましょう。', panel: 'background: #a8dcf4; border-radius: 16px; padding: clamp(24px, 4vw, 40px) clamp(24px, 5vw, 48px); display: flex; flex-wrap: wrap; align-items: center; gap: 24px' }
+],
+faqs: [
+{ q: '相談した内容は誰に見られますか', a: 'SenpaiNetに登録している在校生と卒業生だけが読めます。登録していない人には、相談のタイトルとカテゴリだけが表示されます。' },
+{ q: '名前を出さずに相談できますか', a: 'できます。投稿するときに「匿名で投稿する」を選ぶと、表示名は出ず「在校生・学年」だけが表示されます。' },
+{ q: '卒業したらアカウントはどうなりますか', a: '6年生は4月1日に自動で「卒業生」に切り替わります。そのあと大学や進路の情報を入力すると、先輩として回答できるようになります。' },
+{ q: '困った投稿を見つけたら', a: '各投稿と回答にある「通報する」から運営に知らせてください。内容を確認し、必要に応じて非表示にします。' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

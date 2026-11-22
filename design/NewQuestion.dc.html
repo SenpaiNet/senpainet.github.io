@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>相談を投稿する | SenpaiNet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@600&amp;family=Noto+Sans+JP:wght@400;700&amp;family=Zen+Kaku+Gothic+New:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff;color:#142b54;font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic UI",Meiryo,sans-serif;line-break:strict}
+h1,h2,h3,h4{font-family:"Zen Kaku Gothic New","Noto Sans JP",sans-serif;font-feature-settings:"palt";word-break:auto-phrase}
+a{color:#2370f1}a:hover{color:#1a56c9}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #2370f1;outline-offset:2px}
+button{font-family:inherit;cursor:pointer}
+input,textarea,select{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; background: #f6f6f6; box-sizing: border-box">
+
+<header style="border-bottom: 1px solid #e3e8ef; background: #ffffff">
+<div style="max-width: 1120px; margin: 0 auto; padding: 16px clamp(24px, 4vw, 48px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none" aria-label="SenpaiNet トップへ">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2370f1" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.42 10.92a1 1 0 0 0-.02-1.84L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg>
+<span style="font-family: Lexend, sans-serif; font-weight: 600; font-size: 22px; letter-spacing: 0.01em"><span style="color: #142b54">Senpai</span><span style="color: #2370f1">Net</span></span>
+</a>
+<nav aria-label="メインメニュー" style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 14px; font-weight: 700">
+<a href="Board.dc.html" style="color: #142b54; text-decoration: none">相談一覧</a>
+<a href="Main.dc.html#flow" style="color: #142b54; text-decoration: none">使い方</a>
+<a href="Onboarding.dc.html" style="display: inline-flex; align-items: center; gap: 8px; color: #142b54; text-decoration: none; padding: 10px 16px; border-radius: 9999px; background: #e8f1fe">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>マイページ</a>
+</nav>
+</div>
+</header>
+
+<main style="max-width: 760px; margin: 0 auto; padding: 48px clamp(24px, 4vw, 48px) 96px; display: flex; flex-direction: column; gap: 32px">
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: #2370f1">相談を投稿する</p>
+<p style="margin: 0; font-family: Lexend, sans-serif; font-size: clamp(48px, 6vw, 72px); line-height: 1; font-weight: 600; letter-spacing: 0.01em; color: #2370f1">Ask</p>
+<h1 style="margin: 8px 0 0; font-size: 20px; line-height: 32px; font-weight: 700; letter-spacing: 0.04em">悩みを書いて、先輩たちに聞いてみよう</h1>
+</div>
+
+<sc-if value="{{ done }}" hint-placeholder-val="{{ false }}">
+<div style="background: #ffffff; border-radius: 16px; padding: 48px clamp(24px, 4vw, 48px); box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center">
+<span style="width: 64px; height: 64px; border-radius: 9999px; background: #e8f1fe; color: #2370f1; display: flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span>
+<h2 style="margin: 0; font-size: 20px; line-height: 32px; font-weight: 700">相談を投稿しました</h2>
+<p style="margin: 0; font-size: 15px; line-height: 28px">回答が届くとマイページとメールでお知らせします。</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px">
+<a href="Question.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; box-sizing: border-box; padding: 0 24px; border-radius: 9999px; background: #2370f1; color: #ffffff; font-size: 14px; font-weight: 700; text-decoration: none">投稿した相談を見る</a>
+<a href="Board.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; box-sizing: border-box; padding: 0 24px; border-radius: 9999px; border: 2px solid #2370f1; color: #1a56c9; font-size: 14px; font-weight: 700; text-decoration: none">相談一覧に戻る</a>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ editing }}" hint-placeholder-val="{{ true }}">
+<form onSubmit="{{ submit }}" novalidate="novalidate" style="background: #ffffff; border-radius: 16px; padding: clamp(24px, 4vw, 48px); box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; gap: 32px">
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; gap: 8px">
+<label for="title" style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em">タイトル<span style="color: #cc3f35; margin-left: 4px">必須</span></label>
+<span style="font-size: 12px; color: #5b6573">{{ titleCount }} / 60</span>
+</div>
+<input id="title" type="text" maxlength="60" value="{{ title }}" onChange="{{ onTitle }}" placeholder="例：理系か文系か、まだ決められません" style="min-height: 52px; box-sizing: border-box; padding: 0 16px; border: 1px solid #e3e8ef; border-radius: 8px; font-size: 15px; color: #142b54">
+<sc-if value="{{ errTitle }}" hint-placeholder-val="{{ false }}"><p role="alert" style="margin: 0; font-size: 13px; color: #cc3f35">タイトルを入力してください。</p></sc-if>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; gap: 8px">
+<label for="body" style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em">相談の内容<span style="color: #cc3f35; margin-left: 4px">必須</span></label>
+<span style="font-size: 12px; color: #5b6573">{{ bodyCount }} / 2000</span>
+</div>
+<textarea id="body" rows="8" maxlength="2000" value="{{ body }}" onChange="{{ onBody }}" placeholder="今の状況、迷っていること、先輩に聞きたいことを書いてください。" style="box-sizing: border-box; padding: 16px; border: 1px solid #e3e8ef; border-radius: 8px; font-size: 15px; line-height: 28px; color: #142b54; resize: vertical"></textarea>
+<sc-if value="{{ errBody }}" hint-placeholder-val="{{ false }}"><p role="alert" style="margin: 0; font-size: 13px; color: #cc3f35">相談の内容を入力してください。</p></sc-if>
+<p style="margin: 0; display: flex; gap: 8px; padding: 12px 16px; background: #e8f1fe; border-radius: 8px; font-size: 13px; line-height: 22px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a56c9" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path></svg>友達や先生の名前、電話番号やSNSのアカウントなど、人が特定できることは書かないでください。</p>
+</div>
+
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 12px">
+<legend style="padding: 0; margin-bottom: 4px; font-size: 14px; font-weight: 700; letter-spacing: 0.04em">カテゴリ<span style="color: #cc3f35; margin-left: 4px">必須</span><span style="margin-left: 8px; font-weight: 400; font-size: 12px; color: #5b6573">1〜3つ選んでください（{{ pickedCount }}つ選択中）</span></legend>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{ cats }}" as="c" hint-placeholder-count="12">
+<button type="button" onClick="{{ c.toggle }}" aria-pressed="{{ c.pressed }}" disabled="{{ c.disabled }}" style="{{ c.style }}">#{{ c.label }}</button>
+</sc-for>
+</div>
+<sc-if value="{{ errCat }}" hint-placeholder-val="{{ false }}"><p role="alert" style="margin: 0; font-size: 13px; color: #cc3f35">カテゴリを1つ以上選んでください。</p></sc-if>
+</fieldset>
+
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 12px">
+<legend style="padding: 0; margin-bottom: 4px; font-size: 14px; font-weight: 700; letter-spacing: 0.04em">どんな先輩に答えてほしいですか<span style="margin-left: 8px; font-weight: 400; font-size: 12px; color: #5b6573">任意</span></legend>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="t-stream" style="font-size: 13px">文系・理系</label>
+<select id="t-stream" style="min-height: 48px; padding: 0 12px; border: 1px solid #e3e8ef; border-radius: 8px; background: #ffffff; font-size: 15px; color: #142b54"><option>指定しない</option><option>理系</option><option>文系</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="t-path" style="font-size: 13px">進路</label>
+<select id="t-path" style="min-height: 48px; padding: 0 12px; border: 1px solid #e3e8ef; border-radius: 8px; background: #ffffff; font-size: 15px; color: #142b54"><option>指定しない</option><option>大学</option><option>大学院</option><option>専門学校</option><option>就職</option><option>浪人・受験中</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="t-club" style="font-size: 13px">部活</label>
+<select id="t-club" style="min-height: 48px; padding: 0 12px; border: 1px solid #e3e8ef; border-radius: 8px; background: #ffffff; font-size: 15px; color: #142b54"><option>指定しない</option><option>運動部</option><option>文化部</option><option>同好会・その他</option></select>
+</div>
+</div>
+</fieldset>
+
+<label style="display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 1px solid #e3e8ef; border-radius: 8px; cursor: pointer">
+<input type="checkbox" checked="{{ anonymous }}" onChange="{{ toggleAnon }}" style="width: 20px; height: 20px; margin: 2px 0 0; accent-color: #2370f1">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">匿名で投稿する</span><span style="font-size: 13px; line-height: 22px; color: #5b6573">{{ anonNote }}</span></span>
+</label>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; padding-top: 8px; border-top: 1px solid #e3e8ef">
+<a href="Board.dc.html" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 16px; font-size: 14px; font-weight: 700; color: #1a56c9">やめる</a>
+<button type="submit" style="display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 32px; border: 0; border-radius: 9999px; background: #cc3f35; color: #ffffff; font-size: 15px; font-weight: 700; letter-spacing: 0.04em">先輩に相談する</button>
+</div>
+
+</form>
+</sc-if>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1500}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { title: '', body: '', picked: [], anonymous: false, tried: false, done: false };
+}
+renderVals() {
+var self = this;
+var st = this.state;
+var names = ['受験・進路','大学生活','部活動','授業・勉強','文理選択','留学・国際','資格・検定','人間関係','学校生活','就活・キャリア','IB・課題研究','その他'];
+var full = st.picked.length >= 3;
+var cats = names.map(function (n) {
+var on = st.picked.indexOf(n) >= 0;
+var off = full && !on;
+return {
+label: n,
+pressed: on ? 'true' : 'false',
+disabled: off,
+style: 'min-height: 44px; box-sizing: border-box; padding: 0 16px; border-radius: 9999px; font-size: 14px; font-weight: 700; letter-spacing: 0.04em; ' + (on ? 'border: 1px solid #2370f1; background: #2370f1; color: #ffffff' : off ? 'border: 1px solid #e3e8ef; background: #f6f6f6; color: #5b6573; cursor: not-allowed' : 'border: 1px solid #e3e8ef; background: #ffffff; color: #1a56c9'),
+toggle: function () {
+var p = st.picked.slice();
+var i = p.indexOf(n);
+if (i >= 0) p.splice(i, 1); else if (p.length < 3) p.push(n);
+self.setState({ picked: p });
+}
+};
+});
+var errTitle = st.tried && !st.title.trim();
+var errBody = st.tried && !st.body.trim();
+var errCat = st.tried && st.picked.length === 0;
+return {
+title: st.title,
+body: st.body,
+titleCount: st.title.length,
+bodyCount: st.body.length,
+cats: cats,
+pickedCount: st.picked.length,
+anonymous: st.anonymous,
+anonNote: st.anonymous ? '表示名は出ず「在校生・4年・運動部」だけが表示されます。' : 'オフのときは表示名と「在校生・4年・運動部」が表示されます。',
+errTitle: errTitle,
+errBody: errBody,
+errCat: errCat,
+done: st.done,
+editing: !st.done,
+onTitle: function (e) { self.setState({ title: e.target.value }); },
+onBody: function (e) { self.setState({ body: e.target.value }); },
+toggleAnon: function () { self.setState({ anonymous: !st.anonymous }); },
+submit: function (e) {
+e.preventDefault();
+if (!st.title.trim() || !st.body.trim() || st.picked.length === 0) { self.setState({ tried: true }); return; }
+self.setState({ done: true });
+}
+};
+}
+}
+</script>
+</body>
+</html>

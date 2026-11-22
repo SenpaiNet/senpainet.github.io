@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>相談詳細 | SenpaiNet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@600&amp;family=Noto+Sans+JP:wght@400;700&amp;family=Zen+Kaku+Gothic+New:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff;color:#142b54;font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic UI",Meiryo,sans-serif;line-break:strict}
+h1,h2,h3,h4{font-family:"Zen Kaku Gothic New","Noto Sans JP",sans-serif;font-feature-settings:"palt";word-break:auto-phrase}
+a{color:#2370f1}a:hover{color:#1a56c9}
+a:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px solid #2370f1;outline-offset:2px}
+button{font-family:inherit;cursor:pointer}
+textarea{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; background: #f6f6f6; box-sizing: border-box">
+
+<header style="border-bottom: 1px solid #e3e8ef; background: #ffffff">
+<div style="max-width: 1120px; margin: 0 auto; padding: 16px clamp(24px, 4vw, 48px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none" aria-label="SenpaiNet トップへ">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2370f1" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.42 10.92a1 1 0 0 0-.02-1.84L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg>
+<span style="font-family: Lexend, sans-serif; font-weight: 600; font-size: 22px; letter-spacing: 0.01em"><span style="color: #142b54">Senpai</span><span style="color: #2370f1">Net</span></span>
+</a>
+<nav aria-label="メインメニュー" style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 14px; font-weight: 700">
+<a href="Board.dc.html" style="color: #142b54; text-decoration: none">相談一覧</a>
+<a href="Main.dc.html#flow" style="color: #142b54; text-decoration: none">使い方</a>
+<a href="Onboarding.dc.html" style="display: inline-flex; align-items: center; gap: 8px; color: #142b54; text-decoration: none; padding: 10px 16px; border-radius: 9999px; background: #e8f1fe">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>マイページ</a>
+</nav>
+</div>
+</header>
+
+<main style="max-width: 860px; margin: 0 auto; padding: 32px clamp(24px, 4vw, 48px) 96px; display: flex; flex-direction: column; gap: 24px">
+
+<a href="Board.dc.html" style="display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; min-height: 44px; font-size: 14px; font-weight: 700; color: #1a56c9; text-decoration: none">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>相談一覧に戻る</a>
+
+<article style="background: #ffffff; border-radius: 16px; padding: clamp(24px, 4vw, 40px); box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px">
+<sc-if value="{{ resolved }}" hint-placeholder-val="{{ false }}"><span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: #ffffff; background: #2370f1; border-radius: 9999px; padding: 3px 10px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>解決済み</span></sc-if>
+<span style="font-size: 12px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 3px 10px">#文理選択</span>
+<span style="font-size: 12px; font-weight: 700; color: #1a56c9; background: #e8f1fe; border-radius: 9999px; padding: 3px 10px">#受験・進路</span>
+</div>
+<h1 style="margin: 0; font-size: 28px; line-height: 40px; font-weight: 700; letter-spacing: 0.04em">理系か文系か、まだ決められません</h1>
+<p style="margin: 0; font-size: 15px; line-height: 28px; letter-spacing: 0.04em; white-space: pre-line">数学は好きだけど得意ではなく、社会科目にも興味があります。5年生からの科目選択で文理が分かれるので、冬休みまでに決めたいと思っています。
+
+先輩たちはどうやって決めましたか。決めた時期や、決めてから後悔したことがあれば知りたいです。</p>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 16px; border-top: 1px solid #e3e8ef">
+<p style="margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; line-height: 18px; color: #5b6573">
+<span style="font-weight: 700; color: #142b54; background: #e8f1fe; border-radius: 4px; padding: 1px 8px">在校生</span>4年・運動部 ・ 11月22日 ・ 答えてほしい先輩：理系・文系どちらも</p>
+<span style="font-size: 12px; line-height: 18px; color: #5b6573">あなたの相談です</span>
+</div>
+</article>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 8px">
+<h2 style="margin: 0; font-size: 20px; line-height: 32px; font-weight: 700">回答 {{ answerCount }}件</h2>
+<div role="group" aria-label="回答の並び替え" style="display: flex; gap: 4px; padding: 4px; background: #ffffff; border: 1px solid #e3e8ef; border-radius: 9999px">
+<sc-for list="{{ sorts }}" as="s" hint-placeholder-count="2">
+<button type="button" onClick="{{ s.pick }}" aria-pressed="{{ s.pressed }}" style="{{ s.style }}">{{ s.label }}</button>
+</sc-for>
+</div>
+</div>
+
+<sc-if value="{{ needBest }}" hint-placeholder-val="{{ true }}">
+<p style="margin: 0; display: flex; align-items: center; gap: 8px; padding: 14px 18px; background: #e8f1fe; border-radius: 8px; font-size: 14px; line-height: 22px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a56c9" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>いちばん役に立った回答を「ベストアンサーに選ぶ」で選ぶと、この相談は解決済みになります。</p>
+</sc-if>
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{ answers }}" as="a" hint-placeholder-count="3">
+<div style="{{ a.cardStyle }}">
+<sc-if value="{{ a.isBest }}" hint-placeholder-val="{{ false }}">
+<p style="margin: 0; display: inline-flex; align-self: flex-start; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #142b54; background: #f5c518; border-radius: 9999px; padding: 4px 12px">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>ベストアンサー</p>
+</sc-if>
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="width: 40px; height: 40px; flex: none; border-radius: 9999px; background: #e8f1fe; color: #1a56c9; display: flex; align-items: center; justify-content: center; font-family: 'Zen Kaku Gothic New', sans-serif; font-weight: 700; font-size: 15px" aria-hidden="true">{{ a.initial }}</span>
+<div style="display: flex; flex-direction: column">
+<a href="#" style="font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 15px; line-height: 24px; font-weight: 700; color: #142b54; text-decoration: none">{{ a.name }}</a>
+<span style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; line-height: 18px; color: #5b6573"><span style="font-weight: 700; color: #142b54; background: #e8f1fe; border-radius: 4px; padding: 0 6px">{{ a.role }}</span>{{ a.meta }} ・ {{ a.date }}</span>
+</div>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 28px; letter-spacing: 0.04em; white-space: pre-line">{{ a.body }}</p>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding-top: 12px; border-top: 1px solid #e3e8ef">
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" onClick="{{ a.toggleHelpful }}" aria-pressed="{{ a.helpfulPressed }}" style="{{ a.helpfulStyle }}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v12"></path><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"></path></svg>参考になった {{ a.helpful }}</button>
+<sc-if value="{{ a.canPickBest }}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{ a.pickBest }}" style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px; border-radius: 9999px; border: 1px solid #2370f1; background: #ffffff; color: #1a56c9; font-size: 13px; font-weight: 700">ベストアンサーに選ぶ</button>
+</sc-if>
+</div>
+<button type="button" onClick="{{ a.report }}" style="min-height: 44px; padding: 0 8px; border: 0; background: transparent; color: #5b6573; font-size: 12px; text-decoration: underline">{{ a.reportLabel }}</button>
+</div>
+</div>
+</sc-for>
+</div>
+
+<form onSubmit="{{ submit }}" style="background: #a8dcf4; border-radius: 16px; padding: clamp(24px, 4vw, 40px); display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: 20px; line-height: 32px; font-weight: 700">先輩として回答する</h2>
+<label for="answer" style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em">回答の内容</label>
+<textarea id="answer" rows="6" value="{{ draft }}" onChange="{{ onDraft }}" placeholder="自分の経験をもとに、具体的に書いてみましょう。" style="width: 100%; box-sizing: border-box; padding: 16px; border: 1px solid #e3e8ef; border-radius: 8px; background: #ffffff; font-size: 15px; line-height: 28px; color: #142b54; resize: vertical"></textarea>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<p style="margin: 0; font-size: 12px; line-height: 18px; color: #142b54">{{ draftCount }} / 2000字 ・ 個人名や連絡先は書かないでください</p>
+<button type="submit" style="display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 28px; border: 0; border-radius: 9999px; background: #cc3f35; color: #ffffff; font-size: 15px; font-weight: 700; letter-spacing: 0.04em">回答を投稿する</button>
+</div>
+</form>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2100}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = {
+sort: 'new',
+best: null,
+draft: '',
+voted: {},
+reported: {},
+posted: []
+};
+}
+renderVals() {
+var self = this;
+var st = this.state;
+var base = [
+{ id: 'a1', name: 'はると', initial: 'は', role: '卒業生', meta: '大学2回生・理系・運動部', date: '11月22日', helpful: 12, order: 1,
+body: '私も4年生の秋まで迷っていました。\n好きな授業より「大学で何を学びたいか」から逆算すると決めやすかったです。気になる学部のカリキュラムを3つくらい見比べて、受験科目を確認するのがおすすめです。' },
+{ id: 'a2', name: 'みお', initial: 'み', role: '卒業生', meta: '大学3回生・文系・文化部', date: '11月22日', helpful: 8, order: 2,
+body: '数学が得意じゃなくても理系に行った友達はたくさんいます。逆に、文系でも経済学部などは数学を使います。\n「得意」より「続けられそうか」で考えてみてください。' },
+{ id: 'a3', name: 'そうた', initial: 'そ', role: '在校生', meta: '6年・理系・運動部', date: '11月22日', helpful: 3, order: 3,
+body: '6年の立場から。担任の先生との面談で、模試の結果を見ながら一緒に考えてもらえたのが助かりました。冬休み前の面談で相談してみるといいと思います。' }
+];
+var all = base.concat(st.posted);
+var list = all.map(function (a) {
+var voted = !!st.voted[a.id];
+var isBest = st.best === a.id;
+return Object.assign({}, a, {
+helpful: a.helpful + (voted ? 1 : 0),
+isBest: isBest,
+canPickBest: st.best === null && !a.mine,
+helpfulPressed: voted ? 'true' : 'false',
+helpfulStyle: 'display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px; border-radius: 9999px; font-size: 13px; font-weight: 700; ' + (voted ? 'border: 1px solid #2370f1; background: #2370f1; color: #ffffff' : 'border: 1px solid #e3e8ef; background: #ffffff; color: #142b54'),
+cardStyle: 'background: #ffffff; border-radius: 8px; padding: 24px; display: flex; flex-direction: column; gap: 14px; ' + (isBest ? 'border: 2px solid #f5c518; box-shadow: 0 4px 14px rgba(0, 40, 90, 0.12)' : 'border: 2px solid transparent; box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08)'),
+reportLabel: st.reported[a.id] ? '通報を受け付けました' : '通報する',
+toggleHelpful: function () { var v = Object.assign({}, st.voted); v[a.id] = !v[a.id]; self.setState({ voted: v }); },
+pickBest: function () { self.setState({ best: a.id }); },
+report: function () { var r = Object.assign({}, st.reported); r[a.id] = true; self.setState({ reported: r }); }
+});
+});
+if (st.sort === 'helpful') list.sort(function (x, y) { return y.helpful - x.helpful; });
+else list.sort(function (x, y) { return x.order - y.order; });
+if (st.best) list.sort(function (x, y) { return (y.isBest ? 1 : 0) - (x.isBest ? 1 : 0); });
+var sortDefs = [{ id: 'new', label: '投稿順' }, { id: 'helpful', label: '参考になった順' }];
+var sorts = sortDefs.map(function (s) {
+var on = st.sort === s.id;
+return {
+label: s.label,
+pressed: on ? 'true' : 'false',
+style: 'min-height: 40px; padding: 0 16px; border: 0; border-radius: 9999px; font-size: 14px; font-weight: 700; ' + (on ? 'background: #2370f1; color: #ffffff' : 'background: transparent; color: #142b54'),
+pick: function () { self.setState({ sort: s.id }); }
+};
+});
+return {
+answers: list,
+answerCount: list.length,
+sorts: sorts,
+resolved: st.best !== null,
+needBest: st.best === null,
+draft: st.draft,
+draftCount: st.draft.length,
+onDraft: function (e) { self.setState({ draft: e.target.value }); },
+submit: function (e) {
+e.preventDefault();
+var text = st.draft.trim();
+if (!text) return;
+var p = st.posted.concat([{ id: 'p' + (st.posted.length + 1), name: 'あなた', initial: 'あ', role: '卒業生', meta: '大学1回生・文系', date: '今', helpful: 0, order: 100 + st.posted.length, body: text, mine: true }]);
+self.setState({ posted: p, draft: '' });
+}
+};
+}
+}
+</script>
+</body>
+</html>

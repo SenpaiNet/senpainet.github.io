@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>プロフィール作成 | SenpaiNet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@600&amp;family=Noto+Sans+JP:wght@400;700&amp;family=Zen+Kaku+Gothic+New:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff;color:#142b54;font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic UI",Meiryo,sans-serif;line-break:strict}
+h1,h2,h3,h4{font-family:"Zen Kaku Gothic New","Noto Sans JP",sans-serif;font-feature-settings:"palt";word-break:auto-phrase}
+a{color:#2370f1}a:hover{color:#1a56c9}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #2370f1;outline-offset:2px}
+button{font-family:inherit;cursor:pointer}
+input,textarea,select{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; background: #f6f6f6; box-sizing: border-box">
+
+<header style="border-bottom: 1px solid #e3e8ef; background: #ffffff">
+<div style="max-width: 1120px; margin: 0 auto; padding: 16px clamp(24px, 4vw, 48px); display: flex; align-items: center; justify-content: space-between; gap: 16px">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none" aria-label="SenpaiNet トップへ">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2370f1" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.42 10.92a1 1 0 0 0-.02-1.84L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg>
+<span style="font-family: Lexend, sans-serif; font-weight: 600; font-size: 22px; letter-spacing: 0.01em"><span style="color: #142b54">Senpai</span><span style="color: #2370f1">Net</span></span>
+</a>
+<span style="font-size: 12px; color: #5b6573">taro@example.ed.jp でログイン中</span>
+</div>
+</header>
+
+<main style="max-width: 760px; margin: 0 auto; padding: 48px clamp(24px, 4vw, 48px) 96px; display: flex; flex-direction: column; gap: 32px">
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: #2370f1">プロフィール作成</p>
+<p style="margin: 0; font-family: Lexend, sans-serif; font-size: clamp(48px, 6vw, 72px); line-height: 1; font-weight: 600; letter-spacing: 0.01em; color: #2370f1">Profile</p>
+<h1 style="margin: 8px 0 0; font-size: 20px; line-height: 32px; font-weight: 700; letter-spacing: 0.04em">あなたのことを教えてください</h1>
+<p style="margin: 0; font-size: 15px; line-height: 28px">プロフィールを作ると、相談の投稿と回答ができるようになります。あとから変更できます。</p>
+</div>
+
+<ol aria-label="登録の手順" style="margin: 0; padding: 0; list-style: none; display: flex; gap: 8px">
+<sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+<li style="flex: 1; display: flex; flex-direction: column; gap: 6px">
+<span style="{{ s.bar }}"></span>
+<span style="font-size: 12px; font-weight: 700; color: {{ s.color }}"><span style="font-family: Lexend, sans-serif">{{ s.num }}</span> {{ s.label }}</span>
+</li>
+</sc-for>
+</ol>
+
+<sc-if value="{{ done }}" hint-placeholder-val="{{ false }}">
+<div style="background: #ffffff; border-radius: 16px; padding: 48px clamp(24px, 4vw, 48px); box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center">
+<span style="width: 64px; height: 64px; border-radius: 9999px; background: #e8f1fe; color: #2370f1; display: flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span>
+<h2 style="margin: 0; font-size: 20px; line-height: 32px; font-weight: 700">登録が完了しました</h2>
+<p style="margin: 0; font-size: 15px; line-height: 28px">{{ doneNote }}</p>
+<a href="Board.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; box-sizing: border-box; padding: 0 28px; border-radius: 9999px; background: #2370f1; color: #ffffff; font-size: 14px; font-weight: 700; text-decoration: none">相談一覧を見る</a>
+</div>
+</sc-if>
+
+<sc-if value="{{ editing }}" hint-placeholder-val="{{ true }}">
+<form onSubmit="{{ submit }}" style="display: flex; flex-direction: column; gap: 16px">
+
+<fieldset style="margin: 0; background: #ffffff; border: 0; border-radius: 16px; padding: clamp(24px, 4vw, 40px); box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; gap: 16px">
+<legend style="float: left; padding: 0; font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 17px; font-weight: 700">あなたは</legend>
+<div style="clear: both; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px">
+<sc-for list="{{ roles }}" as="r" hint-placeholder-count="2">
+<button type="button" onClick="{{ r.pick }}" aria-pressed="{{ r.pressed }}" style="{{ r.style }}">
+<span style="font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 17px; font-weight: 700">{{ r.label }}</span>
+<span style="font-size: 13px; line-height: 22px; font-weight: 400">{{ r.desc }}</span>
+</button>
+</sc-for>
+</div>
+</fieldset>
+
+<div style="background: #ffffff; border-radius: 16px; padding: clamp(24px, 4vw, 40px); box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08); display: flex; flex-direction: column; gap: 24px">
+<h2 style="margin: 0; font-size: 17px; line-height: 26px; font-weight: 700">基本の情報</h2>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="name" style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em">表示名<span style="color: #cc3f35; margin-left: 4px">必須</span></label>
+<input id="name" type="text" required="required" maxlength="20" placeholder="ニックネームでもかまいません" style="min-height: 52px; box-sizing: border-box; padding: 0 16px; border: 1px solid #e3e8ef; border-radius: 8px; font-size: 15px; color: #142b54">
+</div>
+
+<sc-if value="{{ isStudent }}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px">
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 8px">
+<label for="entry" style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em">入学した年度<span style="color: #cc3f35; margin-left: 4px">必須</span></label>
+<select id="entry" onChange="{{ onEntry }}" style="min-height: 52px; padding: 0 12px; border: 1px solid #e3e8ef; border-radius: 8px; background: #ffffff; font-size: 15px; color: #142b54">
+<sc-for list="{{ entryYears }}" as="y" hint-placeholder-count="6"><option value="{{ y.value }}" selected="{{ y.selected }}">{{ y.label }}</option></sc-for>
+</select>
+</div>
+<p style="flex: 1 1 220px; margin: 0; min-height: 52px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 0 16px; background: #e8f1fe; border-radius: 8px; font-size: 14px">今は <strong style="font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 17px">{{ gradeLabel }}</strong>（4月1日に自動で進級）</p>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAlumni }}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="grad" style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em">卒業した年度<span style="color: #cc3f35; margin-left: 4px">必須</span></label>
+<select id="grad" style="min-height: 52px; padding: 0 12px; border: 1px solid #e3e8ef; border-radius: 8px; background: #ffffff; font-size: 15px; color: #142b54"><option>2025年度</option><option>2024年度</option><option>2023年度</option><option>2022年度</option><option>2021年度</option><option>それより前</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="path" style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em">今の進路<span style="color: #cc3f35; margin-left: 4px">必須</span></label>
+<select id="path" style="min-height: 52px; padding: 0 12px; border: 1px solid #e3e8ef; border-radius: 8px; background: #ffffff; font-size: 15px; color: #142b54"><option>大学</option><option>大学院</option><option>専門学校</option><option>就職</option><option>浪人・受験中</option><option>その他</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="uyear" style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em">大学の何回生</label>
+<select id="uyear" style="min-height: 52px; padding: 0 12px; border: 1px solid #e3e8ef; border-radius: 8px; background: #ffffff; font-size: 15px; color: #142b54"><option>1回生</option><option>2回生</option><option>3回生</option><option>4回生</option><option>5回生</option><option>6回生</option><option>卒業済み・社会人</option></select>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="univ" style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em">大学名<span style="margin-left: 8px; font-weight: 400; font-size: 12px; color: #5b6573">任意</span></label>
+<input id="univ" type="text" style="min-height: 52px; box-sizing: border-box; padding: 0 16px; border: 1px solid #e3e8ef; border-radius: 8px; font-size: 15px; color: #142b54">
+<label style="display: flex; align-items: center; gap: 8px; min-height: 32px; font-size: 13px; cursor: pointer"><input type="checkbox" checked="checked" style="width: 18px; height: 18px; margin: 0; accent-color: #2370f1">大学名はほかの人に見せない</label>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="faculty" style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em">学部・学科<span style="margin-left: 8px; font-weight: 400; font-size: 12px; color: #5b6573">任意</span></label>
+<input id="faculty" type="text" placeholder="例：理工学部 情報工学科" style="min-height: 52px; box-sizing: border-box; padding: 0 16px; border: 1px solid #e3e8ef; border-radius: 8px; font-size: 15px; color: #142b54">
+</div>
+</div>
+</sc-if>
+
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 10px">
+<legend style="padding: 0; margin-bottom: 6px; font-size: 14px; font-weight: 700; letter-spacing: 0.04em">文系・理系</legend>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{ streams }}" as="o" hint-placeholder-count="3">
+<button type="button" onClick="{{ o.pick }}" aria-pressed="{{ o.pressed }}" style="{{ o.style }}">{{ o.label }}</button>
+</sc-for>
+</div>
+</fieldset>
+
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 10px">
+<legend style="padding: 0; margin-bottom: 6px; font-size: 14px; font-weight: 700; letter-spacing: 0.04em">部活</legend>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{ clubs }}" as="o" hint-placeholder-count="4">
+<button type="button" onClick="{{ o.pick }}" aria-pressed="{{ o.pressed }}" style="{{ o.style }}">{{ o.label }}</button>
+</sc-for>
+</div>
+<label for="clubname" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">部活の名前</label>
+<input id="clubname" type="text" placeholder="部活の名前（任意）例：ハンドボール部" style="min-height: 48px; box-sizing: border-box; padding: 0 16px; border: 1px solid #e3e8ef; border-radius: 8px; font-size: 15px; color: #142b54">
+</fieldset>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="bio" style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em">ひとこと自己紹介<span style="margin-left: 8px; font-weight: 400; font-size: 12px; color: #5b6573">任意・200字まで</span></label>
+<textarea id="bio" rows="3" maxlength="200" style="box-sizing: border-box; padding: 16px; border: 1px solid #e3e8ef; border-radius: 8px; font-size: 15px; line-height: 28px; color: #142b54; resize: vertical"></textarea>
+</div>
+</div>
+
+<sc-if value="{{ isAlumni }}" hint-placeholder-val="{{ false }}">
+<div style="background: #b2ccf1; border-radius: 16px; padding: clamp(24px, 4vw, 40px); display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: 17px; line-height: 26px; font-weight: 700">先輩として答えられること</h2>
+<p style="margin: 0; font-size: 13px; line-height: 22px">得意なカテゴリを選ぶと、そのカテゴリの新しい相談をお知らせします。</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{ skills }}" as="c" hint-placeholder-count="12">
+<button type="button" onClick="{{ c.toggle }}" aria-pressed="{{ c.pressed }}" style="{{ c.style }}">#{{ c.label }}</button>
+</sc-for>
+</div>
+<label style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #ffffff; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer"><input type="checkbox" checked="checked" style="width: 20px; height: 20px; margin: 0; accent-color: #2370f1">今、後輩からの相談を受け付ける</label>
+</div>
+</sc-if>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 8px">
+<p style="margin: 0; font-size: 12px; line-height: 18px; color: #5b6573">登録すると<a href="#" style="color: #1a56c9">利用規約</a>と<a href="#" style="color: #1a56c9">コミュニティガイドライン</a>に同意したことになります。</p>
+<button type="submit" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 32px; border: 0; border-radius: 9999px; background: #cc3f35; color: #ffffff; font-size: 15px; font-weight: 700; letter-spacing: 0.04em">登録を完了する</button>
+</div>
+
+</form>
+</sc-if>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1600}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { role: 'student', entry: 2023, stream: 'undecided', club: 'sports', skills: [], done: false };
+}
+renderVals() {
+var self = this;
+var st = this.state;
+var pill = function (on) {
+return 'min-height: 44px; box-sizing: border-box; padding: 0 18px; border-radius: 9999px; font-size: 14px; font-weight: 700; letter-spacing: 0.04em; ' + (on ? 'border: 1px solid #2370f1; background: #2370f1; color: #ffffff' : 'border: 1px solid #e3e8ef; background: #ffffff; color: #142b54');
+};
+var roleDefs = [
+{ id: 'student', label: '在校生', desc: '1〜6年生。先輩に相談したい人' },
+{ id: 'alumni', label: '卒業生', desc: '大学生や社会人。後輩の相談に答えたい人' }
+];
+var roles = roleDefs.map(function (r) {
+var on = st.role === r.id;
+return {
+label: r.label, desc: r.desc, pressed: on ? 'true' : 'false',
+style: 'display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 96px; padding: 20px 24px; border-radius: 8px; text-align: left; color: #142b54; ' + (on ? 'border: 2px solid #2370f1; background: #e8f1fe' : 'border: 2px solid #e3e8ef; background: #ffffff'),
+pick: function () { self.setState({ role: r.id }); }
+};
+});
+var opts = function (defs, key) {
+return defs.map(function (d) {
+var on = st[key] === d.id;
+return { label: d.label, pressed: on ? 'true' : 'false', style: pill(on), pick: function () { var o = {}; o[key] = d.id; self.setState(o); } };
+});
+};
+var streams = opts([{ id: 'science', label: '理系' }, { id: 'humanities', label: '文系' }, { id: 'undecided', label: '未定・どちらも' }], 'stream');
+var clubs = opts([{ id: 'sports', label: '運動部' }, { id: 'culture', label: '文化部' }, { id: 'other', label: '同好会・その他' }, { id: 'none', label: '所属なし' }], 'club');
+var currentYear = 2026;
+var entryYears = [];
+for (var y = currentYear; y >= currentYear - 5; y--) {
+entryYears.push({ value: String(y), label: y + '年度', selected: st.entry === y });
+}
+var grade = currentYear - st.entry + 1;
+var names = ['受験・進路','大学生活','部活動','授業・勉強','文理選択','留学・国際','資格・検定','人間関係','学校生活','就活・キャリア','IB・課題研究','その他'];
+var skills = names.map(function (n) {
+var on = st.skills.indexOf(n) >= 0;
+return {
+label: n, pressed: on ? 'true' : 'false',
+style: 'min-height: 44px; box-sizing: border-box; padding: 0 16px; border-radius: 9999px; font-size: 14px; font-weight: 700; ' + (on ? 'border: 1px solid #2370f1; background: #2370f1; color: #ffffff' : 'border: 1px solid #ffffff; background: #ffffff; color: #1a56c9'),
+toggle: function () { var s = st.skills.slice(); var i = s.indexOf(n); if (i >= 0) s.splice(i, 1); else s.push(n); self.setState({ skills: s }); }
+};
+});
+var stepIdx = st.done ? 2 : 1;
+var steps = [{ num: '01', label: 'メール確認' }, { num: '02', label: 'プロフィール' }, { num: '03', label: '完了' }].map(function (s, i) {
+var on = i <= stepIdx;
+return { num: s.num, label: s.label, bar: 'display: block; height: 6px; border-radius: 9999px; background: ' + (on ? '#2370f1' : '#e3e8ef'), color: on ? '#1a56c9' : '#5b6573' };
+});
+return {
+roles: roles,
+isStudent: st.role === 'student',
+isAlumni: st.role === 'alumni',
+streams: streams,
+clubs: clubs,
+entryYears: entryYears,
+gradeLabel: grade + '年生',
+skills: skills,
+steps: steps,
+done: st.done,
+editing: !st.done,
+doneNote: st.role === 'student' ? 'さっそく先輩に相談してみましょう。' : '後輩の相談に答えてみましょう。',
+onEntry: function (e) { self.setState({ entry: parseInt(e.target.value, 10) }); },
+submit: function (e) { e.preventDefault(); self.setState({ done: true }); }
+};
+}
+}
+</script>
+</body>
+</html>

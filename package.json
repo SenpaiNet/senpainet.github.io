@@ -1,0 +1,37 @@
+{
+  "name": "senpainet",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test:rules": "firebase emulators:exec --only firestore --project senpainet-console \"vitest run tests/firestore.rules.test.ts\"",
+    "dev:emu": "node scripts/dev-emulators.mjs",
+    "emulators": "firebase emulators:start --only firestore,auth --project senpainet-console",
+    "migrate:legacy": "node scripts/migrate-legacy.mjs"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^7.0.8",
+    "firebase": "^13.4.0",
+    "lucide-react": "^1.77.0",
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-hook-form": "^7.92.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.7.0",
+    "firebase-admin": "^14.5.1",
+    "postcss": "^8.5.33",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
+  }
+}

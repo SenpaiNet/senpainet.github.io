@@ -1,0 +1,451 @@
+// SenpaiNet の Firestore セキュリティルール（プロジェクト senpainet-console）
+// 前半：旧サイト（senpainet.github.io）のルール。乗り換えが終わるまで残す。
+// 後半：新サイト（このリポジトリの Next.js 版）のルール。
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 運営メンバー判定：admins/{email} ドキュメントが存在すれば運営
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+    }
+
+    // 投稿者の記録。相談本体を匿名のまま保つため、uid はこちらに分けて持つ。
+    // 公開読み取りはさせない（誰がどの相談を書いたか他人にはたどれない）。
+    // ルール内の get() は読み取り権限に関係なく参照できるため、本人確認に使える。
+    function ownerUid(id) {
+      return get(/databases/$(database)/documents/consultationOwners/$(id)).data.uid;
+    }
+    function isOwner(id) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/consultationOwners/$(id))
+        && ownerUid(id) == request.auth.uid;
+    }
+    match /consultationOwners/{id} {
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read, delete: if isOwner(id) || isAdmin();
+    }
+
+    // 相談：公開読み取り／作成は誰でも（項目制限あり）
+    // 更新・削除は投稿者本人と運営のみ。本人が変えられるのは本文まわりだけで、
+    // いいね数や閲覧数などは書き換えられない。
+    match /consultations/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.title is string
+                    && request.resource.data.title.size() > 0
+                    && request.resource.data.title.size() <= 60
+                    && request.resource.data.body is string
+                    && request.resource.data.body.size() <= 4000;
+      allow update: if isAdmin()
+                    || (isOwner(id)
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['title', 'body', 'tags', 'category', 'editedAt'])
+                        && request.resource.data.title is string
+                        && request.resource.data.title.size() > 0
+                        && request.resource.data.title.size() <= 60
+                        && request.resource.data.body is string
+                        && request.resource.data.body.size() <= 4000);
+      allow delete: if isAdmin() || isOwner(id);
+    }
+
+    // 回答の所有者。回答本体を匿名に保つため、uid はこちらに分けて持つ。
+    // ルールの get() は読み取り権限に関係なく参照できるので本人確認に使える。
+    function isAnswerOwner(aid) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/answerOwners/$(aid))
+        && get(/databases/$(database)/documents/answerOwners/$(aid)).data.uid == request.auth.uid;
+    }
+    match /answerOwners/{aid} {
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read, delete: if isAnswerOwner(aid) || isAdmin();
+    }
+
+    // 回答：各相談のサブコレクション。公開読み取り／作成は誰でも（本文制限あり）／
+    //       編集・削除は本人と運営のみ。本人が変えられるのは本文まわりだけ。
+    match /consultations/{cid}/answers/{aid} {
+      allow read: if true;
+      allow create: if request.resource.data.body is string
+                    && request.resource.data.body.size() > 0
+                    && request.resource.data.body.size() <= 4000;
+      allow update: if isAdmin()
+                    || (isAnswerOwner(aid)
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body', 'editedAt'])
+                        && request.resource.data.body is string
+                        && request.resource.data.body.size() > 0
+                        && request.resource.data.body.size() <= 4000);
+      allow delete: if isAdmin() || isAnswerOwner(aid);
+    }
+
+    // 返信：回答のサブコレクション。公開読み取り／作成は誰でも／編集・削除は運営のみ
+    match /consultations/{cid}/answers/{aid}/replies/{rid} {
+      allow read: if true;
+      allow create: if request.resource.data.body is string
+                    && request.resource.data.body.size() > 0
+                    && request.resource.data.body.size() <= 2000;
+      allow update, delete: if isAdmin();
+    }
+
+    // コレクショングループ検索（全相談の回答・返信を一括取得）を許可するために必要。
+    // ※ Firestore ではサブコレクションのルールだけでは collectionGroup クエリは通らない
+    match /{path=**}/answers/{aid} {
+      allow read: if true;
+    }
+    match /{path=**}/replies/{rid} {
+      allow read: if true;
+    }
+
+    // 通報：作成は誰でも／閲覧・対応・削除は運営のみ
+    match /reports/{id} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ログインユーザーのプロフィール：本人だけが読み書きできる（運営は閲覧可）
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if isAdmin();
+
+      // マイページ用の投稿履歴（本人のみ）。相談本体は匿名のままで uid を持たない。
+      match /myPosts/{pid} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // 先輩プロフィール（得意分野タグ＋通知先メール）
+    // メールアドレスを含むため公開読み取りは禁止。作成は誰でも（自己登録）、
+    // 閲覧・編集・削除は運営のみ。マッチングとメール送信はサーバー側(Functions)が行う。
+    // ログイン中は uid をドキュメントIDにするため、本人だけが自分の設定を
+    // 読み書きできる（マイページからタグ・通知先を編集するのに必要）。
+    match /senpaiProfiles/{id} {
+      allow create: if request.resource.data.email is string
+                    && request.resource.data.email.size() <= 200
+                    && request.resource.data.tags is list;
+      allow read, update, delete: if request.auth != null && request.auth.uid == id;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // 送信メール（Trigger Email 拡張がこのコレクションを監視して送信する）
+    // 運営メンバーの招待メールなどをここに積む。作成・閲覧は運営のみ。
+    match /mail/{id} {
+      allow create, read, update, delete: if isAdmin();
+    }
+
+    // お問い合わせ：送信は誰でも／閲覧・対応・削除は運営のみ。
+    // 返信先メールを含むため公開読み取りは禁止。
+    match /contacts/{id} {
+      allow create: if request.resource.data.message is string
+                    && request.resource.data.message.size() > 0
+                    && request.resource.data.message.size() <= 4000;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // 通報対応の通知キュー。運営が理由つきで積み、サーバー(Apps Script)が
+    // 通報者・投稿者のメールを解決して送る。閲覧・作成は運営のみ。
+    match /moderationNotices/{id} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
+    // 公開設定（相談タグの一覧など）。表示に必要なので読み取りは全員、変更は運営のみ。
+    match /config/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 運営からのお知らせ：公開ページに表示するため読み取りは全員、作成・編集・削除は運営のみ。
+    match /news/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // 通知キュー（タグ付き相談の通知依頼）。作成は誰でも、閲覧・処理は運営/サーバーのみ。
+    match /mailQueue/{id} {
+      allow create: if request.resource.data.consultationId is string
+                    && request.resource.data.tags is list;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // 運営メンバー：自分の許可確認は本人、一覧の閲覧と追加・削除は運営のみ。
+    // （管理コンソールの「運営メンバー」画面から招待・解除できる）
+    match /admins/{email} {
+      allow read: if request.auth != null
+                  && (request.auth.token.email == email || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    // =====================================================================
+    // 新サイト（Next.js 版 SenpaiNet）のコレクション
+    //   profiles / questions / questionBodies / questionOwners /
+    //   questions/{q}/qaAnswers / qaAnswers/{a}/qaVotes / notifications /
+    //   qaReports / qaCategories / config/qaSettings
+    // 旧サイトのコレクション名と重ならないようにしている（上のルールはそのまま有効）。
+    // =====================================================================
+
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    // メール＋パスワードの人はメール確認が済んでいること（Google は確認済み扱い）
+    function verified() {
+      return request.auth.token.email_verified == true
+        || request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+    function profPath(u) { return /databases/$(database)/documents/profiles/$(u); }
+    function prof() { return get(profPath(me())).data; }
+    function profAfter() { return getAfter(profPath(me())).data; }
+    // 投稿・回答・投票ができる人：ログイン済み・確認済み・プロフィール完成・凍結されていない
+    function isMember() {
+      return signedIn() && verified()
+        && exists(profPath(me()))
+        && prof().isProfileComplete == true
+        && prof().isSuspended != true;
+    }
+    // 連投制限：同じバッチで profiles.lastPostAt を今の時刻にし、前回から20秒以上空いていること
+    function postStamped() {
+      return profAfter().get('lastPostAt', null) == request.time
+        && (prof().get('lastPostAt', null) == null
+            || prof().lastPostAt < request.time - duration.value(20, 's'));
+    }
+    function settings() { return /databases/$(database)/documents/config/qaSettings; }
+    // 学校ドメイン制限（config/qaSettings.allowedEmailDomain が空でなければ適用）
+    function domainOk() {
+      return !exists(settings())
+        || get(settings()).data.get('allowedEmailDomain', '') == ''
+        || request.auth.token.email.lower().split('@')[1] == get(settings()).data.allowedEmailDomain.lower();
+    }
+    function strMax(v, n) { return v == null || (v is string && v.size() <= n); }
+
+    // ---------- プロフィール ----------
+    function validProfile(d) {
+      return d.displayName is string && d.displayName.size() >= 1 && d.displayName.size() <= 20
+        && d.role in ['student', 'alumni']
+        && strMax(d.get('bio', null), 200)
+        && strMax(d.get('clubName', null), 30)
+        && strMax(d.get('universityName', null), 60)
+        && strMax(d.get('faculty', null), 60)
+        && d.isPublic is bool
+        && d.isProfileComplete is bool
+        && (d.get('categories', []) is list && d.get('categories', []).size() <= 12);
+    }
+    match /profiles/{u} {
+      allow read: if isAdmin() || (signedIn() && (u == me() || resource.data.isPublic == true));
+      allow create: if signedIn() && u == me() && domainOk()
+        && validProfile(request.resource.data)
+        && request.resource.data.isSuspended == false
+        && request.resource.data.get('lastPostAt', null) == null;
+      allow update: if isAdmin()
+        || (signedIn() && u == me()
+            && validProfile(request.resource.data)
+            && request.resource.data.isSuspended == resource.data.isSuspended
+            // 在校生⇔卒業生の切り替えはプロフィール未完成の間だけ（卒業時はアプリが未完成に戻す）
+            && (request.resource.data.role == resource.data.role
+                || resource.data.isProfileComplete != true
+                || request.resource.data.isProfileComplete == false)
+            && (request.resource.data.get('lastPostAt', null) == resource.data.get('lastPostAt', null)
+                || request.resource.data.lastPostAt == request.time));
+      allow delete: if isAdmin() || (signedIn() && u == me());
+
+      // 非公開の情報（大学名を見せない設定のときの大学名など）：本人と運営だけ
+      match /private/{doc} {
+        allow read, write: if isAdmin() || (signedIn() && u == me());
+      }
+    }
+
+    // ---------- 相談 ----------
+    function qPath(q) { return /databases/$(database)/documents/questions/$(q); }
+    function ownerPath(q) { return /databases/$(database)/documents/questionOwners/$(q); }
+    function ansPath(q, a) { return /databases/$(database)/documents/questions/$(q)/qaAnswers/$(a); }
+    function isQOwner(q) {
+      return signedIn() && exists(ownerPath(q)) && get(ownerPath(q)).data.uid == me();
+    }
+    // 投稿者の表示情報は、本人のプロフィールと一致していること（なりすまし防止）
+    function validAuthor(a, anon) {
+      return a.role == prof().role
+        && a.get('entryYear', null) == prof().get('entryYear', null)
+        && ((anon == true && a.id == null && a.name == null)
+            || (anon == false && a.id == me() && a.name == prof().displayName));
+    }
+    function validQuestionNew(d) {
+      return d.keys().hasOnly(['title', 'categories', 'isAnonymous', 'author', 'targetStream', 'targetPathType',
+                               'targetClubType', 'answerCount', 'bestAnswerId', 'bestAnswerAuthorId', 'status',
+                               'visible', 'createdAt'])
+        && d.title is string && d.title.size() >= 1 && d.title.size() <= 60
+        && d.categories is list && d.categories.size() >= 1 && d.categories.size() <= 3
+        && d.isAnonymous is bool
+        && validAuthor(d.author, d.isAnonymous)
+        && d.answerCount == 0 && d.bestAnswerId == null && d.bestAnswerAuthorId == null
+        && d.status == 'open' && d.visible == true && d.createdAt == request.time;
+    }
+    // ベストアンサー：相談者だけ、1回だけ。選べるのはその相談の表示中の回答
+    function pickBest(q) {
+      let d = request.resource.data;
+      let o = resource.data;
+      return isQOwner(q) && o.bestAnswerId == null
+        && d.diff(o).affectedKeys().hasOnly(['bestAnswerId', 'bestAnswerAuthorId', 'status'])
+        && d.status == 'resolved'
+        && d.bestAnswerId is string
+        && exists(ansPath(q, d.bestAnswerId))
+        && get(ansPath(q, d.bestAnswerId)).data.status == 'visible'
+        && d.bestAnswerAuthorId == get(ansPath(q, d.bestAnswerId)).data.author.id;
+    }
+    // 回答数 +1：同じバッチでその回答が新しく作られるときだけ
+    function answerCountUp(q) {
+      let d = request.resource.data;
+      let o = resource.data;
+      return isMember()
+        && d.diff(o).affectedKeys().hasOnly(['answerCount', 'lastAnswerId', 'firstAnswerAt'])
+        && d.answerCount == o.answerCount + 1
+        && d.lastAnswerId is string
+        && !exists(ansPath(q, d.lastAnswerId))
+        && existsAfter(ansPath(q, d.lastAnswerId))
+        && ((o.answerCount == 0 && d.firstAnswerAt == request.time)
+            || (o.answerCount > 0 && d.get('firstAnswerAt', null) == o.get('firstAnswerAt', null)));
+    }
+    // 退会時：本人の相談を匿名にする（表示名と id を消すだけ）
+    function anonymizeOwn(q) {
+      let d = request.resource.data;
+      let o = resource.data;
+      return isQOwner(q)
+        && d.diff(o).affectedKeys().hasOnly(['author', 'isAnonymous'])
+        && d.isAnonymous == true && d.author.id == null && d.author.name == null
+        && d.author.role == o.author.role;
+    }
+    match /questions/{q} {
+      allow read: if resource.data.visible == true || isAdmin() || isQOwner(q);
+      allow create: if isMember() && validQuestionNew(request.resource.data) && postStamped()
+        && !exists(ownerPath(q))
+        && existsAfter(ownerPath(q)) && getAfter(ownerPath(q)).data.uid == me()
+        && existsAfter(/databases/$(database)/documents/questionBodies/$(q));
+      allow update: if isAdmin() || pickBest(q) || answerCountUp(q) || anonymizeOwn(q);
+      allow delete: if isAdmin() || (isQOwner(q) && resource.data.answerCount == 0);
+
+      // 回答
+      match /qaAnswers/{a} {
+        allow create: if isMember() && postStamped()
+          && request.resource.data.keys().hasOnly(['body', 'author', 'helpfulCount', 'status', 'parentId',
+                                                    'isAnonymous', 'createdAt'])
+          && request.resource.data.body is string
+          && request.resource.data.body.size() >= 1 && request.resource.data.body.size() <= 2000
+          && request.resource.data.helpfulCount == 0
+          && request.resource.data.status == 'visible'
+          && request.resource.data.parentId == null
+          && request.resource.data.isAnonymous == false
+          && request.resource.data.createdAt == request.time
+          && validAuthor(request.resource.data.author, false)
+          && get(qPath(q)).data.visible == true
+          && getAfter(qPath(q)).data.answerCount == get(qPath(q)).data.answerCount + 1
+          && getAfter(qPath(q)).data.lastAnswerId == a;
+        allow update: if isAdmin()
+          || voteUp(q, a) || voteDown(q, a)
+          // 退会時：本人の回答を匿名にする
+          || (signedIn() && resource.data.author.id == me()
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['author', 'isAnonymous'])
+              && request.resource.data.isAnonymous == true
+              && request.resource.data.author.id == null && request.resource.data.author.name == null);
+        allow delete: if isAdmin();
+
+        // 「参考になった」：1人1票。自分の回答には付けられない。回答の数と同じバッチで増減する
+        match /qaVotes/{v} {
+          allow read: if signedIn() && v == me();
+          allow create: if isMember() && v == me()
+            && request.resource.data.keys().hasOnly(['createdAt'])
+            && get(ansPath(q, a)).data.author.id != me()
+            && getAfter(ansPath(q, a)).data.helpfulCount == get(ansPath(q, a)).data.helpfulCount + 1;
+          allow delete: if signedIn() && v == me()
+            && getAfter(ansPath(q, a)).data.helpfulCount == get(ansPath(q, a)).data.helpfulCount - 1;
+        }
+      }
+    }
+    function votePath(q, a) { return /databases/$(database)/documents/questions/$(q)/qaAnswers/$(a)/qaVotes/$(me()); }
+    function voteUp(q, a) {
+      return signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['helpfulCount'])
+        && request.resource.data.helpfulCount == resource.data.helpfulCount + 1
+        && !exists(votePath(q, a)) && existsAfter(votePath(q, a));
+    }
+    function voteDown(q, a) {
+      return signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['helpfulCount'])
+        && request.resource.data.helpfulCount == resource.data.helpfulCount - 1
+        && exists(votePath(q, a)) && !existsAfter(votePath(q, a));
+    }
+    // 回答の一覧（マイページ・公開プロフィールのコレクショングループ検索を含む）
+    match /{path=**}/qaAnswers/{a} {
+      allow read: if signedIn()
+        && (resource.data.status == 'visible' || resource.data.author.id == me() || isAdmin());
+    }
+
+    // 相談の本文：ログインした人だけが読める（未ログインはタイトルとカテゴリだけ）
+    match /questionBodies/{q} {
+      allow read: if signedIn() && (get(qPath(q)).data.visible == true || isQOwner(q) || isAdmin());
+      allow create: if isMember()
+        && !exists(qPath(q)) && existsAfter(qPath(q))
+        && getAfter(ownerPath(q)).data.uid == me()
+        && request.resource.data.keys().hasOnly(['body'])
+        && request.resource.data.body is string
+        && request.resource.data.body.size() >= 1 && request.resource.data.body.size() <= 2000;
+      allow update: if isAdmin();
+      allow delete: if isAdmin() || (isQOwner(q) && !existsAfter(qPath(q)));
+    }
+
+    // 相談の投稿者：相談本体には uid を持たせず、ここに分けて持つ（匿名の相談でも本人確認できる）
+    match /questionOwners/{q} {
+      allow read: if signedIn() && (resource.data.uid == me() || isAdmin());
+      allow create: if isMember()
+        && request.resource.data.keys().hasOnly(['uid', 'seenAnswerCount', 'createdAt'])
+        && request.resource.data.uid == me()
+        && request.resource.data.seenAnswerCount == 0
+        && !exists(qPath(q)) && existsAfter(qPath(q));
+      // 回答の既読（マイページの未読表示に使う）
+      allow update: if signedIn() && resource.data.uid == me()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['seenAnswerCount'])
+        && request.resource.data.seenAnswerCount is int;
+      allow delete: if isAdmin() || (signedIn() && resource.data.uid == me() && !existsAfter(qPath(q)));
+    }
+
+    // ---------- お知らせ ----------
+    // ベストアンサーに選ばれた通知は、選んだ相談者が同じバッチで作る。運営からのお知らせは運営が作る。
+    function bestAnswerNotice() {
+      let d = request.resource.data;
+      return signedIn()
+        && d.keys().hasOnly(['userId', 'type', 'questionId', 'answerId', 'message', 'isRead', 'createdAt'])
+        && d.type == 'best_answer' && d.isRead == false && d.message == null
+        && d.questionId is string && d.answerId is string
+        && isQOwner(d.questionId)
+        && get(qPath(d.questionId)).data.bestAnswerId == null
+        && getAfter(qPath(d.questionId)).data.bestAnswerId == d.answerId
+        && d.userId == get(ansPath(d.questionId, d.answerId)).data.author.id;
+    }
+    match /notifications/{n} {
+      allow read: if signedIn() && resource.data.userId == me();
+      allow update: if signedIn() && resource.data.userId == me()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+      allow delete: if signedIn() && resource.data.userId == me();
+      allow create: if isAdmin() || bestAnswerNotice();
+    }
+
+    // ---------- 通報（新サイト）----------
+    match /qaReports/{r} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['reporterId', 'targetType', 'targetId', 'questionId',
+                                                  'reason', 'detail', 'status', 'createdAt'])
+        && request.resource.data.reporterId == me()
+        && request.resource.data.targetType in ['question', 'answer']
+        && request.resource.data.reason is string && request.resource.data.reason.size() <= 50
+        && strMax(request.resource.data.get('detail', null), 500)
+        && request.resource.data.status == 'pending';
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------- カテゴリ（運営が編集）----------
+    match /qaCategories/{c} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // それ以外は既定で拒否
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

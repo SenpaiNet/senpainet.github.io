@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* デザイントークン（design-system/tokens.json）*/
+:root {
+  --surface: #ffffff;
+  --surface-soft: #f6f6f6;
+  --surface-sky: #a8dcf4;
+  --surface-periwinkle: #b2ccf1;
+  --ink: #142b54;
+  --ink-muted: #5b6573;
+  --line: #e3e8ef;
+  --brand: #2370f1;
+  --brand-deep: #1a56c9;
+  --brand-bright: #1a85f8;
+  --brand-soft: #e8f1fe;
+  --on-brand: #ffffff;
+  --accent: #ff766b;
+  --accent-strong: #cc3f35;
+  --highlight: #f5c518;
+  --focus: var(--brand);
+  --shadow-card: 0 2px 8px rgba(0, 40, 90, 0.08);
+  --shadow-cta: 0 6px 16px rgba(35, 112, 241, 0.25);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #121a24;
+    --surface-soft: #1a2430;
+    --surface-sky: #1d4466;
+    --surface-periwinkle: #2a3a5e;
+    --ink: #e8eef5;
+    --ink-muted: #9aa6b5;
+    --line: #2a3644;
+    --brand: #6ea4ff;
+    --brand-deep: #8ab6ff;
+    --brand-bright: #5b9bff;
+    --brand-soft: #1b2d42;
+    --on-brand: #121a24;
+    --accent: #ff8a80;
+    --accent-strong: #ff8a80;
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-cta: 0 6px 16px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-surface font-sans text-body text-ink;
+    line-break: strict;
+  }
+  h1, h2, h3, h4 {
+    @apply font-heading;
+    font-feature-settings: "palt";
+    word-break: auto-phrase;
+  }
+  a { color: var(--brand); }
+  a:hover { color: var(--brand-deep); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ランディングページのスクロール演出（design/Main.dc.html） */
+.sn-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.sn-scr { transition: opacity 260ms ease; }
+.sn-step-text { width: min(480px, 46%); margin-left: auto; }
+.sn-hero-text { max-width: 540px; }
+@media (max-width: 860px) {
+  .sn-step { align-items: flex-end !important; padding-bottom: 40px !important; }
+  .sn-step-text { width: 100%; background: var(--surface); border-radius: 16px; padding: 24px; box-sizing: border-box; box-shadow: var(--shadow-card); }
+  .sn-hero { align-items: flex-start !important; padding-top: 112px !important; }
+  .sn-hero h1 { font-size: 32px !important; line-height: 46px !important; }
+}
+@media (prefers-reduced-motion: reduce) { .sn-scr { transition: none; } }
+details summary { list-style: none; cursor: pointer; }
+details summary::-webkit-details-marker { display: none; }
+details[open] .faq-plus { transform: rotate(45deg); }
