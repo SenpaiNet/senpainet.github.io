@@ -58,7 +58,8 @@ for (const u of legacyUsers.docs) {
   const d = u.data();
   const kaisei = Number(d.kaisei);
   const entryYear = entryYearOf(kaisei);
-  const nickname = String(d.nickname || d.name || "").trim().slice(0, 20);
+  // 表示名はニックネームだけを使う。Google アカウントの名前（本名のことがある）は使わない
+  const nickname = String(d.nickname || "").trim().slice(0, 20);
   nameOf.set(u.id, nickname || null);
   if ((await db.doc(`profiles/${u.id}`).get()).exists) {
     out.profilesSkipped++;
