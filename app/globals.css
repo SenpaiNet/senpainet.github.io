@@ -81,3 +81,10 @@
 details summary { list-style: none; cursor: pointer; }
 details summary::-webkit-details-marker { display: none; }
 details[open] .faq-plus { transform: rotate(45deg); }
+
+/* iPhone の Safari は 16px 未満の入力欄をタップすると画面を拡大するので、スマホでは 16px にする */
+@media (max-width: 767px) {
+  input, textarea, select { font-size: 16px !important; }
+}
+/* 横スクロールのカテゴリ列でスクロールバーを出さない */
+.overflow-x-auto::-webkit-scrollbar { display: none; }

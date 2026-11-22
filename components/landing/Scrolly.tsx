@@ -42,9 +42,10 @@ function updateScene() {
   const cw = Math.min(1120, vw) - 96;
   const move = ease(Math.min(pos, 1));
   const x = mobile ? 0 : lerp(cw * 0.27, -cw * 0.24, move);
-  const y = mobile ? lerp(vh * 0.2, -vh * 0.12, move) : 24;
+  // スマホ：最初は画面の下からのぞく位置（文字とボタンに重ねない）→ スクロールで中央へ
+  const y = mobile ? lerp(vh * 0.5, -vh * 0.2, move) : 24;
   const tilt = lerp(-6, 0, move);
-  const base = mobile ? 0.6 : Math.min(1, (vh - 150) / 600);
+  const base = mobile ? 0.5 : Math.min(1, (vh - 150) / 600);
   const dip = reduce ? 0 : 0.1 * Math.sin(Math.PI * t);
   const spin = reduce ? 0 : (k + t) * 360;
   phone.style.transform = `translate(-50%, -50%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotateZ(${tilt.toFixed(2)}deg) rotateY(${spin.toFixed(1)}deg) scale(${(base * (1 - dip)).toFixed(3)})`;
@@ -119,8 +120,8 @@ export function Scrolly() {
     <div id="sn-scrolly" className="relative -mt-[69px]">
       <div aria-hidden="true" className="pointer-events-none sticky top-0 z-[1] overflow-hidden [perspective:1600px]" style={{ height: stageH }}>
         <div id="sn-sky" className="absolute inset-0 rounded-b-[48px] bg-surface-sky will-change-transform" />
-        <div id="sn-d1" className="absolute right-[8%] top-[18%] h-24 w-24 rounded-full bg-highlight will-change-transform" />
-        <div id="sn-d2" className="absolute bottom-[10%] left-[46%] h-[180px] w-[180px] rounded-full bg-brand-bright will-change-transform" />
+        <div id="sn-d1" className="absolute right-[6%] top-[12%] h-14 w-14 rounded-full bg-highlight will-change-transform md:right-[8%] md:top-[18%] md:h-24 md:w-24" />
+        <div id="sn-d2" className="absolute bottom-[10%] left-[46%] h-[120px] w-[120px] rounded-full bg-brand-bright will-change-transform md:h-[180px] md:w-[180px]" />
         <div id="sn-d3" className="absolute right-[22%] top-[62%] h-14 w-14 rounded-full border-[10px] border-white will-change-transform" />
         <div id="sn-d4" className="absolute left-[6%] top-[120%] h-[140px] w-[140px] rounded-full bg-brand-soft will-change-transform" />
 

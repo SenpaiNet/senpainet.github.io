@@ -125,18 +125,18 @@ export function BoardClient({ params: p }: { params: BoardParams }) {
           </Link>
         </div>
 
-        <div className="flex flex-wrap items-start gap-8">
-          <aside className="flex max-w-full flex-[1_1_220px] flex-col gap-3">
+        <div className="flex flex-wrap items-start gap-6 md:gap-8">
+          <aside className="flex min-w-0 max-w-full flex-[1_1_220px] flex-col gap-3">
             <h2 className="text-card-title">カテゴリ</h2>
-            <ul className="flex flex-wrap gap-2">
-              <li>
+            <ul className="-mx-6 flex gap-2 overflow-x-auto px-6 pb-1 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
+              <li className="flex-none">
                 <Link href={href(p, { category: undefined })}
                   className={`${chipClass(!p.category)} inline-flex items-center no-underline hover:no-underline ${!p.category ? "hover:text-on-brand" : ""}`}>
                   すべて
                 </Link>
               </li>
               {cats.map((c) => (
-                <li key={c.slug}>
+                <li key={c.slug} className="flex-none">
                   <Link href={href(p, { category: c.slug })} aria-current={p.category === c.slug ? "true" : undefined}
                     className={`${chipClass(p.category === c.slug)} inline-flex items-center no-underline hover:no-underline ${p.category === c.slug ? "hover:text-on-brand" : ""}`}>
                     #{c.name}
