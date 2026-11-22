@@ -1,3 +1,4 @@
+import { KineticWord } from "@/components/motion/Kinetic";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import type { ReactNode } from "react";
@@ -18,7 +19,7 @@ export function PageHeading({ label, en, title, lead }: { label: string; en: str
   return (
     <div className="flex flex-col gap-2">
       <p className="text-label text-brand">{label}</p>
-      <p className="font-display text-display-xl text-brand">{en}</p>
+      <KineticWord text={en} className="font-display text-display-xl text-brand" />
       {title && <h1 className="mt-2 text-h3">{title}</h1>}
       {lead && <p>{lead}</p>}
     </div>
@@ -41,8 +42,10 @@ export function ResolvedBadge() {
 export function SuccessPanel({ title, note, children }: { title: string; note: string; children: ReactNode }) {
   return (
     <div className="flex flex-col items-center gap-4 rounded-lg bg-surface p-6 py-12 text-center shadow-card md:px-12">
-      <span className="flex h-16 w-16 items-center justify-center rounded-pill bg-brand-soft text-brand">
-        <Check size={30} strokeWidth={1.75} aria-hidden="true" />
+      <span className="sn-check-circle flex h-16 w-16 items-center justify-center rounded-pill bg-brand-soft text-brand">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path className="sn-check-path" d="M20 6 9 17l-5-5" />
+        </svg>
       </span>
       <h2 className="text-h3">{title}</h2>
       <p>{note}</p>
@@ -64,8 +67,8 @@ export function BackLink({ href, children }: { href: string; children: ReactNode
 
 /** トグルできるチップ（カテゴリ・文理・部活など）。 */
 export function chipClass(on: boolean, opts: { disabled?: boolean; onPanel?: boolean } = {}) {
-  const base = "min-h-[44px] rounded-pill border px-4 text-label transition-colors";
-  if (on) return `${base} border-brand bg-brand text-on-brand`;
+  const base = "min-h-[44px] rounded-pill border px-4 text-label transition-[background-color,color,border-color,transform] duration-200 active:scale-95";
+  if (on) return `${base} sn-pop border-brand bg-brand text-on-brand`;
   if (opts.disabled) return `${base} cursor-not-allowed border-line bg-surface-soft text-ink-muted`;
   return `${base} ${opts.onPanel ? "border-surface bg-surface" : "border-line bg-surface"} text-brand-deep`;
 }

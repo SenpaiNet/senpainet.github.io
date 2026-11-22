@@ -130,9 +130,9 @@ export function AnswerSection({
           const name = a.author.name ?? "匿名";
           const mine = a.author.id === userId;
           return (
-            <li key={a.id} className={`flex flex-col gap-3.5 rounded-md border-2 bg-surface p-6 ${isBest ? "border-highlight shadow-[0_4px_14px_rgba(0,40,90,0.12)]" : "border-transparent shadow-card"}`}>
+            <li key={a.id} className={`sn-enter flex flex-col gap-3.5 rounded-md border-2 bg-surface p-6 ${isBest ? "sn-glow border-highlight shadow-[0_4px_14px_rgba(0,40,90,0.12)]" : "border-transparent shadow-card"}`} style={{ ["--i" as string]: Math.min(list.indexOf(a), 8) }}>
               {isBest && (
-                <p className="inline-flex items-center gap-1.5 self-start rounded-pill bg-highlight px-3 py-1 text-caption font-bold text-[#142b54]">
+                <p className="sn-pop inline-flex items-center gap-1.5 self-start rounded-pill bg-highlight px-3 py-1 text-caption font-bold text-[#142b54]">
                   <Trophy size={14} strokeWidth={1.75} aria-hidden="true" />
                   ベストアンサー
                 </p>
@@ -175,8 +175,10 @@ export function AnswerSection({
                     </span>
                   ) : (
                     <button type="button" aria-pressed={!!voted[a.id]} onClick={() => toggleVote(a)}
-                      className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-pill border px-4 text-body-sm font-bold ${voted[a.id] ? "border-brand bg-brand text-on-brand" : "border-line bg-surface text-ink"}`}>
-                      <ThumbsUp size={16} strokeWidth={1.75} aria-hidden="true" />参考になった {countOf(a)}
+                      className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-pill border px-4 text-body-sm font-bold transition-[background-color,color,border-color,transform] duration-200 active:scale-95 ${voted[a.id] ? "border-brand bg-brand text-on-brand" : "border-line bg-surface text-ink"}`}>
+                      <ThumbsUp key={`t-${voted[a.id] ? 1 : 0}`} size={16} strokeWidth={1.75} aria-hidden="true" className={voted[a.id] ? "sn-pop" : undefined} />
+                      参考になった
+                      <span className="inline-flex overflow-hidden"><span key={countOf(a)} className="sn-roll">{countOf(a)}</span></span>
                     </button>
                   )}
                   {isQuestionMine && !bestAnswerId && !mine && (

@@ -1,5 +1,6 @@
 "use client";
 
+import { KineticWord } from "@/components/motion/Kinetic";
 import Link from "next/link";
 import { questionHref } from "@/lib/routes";
 import { useEffect, useMemo, useState } from "react";
@@ -12,7 +13,7 @@ import { chipClass } from "@/components/ui";
 import { fb, firebaseConfigured } from "@/lib/firebase/client";
 import { attrFromAuthor, formatDate } from "@/lib/profile";
 import { categoryName, useCategories } from "@/lib/qa/categories";
-import { getBody, listQuestions, type BoardSort } from "@/lib/qa/reads";
+import { PAGE_SIZE, getBody, listQuestions, type BoardSort } from "@/lib/qa/reads";
 import type { QaQuestion } from "@/lib/qa/types";
 
 const sorts = [
@@ -88,7 +89,7 @@ export function BoardClient({ params: p }: { params: BoardParams }) {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="flex flex-col gap-2">
             <p className="text-label text-brand">相談一覧</p>
-            <h1 className="font-display text-display-xl text-brand">Board</h1>
+            <KineticWord as="h1" text="Board" className="font-display text-display-xl text-brand" />
           </div>
           <Link href="/board/new" className={buttonClass("accent", "min-h-[52px] px-7 text-[15px]")}>
             <Plus size={18} strokeWidth={1.75} aria-hidden="true" />
@@ -150,7 +151,15 @@ export function BoardClient({ params: p }: { params: BoardParams }) {
             {!firebaseConfigured ? (
               <p className="text-body-sm text-ink-muted">Firebase の接続設定がありません。</p>
             ) : state === "loading" ? (
-              <p role="status" className="text-body-sm text-ink-muted">読み込んでいます…</p>
+              <div role="status" aria-label="読み込んでいます" className="flex flex-col gap-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="flex flex-col gap-3 rounded-md bg-surface p-6 shadow-card" aria-hidden="true">
+                    <span className="sn-skeleton h-5 w-24 rounded-pill" />
+                    <span className="sn-skeleton h-6 w-4/5 rounded-sm" />
+                    <span className="sn-skeleton h-4 w-full rounded-sm" />
+                  </div>
+                ))}
+              </div>
             ) : state === "error" ? (
               <p role="alert" className="rounded-md bg-brand-soft p-4 text-body-sm">相談を読み込めませんでした。時間をおいて、もう一度開いてください。</p>
             ) : (
@@ -163,10 +172,11 @@ export function BoardClient({ params: p }: { params: BoardParams }) {
                 相談の内容を読むには<Link href="/login?next=/board" className="mx-1 font-bold">ログイン</Link>してください。
               </p>
             )}
-            {shown.map((it) => {
+            {shown.map((it, idx) => {
               const a = attrFromAuthor(it.author);
               return (
                 <QuestionCard
+                  enterIndex={idx % PAGE_SIZE}
                   key={it.id}
                   href={questionHref(it.id)}
                   tags={it.categories.map((s) => categoryName(cats, s))}

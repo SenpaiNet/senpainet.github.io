@@ -88,3 +88,156 @@ details[open] .faq-plus { transform: rotate(45deg); }
 }
 /* 横スクロールのカテゴリ列でスクロールバーを出さない */
 .overflow-x-auto::-webkit-scrollbar { display: none; }
+
+/* =====================================================================
+   動き（キネティック・タイポグラフィと UI のアニメーション）
+   すべて「最終状態」を基準にし、動きを減らす設定では一番下で止めて最終状態を見せる
+   ===================================================================== */
+:root {
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ヒーロー 1行目：散らばった「悩み」の文字が集まって落ち着く */
+.kt-worry > span {
+  display: inline-block;
+  opacity: 0;
+  animation: kt-settle 1100ms var(--ease-out) forwards;
+  animation-delay: calc(var(--i) * 70ms + 150ms);
+}
+@keyframes kt-settle {
+  0% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.85); filter: blur(3px); }
+  45% { opacity: 1; filter: blur(0); }
+  70% { transform: translate(calc(var(--dx) * -0.08), calc(var(--dy) * -0.08)) rotate(calc(var(--rot) * -0.1)); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* ヒーロー 2行目：一文字ずつ書き出される。最後に下線が引かれる */
+.kt-type { position: relative; display: inline-block; }
+.kt-type > span {
+  display: inline-block;
+  opacity: 0;
+  animation: kt-ink 520ms var(--ease-out) forwards;
+  animation-delay: calc(var(--d0) + var(--i) * 80ms);
+}
+.kt-type::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0.08em;
+  bottom: -0.05em;
+  height: 0.12em;
+  border-radius: 9999px;
+  background: var(--brand);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: kt-underline 700ms var(--ease-out) forwards;
+  animation-delay: calc(var(--d0) + 750ms);
+}
+@keyframes kt-ink {
+  from { opacity: 0; transform: translateY(0.35em); filter: blur(5px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes kt-underline { to { transform: scaleX(1); } }
+
+/* 英字の見出し：画面に入ると下から一文字ずつ */
+.kt-rise { overflow: hidden; padding-bottom: 0.08em; }
+.kt-rise > span {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 700ms var(--ease-out);
+  transition-delay: calc(var(--i) * 45ms);
+}
+.kt-rise[data-in] > span { transform: none; }
+
+/* 流れる帯 */
+.sn-marquee-track { animation: sn-marquee var(--dur, 40s) linear infinite; }
+.sn-marquee:hover .sn-marquee-track,
+.sn-marquee:focus-within .sn-marquee-track { animation-play-state: paused; }
+@keyframes sn-marquee { to { transform: translateX(calc(-50% - 4px)); } }
+.sn-marquee { mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+
+/* 一覧の出現（読み込み後に一度だけ） */
+.sn-enter {
+  animation: sn-enter 520ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+@keyframes sn-enter {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* 押したとき・増えたとき */
+@keyframes sn-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.sn-pop { animation: sn-pop 420ms var(--ease-spring) both; }
+@keyframes sn-roll {
+  from { transform: translateY(70%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.sn-roll { display: inline-block; animation: sn-roll 320ms var(--ease-out) both; }
+@keyframes sn-glow {
+  0% { box-shadow: 0 0 0 0 rgba(245, 197, 24, 0.7); }
+  100% { box-shadow: 0 0 0 14px rgba(245, 197, 24, 0); }
+}
+.sn-glow { animation: sn-glow 900ms ease-out 2; }
+
+/* 完了のチェック：円が広がり、印が描かれる */
+.sn-check-circle { animation: sn-pop 500ms var(--ease-spring) both; }
+.sn-check-path {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: sn-draw 520ms var(--ease-out) 260ms forwards;
+}
+@keyframes sn-draw { to { stroke-dashoffset: 0; } }
+
+/* 読み込み中の仮の枠（スケルトン） */
+.sn-skeleton {
+  background: linear-gradient(90deg, var(--surface-soft) 25%, var(--brand-soft) 50%, var(--surface-soft) 75%);
+  background-size: 200% 100%;
+  animation: sn-shimmer 1.3s ease-in-out infinite;
+}
+@keyframes sn-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+/* メニュー：上から下りてきて、項目が順に出る */
+.sn-menu-panel { animation: sn-drop 280ms var(--ease-out) both; transform-origin: top; }
+@keyframes sn-drop { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+.sn-menu-item { animation: sn-enter 360ms var(--ease-out) both; animation-delay: calc(80ms + var(--i, 0) * 45ms); }
+.sn-fade { animation: sn-fade 240ms ease-out both; }
+@keyframes sn-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ハンバーガーの線が × に変わる */
+.sn-burger span {
+  position: absolute; left: 50%; width: 20px; height: 2px; margin-left: -10px; border-radius: 2px;
+  background: currentColor; transition: transform 300ms var(--ease-out), opacity 200ms ease;
+}
+.sn-burger span:nth-child(1) { transform: translateY(-6px); }
+.sn-burger span:nth-child(3) { transform: translateY(6px); }
+.sn-burger[aria-expanded="true"] span:nth-child(1) { transform: rotate(45deg); }
+.sn-burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; transform: scaleX(0.2); }
+.sn-burger[aria-expanded="true"] span:nth-child(3) { transform: rotate(-45deg); }
+
+/* よくある質問：なめらかに開く（対応ブラウザのみ。非対応でも開閉はできる） */
+:root { interpolate-size: allow-keywords; }
+.sn-faq::details-content {
+  height: 0;
+  overflow: hidden;
+  transition: height 320ms var(--ease-out), content-visibility 320ms allow-discrete;
+}
+.sn-faq[open]::details-content { height: auto; }
+
+/* 動きを減らす設定：すべて最終状態で止める（流れる帯は折り返して並べる） */
+@media (prefers-reduced-motion: reduce) {
+  .kt-worry > span, .kt-type > span, .kt-rise > span { opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; transition: none !important; }
+  .kt-type::after { animation: none; transform: scaleX(1); }
+  .sn-marquee { mask-image: none; }
+  .sn-marquee-track { animation: none; width: auto; flex-wrap: wrap; }
+  .sn-marquee-track > div { flex-wrap: wrap; }
+  .sn-marquee-copy { display: none !important; }
+  .sn-skeleton { animation: none; }
+  .sn-glow { animation: none; }
+  *, *::before, *::after { animation-delay: 0s !important; transition-delay: 0s !important; }
+}

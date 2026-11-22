@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
-import { Menu, Shield, User, X } from "lucide-react";
+import { Shield, User } from "lucide-react";
 import { Logo } from "./Logo";
 import { buttonClass } from "./Button";
 import { useAuth } from "./AuthProvider";
@@ -92,13 +92,15 @@ export function SiteHeader() {
         <button
           ref={toggleRef}
           type="button"
-          className="relative inline-flex h-11 w-11 items-center justify-center rounded-pill text-ink hover:bg-brand-soft lg:hidden"
+          className="sn-burger relative inline-flex h-11 w-11 items-center justify-center rounded-pill text-ink transition-colors hover:bg-brand-soft active:scale-95 lg:hidden"
           aria-expanded={open}
           aria-controls="sn-mobile-menu"
           aria-label={open ? "メニューを閉じる" : "メニューを開く"}
           onClick={() => setOpen(!open)}
         >
-          {open ? <X size={24} strokeWidth={1.75} aria-hidden="true" /> : <Menu size={24} strokeWidth={1.75} aria-hidden="true" />}
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
           {!open && unread > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent" aria-hidden="true" />}
         </button>
       </div>
@@ -111,17 +113,17 @@ export function SiteHeader() {
           type="button"
           aria-label="メニューを閉じる"
           tabIndex={-1}
-          className="fixed inset-0 top-[69px] z-40 bg-[rgba(10,22,44,0.35)] lg:hidden"
+          className="sn-fade fixed inset-0 top-[69px] z-40 bg-[rgba(10,22,44,0.35)] lg:hidden"
           onClick={() => setOpen(false)}
         />
         <nav
           id="sn-mobile-menu"
           aria-label={m.mainMenu}
-          className="fixed inset-x-0 top-[69px] z-50 max-h-[calc(100dvh-69px)] overflow-y-auto border-b border-line bg-surface shadow-card lg:hidden"
+          className="sn-menu-panel fixed inset-x-0 top-[69px] z-50 max-h-[calc(100dvh-69px)] overflow-y-auto border-b border-line bg-surface shadow-card lg:hidden"
         >
           <ul className="mx-auto flex max-w-page flex-col px-4 py-2 sm:px-6">
-            {sections.map((s) => (
-              <li key={s.href} className="border-b border-line last:border-b-0">
+            {sections.map((s, i) => (
+              <li key={s.href} className="sn-menu-item border-b border-line last:border-b-0" style={{ ["--i" as string]: i }}>
                 <Link href={s.href} onClick={() => setOpen(false)}
                   className="flex min-h-[52px] items-center text-label text-ink no-underline hover:text-brand hover:no-underline">
                   {s.label}
@@ -129,7 +131,7 @@ export function SiteHeader() {
               </li>
             ))}
           </ul>
-          <div className="mx-auto flex max-w-page flex-col gap-3 border-t border-line px-4 py-4 sm:px-6">
+          <div className="sn-menu-item mx-auto flex max-w-page flex-col gap-3 border-t border-line px-4 py-4 sm:px-6" style={{ ["--i" as string]: sections.length }}>
             {!ready ? null : user ? (
               <>
                 <Link href="/mypage" onClick={() => setOpen(false)} className={buttonClass("soft", "w-full")}>

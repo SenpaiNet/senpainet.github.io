@@ -1,6 +1,7 @@
 "use client";
 
 // トップページのうち、Firestore やログイン状態に応じて変わる部分
+import { CountUp, Marquee } from "@/components/motion/Kinetic";
 import Link from "next/link";
 import { questionHref } from "@/lib/routes";
 import { useEffect, useState } from "react";
@@ -18,15 +19,14 @@ import type { QaQuestion } from "@/lib/qa/types";
 export function CategoryLinks() {
   const cats = useCategories();
   return (
-    <ul aria-label="相談できるカテゴリ" className="flex flex-wrap gap-2">
+    <Marquee label="相談できるカテゴリ（カーソルを乗せると止まります）" seconds={45}>
       {cats.map((c) => (
-        <li key={c.slug}>
-          <Link href={`/board?category=${c.slug}`} className="inline-flex min-h-[44px] items-center rounded-pill bg-surface px-[18px] text-label text-brand-deep no-underline hover:text-brand-deep hover:no-underline">
-            #{c.name}
-          </Link>
-        </li>
+        <Link key={c.slug} href={`/board?category=${c.slug}`}
+          className="inline-flex min-h-[44px] flex-none items-center rounded-pill bg-surface px-[18px] text-label text-brand-deep no-underline transition-transform duration-200 hover:-translate-y-0.5 hover:text-brand-deep hover:no-underline">
+          #{c.name}
+        </Link>
       ))}
-    </ul>
+    </Marquee>
   );
 }
 
@@ -56,10 +56,11 @@ export function LatestQuestions() {
     <>
       {items.length > 0 ? (
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
-          {items.map((q) => {
+          {items.map((q, idx) => {
             const a = attrFromAuthor(q.author);
             return (
               <QuestionCard
+                enterIndex={idx}
                 key={q.id}
                 href={questionHref(q.id)}
                 tags={q.categories.slice(0, 2).map((s) => categoryName(cats, s))}
@@ -126,7 +127,7 @@ export function Numbers({ heading }: { heading: React.ReactNode }) {
         <dl className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
           {items.map((s) => (
             <div key={s.label} className="flex flex-col gap-1 rounded-md bg-surface p-6 shadow-card">
-              <dd className="order-1 font-display text-[40px] font-semibold leading-none text-brand">{s.n}<span className="ml-1 text-label">{s.unit}</span></dd>
+              <dd className="order-1 font-display text-[40px] font-semibold leading-none text-brand"><CountUp value={s.n} /><span className="ml-1 text-label">{s.unit}</span></dd>
               <dt className="order-2 text-body-sm text-ink-muted">{s.label}</dt>
             </div>
           ))}

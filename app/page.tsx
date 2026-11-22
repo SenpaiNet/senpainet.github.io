@@ -1,3 +1,4 @@
+import { KineticWord } from "@/components/motion/Kinetic";
 import Link from "next/link";
 import { ArrowRight, Clock, EyeOff, Plus, Users } from "lucide-react";
 import { Scrolly } from "@/components/landing/Scrolly";
@@ -36,7 +37,7 @@ function Heading({ label, en, color = "text-brand" }: { label: string; en: strin
   return (
     <div className="flex flex-col gap-2">
       <p className={`${eyebrow} ${color}`}>{label}</p>
-      <p className={`font-display text-display-xl ${color}`}>{en}</p>
+      <KineticWord text={en} className={`font-display text-display-xl ${color}`} />
     </div>
   );
 }
@@ -50,7 +51,7 @@ export default function Home() {
         <div className="flex flex-col gap-8 rounded-lg bg-surface-periwinkle p-6 md:p-12">
           <div className="flex flex-col gap-2">
             <p className={`${eyebrow} text-ink`}>安心して相談できる理由</p>
-            <p className="font-display text-display-xl text-ink">About</p>
+            <KineticWord text="About" className="font-display text-display-xl text-ink" />
             <h2 className="mt-2 text-h2">進路の悩みを、経験者に。</h2>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -121,7 +122,7 @@ export default function Home() {
           <Heading label="よくある質問" en="FAQ" />
           <div className="flex flex-col gap-3">
             {faqs.map((f) => (
-              <details key={f.q} className="rounded-md bg-surface shadow-card">
+              <details key={f.q} className="sn-faq rounded-md bg-surface shadow-card">
                 <summary className="flex min-h-[64px] items-center justify-between gap-4 px-6 font-heading text-card-title font-bold">
                   <span>{f.q}</span>
                   <Plus className="faq-plus flex-none text-brand transition-transform duration-200" size={20} strokeWidth={1.75} aria-hidden="true" />

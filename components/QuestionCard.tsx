@@ -1,3 +1,4 @@
+import { stagger } from "@/components/motion/Kinetic";
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { ResolvedBadge, Tag } from "./ui";
@@ -11,6 +12,7 @@ export function QuestionCard({
   date,
   answerCount,
   resolved,
+  enterIndex,
 }: {
   href: string;
   tags: string[];
@@ -20,11 +22,14 @@ export function QuestionCard({
   date: string;
   answerCount: number;
   resolved: boolean;
+  /** 一覧で出現させるときの順番（指定がなければ出現の動きなし） */
+  enterIndex?: number;
 }) {
   return (
     <Link
       href={href}
-      className="flex flex-col gap-2.5 rounded-md bg-surface p-6 text-ink no-underline shadow-card transition-shadow duration-200 hover:text-ink hover:no-underline hover:shadow-[0_4px_14px_rgba(0,40,90,0.14)]"
+      style={enterIndex !== undefined ? stagger(enterIndex) : undefined}
+      className={`${enterIndex !== undefined ? "sn-enter " : ""}flex flex-col gap-2.5 rounded-md bg-surface p-6 text-ink no-underline shadow-card transition-[box-shadow,transform] duration-300 [transition-timing-function:var(--ease-out)] hover:-translate-y-0.5 hover:text-ink hover:no-underline hover:shadow-[0_8px_24px_rgba(0,40,90,0.14)] active:translate-y-0`}
     >
       <span className="flex flex-wrap items-center gap-1.5">
         {resolved && <ResolvedBadge />}

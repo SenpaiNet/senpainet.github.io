@@ -4,7 +4,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 type Variant = "primary" | "accent" | "soft" | "ghost";
 
 const base =
-  "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-pill px-5 text-label no-underline transition-colors hover:no-underline disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-pill px-5 text-label no-underline transition-[background-color,color,transform,box-shadow,filter] duration-150 hover:no-underline active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100";
 const variants: Record<Variant, string> = {
   primary: "bg-brand text-on-brand hover:bg-brand-deep hover:text-on-brand",
   // コーラルは1画面に1つだけ

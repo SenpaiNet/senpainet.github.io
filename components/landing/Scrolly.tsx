@@ -1,5 +1,6 @@
 "use client";
 
+import { HeroCopy, KineticWord } from "@/components/motion/Kinetic";
 import Link from "next/link";
 import { useEffect } from "react";
 import { ArrowRight, Bell, Check, ChevronDown, ChevronLeft, Home, MessageCircle, Plus, Search, User } from "lucide-react";
@@ -244,11 +245,11 @@ export function Scrolly() {
               ) : (
                 <p className="text-label text-ink">TGUISS 在校生と先輩をつなぐ相談の場</p>
               )}
-              <h1 className="text-[40px] leading-[56px] tracking-[0.08em] text-ink">{messages.site.heroLine1}<br />{messages.site.heroLine2}</h1>
+              <HeroCopy line1={messages.site.heroLine1} line2={messages.site.heroLine2} className="text-[40px] leading-[56px] tracking-[0.08em] text-ink" />
               <p className="max-w-[30em] text-body text-ink">同じ学校を歩いた先輩が、進路や毎日の悩みに答えます。相談はタイトルと内容を書いて、カテゴリを選ぶだけ。いろいろな先輩から回答が届きます。</p>
               <div className="flex flex-wrap gap-3 pt-2">
-                <Link href="/board/new" className={buttonClass("accent", "min-h-[52px] px-7 text-[15px] shadow-cta")}>
-                  {messages.cta.consult}<ArrowRight size={18} strokeWidth={1.75} aria-hidden="true" />
+                <Link href="/board/new" className={buttonClass("accent", "group min-h-[52px] px-7 text-[15px] shadow-cta")}>
+                  {messages.cta.consult}<ArrowRight size={18} strokeWidth={1.75} aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
                 {loggedIn ? (
                   <Link href="/board" className="inline-flex min-h-[52px] items-center rounded-pill bg-white px-7 text-[15px] font-bold text-brand-deep no-underline hover:text-brand-deep hover:no-underline">相談一覧を見る</Link>
@@ -271,7 +272,7 @@ export function Scrolly() {
                 {f.first && (
                   <div className="mb-4 flex flex-col gap-2">
                     <p className="text-label text-brand">SenpaiNetでできること</p>
-                    <p className="font-display text-display-xl text-brand">Features</p>
+                    <KineticWord text="Features" className="font-display text-display-xl text-brand" />
                   </div>
                 )}
                 <p className="flex items-center gap-3 font-display text-eyebrow text-brand">
