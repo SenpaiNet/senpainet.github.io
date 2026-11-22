@@ -57,7 +57,15 @@ npm run dev:emu
    npm run migrate:legacy -- --write
    ```
 
-5. 公開先（Vercel 推奨）の環境変数に `.env.local` と同じ値を入れ、`NEXT_PUBLIC_SITE_URL` を本番の URL にする。
+5. 公開は GitHub Pages（下の「公開」）。
+
+## 公開（GitHub Pages）
+
+- 新サイト：https://senpainet.github.io/ （このリポジトリ `SenpaiNet/senpainet.github.io`）
+- 旧サイト：https://senpainet.github.io/old/ （リポジトリ `SenpaiNet/old`）
+- `main` に push すると `.github/workflows/deploy.yml` がビルド（`next build` → `out/` に静的書き出し）して公開する。
+- 本番の設定値は `.env.production`（公開されても問題ない Firebase の Web 設定）。手元では `.env.local` が優先される。
+- 静的書き出しのため、相談の詳細は `/board/view/?id=…`、プロフィールは `/profile/view/?id=…` の形の URL。
 
 ## データの置き場所（Firestore）
 
