@@ -10,6 +10,8 @@ import { fb } from "@/lib/firebase/client";
 import type { Category } from "@/lib/qa/categories";
 import type { QaProfile } from "@/lib/qa/types";
 import { createQuestion } from "@/lib/qa/writes";
+import { audienceOf } from "@/lib/schools";
+import { Globe, School } from "lucide-react";
 import { clubLabels, pathLabels, streamLabels, type ClubType, type PathType, type Stream } from "@/lib/profile";
 
 const DRAFT_KEY = "senpainet:question-draft";
@@ -20,12 +22,14 @@ export function NewQuestionForm({
   categories,
   initialCategoryIds,
   attrText,
+  initialScope = "national",
 }: {
   userId: string;
   profile: QaProfile;
   categories: Category[];
   initialCategoryIds: string[];
   attrText: string;
+  initialScope?: "national" | "school";
 }) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -34,6 +38,7 @@ export function NewQuestionForm({
   const [tPath, setTPath] = useState<PathType | "">("");
   const [tClub, setTClub] = useState<ClubType | "">("");
   const [anonymous, setAnonymous] = useState(false);
+  const [scope, setScope] = useState<"national" | "school">(initialScope);
   const [tried, setTried] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +89,7 @@ export function NewQuestionForm({
         title: title.trim(),
         body: body.trim(),
         categories: picked,
+        audience: audienceOf(profile.schoolId, scope),
         isAnonymous: anonymous,
         targetStream: tStream || null,
         targetPathType: tPath || null,
@@ -187,6 +193,25 @@ export function NewQuestionForm({
               ))}
             </select>
           </div>
+        </div>
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-3">
+        <legend className={`${labelClass} mb-1`}>だれに相談しますか{requiredMark}</legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {([
+            ["national", Globe, "全国の先輩に", "全国の SenpaiNet の利用者が読めて、だれでも回答できます。"],
+            ["school", School, `${profile.schoolName ?? "自分の学校"}の人だけに`, "同じ学校の在校生・卒業生だけが読めて、回答できます。"],
+          ] as const).map(([id, Icon, label, desc]) => (
+            <label key={id}
+              className={`flex cursor-pointer items-start gap-3 rounded-md border-2 p-4 transition-[border-color,background-color,transform] duration-200 active:scale-[0.99] ${scope === id ? "border-brand bg-brand-soft" : "border-line bg-surface"}`}>
+              <input type="radio" name="scope" value={id} checked={scope === id} onChange={() => setScope(id)} className="mt-1 h-4 w-4 accent-[var(--brand)]" disabled={id === "school" && !profile.schoolId} />
+              <span className="flex flex-col gap-0.5">
+                <span className="flex items-center gap-1.5 text-label"><Icon size={18} strokeWidth={1.75} className={scope === id ? "sn-pop text-brand-deep" : "text-ink-muted"} aria-hidden="true" />{label}</span>
+                <span className="text-body-sm text-ink-muted">{desc}</span>
+              </span>
+            </label>
+          ))}
         </div>
       </fieldset>
 

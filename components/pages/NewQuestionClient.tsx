@@ -6,7 +6,7 @@ import { PageBody, PageHeading } from "@/components/ui";
 import { attrLabel } from "@/lib/profile";
 import { useCategories } from "@/lib/qa/categories";
 
-function Inner({ category }: { category?: string }) {
+function Inner({ category, scope }: { category?: string; scope: "national" | "school" }) {
   const { user, profile } = useAuth();
   const categories = useCategories();
   if (!user || !profile) return null;
@@ -17,6 +17,7 @@ function Inner({ category }: { category?: string }) {
     stream: profile.stream,
     club_type: profile.clubType,
     university_year: profile.universityYear,
+    school_kind: profile.schoolKind ?? null,
   });
   const initial = categories.some((c) => c.slug === category) && category ? [category] : [];
   return (
@@ -32,17 +33,18 @@ function Inner({ category }: { category?: string }) {
           categories={categories}
           initialCategoryIds={initial}
           attrText={[a.role, a.meta].filter(Boolean).join("・")}
+          initialScope={scope}
         />
       )}
     </PageBody>
   );
 }
 
-export function NewQuestionClient({ category }: { category?: string }) {
+export function NewQuestionClient({ category, scope = "national" }: { category?: string; scope?: "national" | "school" }) {
   const next = category ? `/board/new?category=${encodeURIComponent(category)}` : "/board/new";
   return (
     <Gate member next={next}>
-      <Inner category={category} />
+      <Inner category={category} scope={scope} />
     </Gate>
   );
 }

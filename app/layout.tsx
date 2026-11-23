@@ -11,7 +11,7 @@ const zen = Zen_Kaku_Gothic_New({ subsets: ["latin"], weight: ["500", "700"], va
 
 export const metadata: Metadata = {
   title: "SenpaiNet | その悩み、先輩に相談しよう",
-  description: "東京学芸大学附属国際中等教育学校の在校生と先輩をつなぐ相談サイトです。",
+  description: "全国の中学生・高校生が、全国の先輩や自分の学校の先輩に相談できるサイトです。",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

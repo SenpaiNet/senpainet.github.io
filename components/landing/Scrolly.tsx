@@ -9,9 +9,9 @@ import { messages } from "@/lib/messages";
 import { useAuth } from "@/components/AuthProvider";
 
 const features = [
-  { id: "sn-step1", first: true, num: "Feature 01", title: "書いて、選んで、\nすぐに相談", body: "タイトルと内容を書いたら、ハッシュタグのようにカテゴリを選ぶだけ。答えてほしい先輩の文系・理系や部活も指定できます。", points: ["カテゴリは12種類から3つまで", "匿名でも投稿できる"] },
+  { id: "sn-step1", first: true, num: "Feature 01", title: "書いて、選んで、\nすぐに相談", body: "タイトルと内容を書いたら、ハッシュタグのようにカテゴリを選ぶだけ。答えてほしい先輩の文系・理系や部活も指定できます。", points: ["全国に出すか、学内だけにするかを選べる", "カテゴリは3つまで。匿名でも投稿できる"] },
   { id: "sn-step2", first: false, num: "Feature 02", title: "いろいろな先輩から、\nいろいろな答え", body: "1つの相談に、文系の先輩も理系の先輩も答えられます。いちばん役に立った回答はベストアンサーに選べます。", points: ["「参考になった」で良い回答が上に", "回答が届いたらマイページで通知"] },
-  { id: "sn-step3", first: false, num: "Feature 03", title: "プロフィールで、\nどんな先輩かわかる", body: "学年、文系・理系、部活、卒業生なら大学の何回生か。回答と一緒に表示されるので、自分に近い先輩の話を見つけやすくなります。", points: ["大学名は見せない設定もできる", "気になる先輩に直接相談できる"] },
+  { id: "sn-step3", first: false, num: "Feature 03", title: "プロフィールで、\nどんな先輩かわかる", body: "学年、文系・理系、部活、学校、卒業生なら大学の何回生か。回答と一緒に表示されるので、自分に近い先輩の話を見つけやすくなります。", points: ["学校名・大学名は見せない設定もできる", "気になる先輩に直接相談できる"] },
 ] as const;
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
@@ -243,10 +243,10 @@ export function Scrolly() {
                   新しい通知が{unread}件あります
                 </Link>
               ) : (
-                <p className="text-label text-ink">TGUISS 在校生と先輩をつなぐ相談の場</p>
+                <p className="text-label text-ink">全国の中高生と先輩をつなぐ相談の場</p>
               )}
               <HeroCopy line1={messages.site.heroLine1} line2={messages.site.heroLine2} className="text-[40px] leading-[56px] tracking-[0.08em] text-ink" />
-              <p className="max-w-[30em] text-body text-ink">同じ学校を歩いた先輩が、進路や毎日の悩みに答えます。相談はタイトルと内容を書いて、カテゴリを選ぶだけ。いろいろな先輩から回答が届きます。</p>
+              <p className="max-w-[30em] text-body text-ink">同じ道を歩いた先輩が、進路や毎日の悩みに答えます。全国の先輩にも、自分の学校の先輩にも相談できます。タイトルと内容を書いて、カテゴリを選ぶだけです。</p>
               <div className="flex flex-wrap gap-3 pt-2">
                 <Link href="/board/new" className={buttonClass("accent", "group min-h-[52px] px-7 text-[15px] shadow-cta")}>
                   {messages.cta.consult}<ArrowRight size={18} strokeWidth={1.75} aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1" />

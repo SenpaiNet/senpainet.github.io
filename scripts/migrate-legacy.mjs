@@ -38,6 +38,12 @@ const DEFAULT_CATEGORIES = [
   ["shushoku", "就活・キャリア"], ["ib", "IB・課題研究"], ["sonota", "その他"],
 ];
 
+// 旧サイトは東京学芸大学附属国際中等教育学校（6年制）だけの利用者だったので、全員この学校の所属として移す
+const LEGACY_SCHOOL = { id: "tguiss", name: "東京学芸大学附属国際中等教育学校", prefecture: "東京都", kind: "secondary" };
+const normalizeName = (s) => s.normalize("NFKC").replace(/\s+/g, "").toLowerCase();
+const bigrams = (s) => { const t = normalizeName(s); const set = new Set(); for (let i = 0; i < t.length - 1; i++) set.add(t.slice(i, i + 2)); return [...set].slice(0, 60); };
+const legacySchoolFields = { schoolId: LEGACY_SCHOOL.id, schoolName: LEGACY_SCHOOL.name, schoolKind: LEGACY_SCHOOL.kind };
+
 const toMs = (v) => (typeof v === "number" ? v : v?.toMillis ? v.toMillis() : typeof v === "string" ? Date.parse(v) || null : null);
 const ts = (ms) => Timestamp.fromMillis(ms ?? Date.now());
 const categoriesOf = (c) => {
@@ -89,6 +95,8 @@ for (const u of legacyUsers.docs) {
     isProfileComplete: complete && !(d.status === "current" && alumni),
     isSuspended: false,
     categories: [...new Set(tags.map((t) => TAG_MAP[t]).filter(Boolean))],
+    ...legacySchoolFields,
+    schoolPublic: false, // 学校名は「表示しない」から始める（本人が新サイトで変えられる）
     createdAt: ts(toMs(d.createdAt) ?? toMs(d.updatedAt)),
     updatedAt: ts(Date.now()),
     legacy: true,
@@ -123,7 +131,8 @@ for (const c of consultations.docs) {
     const role = entryYear && schoolYear(createdMs) - entryYear + 1 > 6 ? "alumni" : "student";
     put(db.doc(`questions/${qid}/qaAnswers/${aid}`), {
       body: String(ad.body || ""),
-      author: { id: anon ? null : uid, name: anon ? null : nameOf.get(uid) ?? null, role, entryYear, stream: null, clubType: null, universityYear: null },
+      audience: "national",
+      author: { id: anon ? null : uid, name: anon ? null : nameOf.get(uid) ?? null, role, entryYear, stream: null, clubType: null, universityYear: null, schoolKind: "secondary", school: null },
       helpfulCount: Number(ad.helpful) || 0,
       status: "visible",
       parentId: null,
@@ -144,7 +153,8 @@ for (const c of consultations.docs) {
       const rMs = toMs(rd.createdAt) ?? createdMs;
       put(db.doc(`questions/${qid}/qaAnswers/legacy_${r.id}`), {
         body: String(rd.body || ""),
-        author: { id: null, name: null, role: rEntry && schoolYear(rMs) - rEntry + 1 > 6 ? "alumni" : "student", entryYear: rEntry, stream: null, clubType: null, universityYear: null },
+        audience: "national",
+        author: { schoolKind: "secondary", school: null, id: null, name: null, role: rEntry && schoolYear(rMs) - rEntry + 1 > 6 ? "alumni" : "student", entryYear: rEntry, stream: null, clubType: null, universityYear: null },
         helpfulCount: 0,
         status: "visible",
         parentId: aid,
@@ -159,6 +169,7 @@ for (const c of consultations.docs) {
   put(db.doc(`questions/${qid}`), {
     title: String(d.title || "（無題）").slice(0, 60),
     categories: categoriesOf(d),
+    audience: "national", // 旧サイトの相談は誰でも読めたので「全国」で移す
     isAnonymous: true, // 旧サイトの相談は匿名（相談本体に投稿者を持たない）だったので、匿名のまま移す
     author: {
       id: null,
@@ -168,6 +179,8 @@ for (const c of consultations.docs) {
       stream: null,
       clubType: null,
       universityYear: null,
+      schoolKind: "secondary",
+      school: null,
     },
     targetStream: null,
     targetPathType: null,
@@ -190,6 +203,12 @@ for (const c of consultations.docs) {
   out.questions++;
   if (hidden) out.hiddenQuestions++;
 }
+
+// ---- 学校（旧サイトの学校を確認済みで登録）----
+put(db.doc(`schools/${LEGACY_SCHOOL.id}`), {
+  name: LEGACY_SCHOOL.name, nameKey: normalizeName(LEGACY_SCHOOL.name), ngrams: bigrams(LEGACY_SCHOOL.name),
+  prefecture: LEGACY_SCHOOL.prefecture, kind: LEGACY_SCHOOL.kind, status: "verified", createdBy: "migration", createdAt: ts(Date.now()),
+});
 
 // ---- カテゴリ（未登録なら初期値を入れる）----
 const cats = await db.collection("qaCategories").limit(1).get();

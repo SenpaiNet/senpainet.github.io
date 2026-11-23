@@ -24,11 +24,13 @@ import { fb } from "@/lib/firebase/client";
 import { formatDate } from "@/lib/profile";
 import { handleReport, resolveTarget, seedCategories, setSuspended, type ReportAction } from "@/lib/qa/admin";
 import { clearCategoryCache, loadCategories, type Category } from "@/lib/qa/categories";
+import { bigrams, normalizeName, schoolKinds, type School } from "@/lib/schools";
 import type { QaProfile, QaReport } from "@/lib/qa/types";
 
 const tabs = [
   { id: "reports", label: "通報" },
   { id: "users", label: "ユーザー" },
+  { id: "schools", label: "学校" },
   { id: "categories", label: "カテゴリ" },
   { id: "stats", label: "統計" },
 ] as const;
@@ -253,6 +255,79 @@ function Categories() {
   );
 }
 
+const statusText = { pending: "確認待ち", verified: "確認済み", hidden: "非表示" } as const;
+
+/** 学校：利用者が追加した学校を確認する。名前の修正・非表示もここで */
+function Schools() {
+  const [show, setShow] = useState<"pending" | "verified" | "hidden">("pending");
+  const [list, setList] = useState<School[] | null>(null);
+  const [names, setNames] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string | null>(null);
+
+  async function load() {
+    const f = fb();
+    if (!f) return;
+    const snap = await getDocs(query(collection(f.db, "schools"), where("status", "==", show), limit(300)));
+    const l = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<School, "id">) })).sort((a, b) => a.name.localeCompare(b.name, "ja"));
+    setList(l);
+    setNames(Object.fromEntries(l.map((x) => [x.id, x.name])));
+  }
+  useEffect(() => {
+    setList(null);
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show]);
+
+  async function patch(id: string, values: Record<string, unknown>) {
+    const f = fb();
+    if (!f) return;
+    setError(null);
+    try {
+      await updateDoc(doc(f.db, "schools", id), values);
+      load();
+    } catch {
+      setError("保存できませんでした。");
+    }
+  }
+
+  return (
+    <section aria-label="学校" className="flex flex-col gap-3">
+      <p className="text-body-sm">
+        利用者が見つけられなかった学校は「確認待ち」で追加されます。正式な名前か確かめて「確認済み」にしてください。
+        名前の修正は、すでに投稿された相談の表示には反映されません。
+      </p>
+      <div role="group" aria-label="表示する学校" className="flex flex-wrap gap-1 self-start rounded-pill border border-line bg-surface p-1">
+        {(["pending", "verified", "hidden"] as const).map((k) => (
+          <button key={k} type="button" aria-pressed={show === k} onClick={() => setShow(k)}
+            className={`min-h-[40px] rounded-pill px-4 text-label ${show === k ? "bg-brand text-on-brand" : "text-ink"}`}>
+            {statusText[k]}
+          </button>
+        ))}
+      </div>
+      {error && <p role="alert" className="rounded-md bg-brand-soft p-4 text-body-sm">{error}</p>}
+      {!list ? <p role="status">読み込んでいます…</p> : list.length === 0 && <p className="rounded-md bg-surface p-6 text-center">{statusText[show]}の学校はありません。</p>}
+      {list?.map((sc) => (
+        <div key={sc.id} className="flex flex-wrap items-center gap-3 rounded-md bg-surface p-4 shadow-card">
+          <label className="sr-only" htmlFor={`sc-${sc.id}`}>学校名</label>
+          <input id={`sc-${sc.id}`} className={`${fieldClass} min-h-[44px] flex-[1_1_240px]`} value={names[sc.id] ?? ""}
+            onChange={(e) => setNames({ ...names, [sc.id]: e.target.value })} />
+          <span className="text-caption text-ink-muted">{sc.prefecture}・{schoolKinds.find((k) => k.id === sc.kind)?.label}</span>
+          <Button variant="soft" disabled={!names[sc.id]?.trim() || names[sc.id] === sc.name}
+            onClick={() => patch(sc.id, { name: names[sc.id].trim(), nameKey: normalizeName(names[sc.id]), ngrams: bigrams(names[sc.id]) })}>
+            名前を保存
+          </Button>
+          {sc.status !== "verified" && <Button onClick={() => patch(sc.id, { status: "verified" })}>確認済みにする</Button>}
+          {sc.status !== "hidden" && (
+            <Button variant="ghost" className="border border-line" onClick={() => window.confirm("この学校を検索に出さないようにします。") && patch(sc.id, { status: "hidden" })}>
+              非表示にする
+            </Button>
+          )}
+        </div>
+      ))}
+    </section>
+  );
+}
+
 function Stats() {
   const [s, setS] = useState<[string, number][] | null>(null);
   useEffect(() => {
@@ -311,6 +386,7 @@ function Inner({ tab }: { tab: Tab }) {
       </div>
       {tab === "reports" && <Reports />}
       {tab === "users" && <Users />}
+      {tab === "schools" && <Schools />}
       {tab === "categories" && <Categories />}
       {tab === "stats" && <Stats />}
     </PageBody>

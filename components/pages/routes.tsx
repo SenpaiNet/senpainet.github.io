@@ -33,7 +33,7 @@ const get = (p: URLSearchParams, k: string) => p.get(k) ?? undefined;
 export const BoardRoute = () => (
   <Route
     render={(p) => (
-      <BoardClient key={p.toString()} params={{ category: get(p, "category"), sort: get(p, "sort"), unanswered: get(p, "unanswered"), q: get(p, "q") }} />
+      <BoardClient params={{ scope: get(p, "scope"), category: get(p, "category"), sort: get(p, "sort"), unanswered: get(p, "unanswered"), q: get(p, "q") }} />
     )}
   />
 );
@@ -46,7 +46,9 @@ export const ProfileRoute = () => (
   <Route render={(p) => <ProfileClient key={get(p, "id")} id={get(p, "id") ?? ""} />} />
 );
 
-export const NewQuestionRoute = () => <Route render={(p) => <NewQuestionClient category={get(p, "category")} />} />;
+export const NewQuestionRoute = () => (
+  <Route render={(p) => <NewQuestionClient category={get(p, "category")} scope={get(p, "scope") === "school" ? "school" : "national"} />} />
+);
 
 export const MypageRoute = () => <Route render={(p) => <MypageClient tab={get(p, "tab")} />} />;
 

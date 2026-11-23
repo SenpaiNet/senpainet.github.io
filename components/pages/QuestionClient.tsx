@@ -44,7 +44,7 @@ export function QuestionClient({ id }: { id: string }) {
       const [body, owner, answers] = await Promise.all([
         getBody(f.db, id),
         getOwnership(f.db, id, user.uid),
-        listAnswers(f.db, id).catch(() => [] as QaAnswer[]),
+        listAnswers(f.db, id, question.audience).catch(() => [] as QaAnswer[]),
       ]);
       const voted = await myVotes(f.db, id, answers.map((a) => a.id), user.uid);
       setData({ question, body, mine: Boolean(owner), answers, voted });
@@ -121,6 +121,9 @@ export function QuestionClient({ id }: { id: string }) {
       <article className="flex flex-col gap-4 rounded-lg bg-surface p-6 shadow-card md:p-10">
         <div className="flex flex-wrap items-center gap-1.5">
           {question.status === "resolved" && <ResolvedBadge />}
+          {question.audience !== "national" && (
+            <span className="inline-flex items-center gap-1 rounded-pill bg-ink px-[10px] py-[3px] text-caption font-bold text-surface">学内の相談</span>
+          )}
           {question.status === "hidden" && <span className="text-caption font-bold text-accent-strong">非表示中（運営の判断）</span>}
           {tags.map((t) => <Tag key={t}>{t}</Tag>)}
         </div>

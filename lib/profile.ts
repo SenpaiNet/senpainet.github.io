@@ -1,4 +1,5 @@
 // 学年・属性ラベルの計算。学年度は4月始まり。
+import { gradeLabel, yearsOf, type SchoolKind } from "./schools";
 
 export type Role = "student" | "alumni" | "admin";
 export type Stream = "science" | "humanities" | "undecided";
@@ -17,7 +18,7 @@ export function currentSchoolYear(now = new Date()): number {
   return jst.getUTCMonth() >= 3 ? jst.getUTCFullYear() : jst.getUTCFullYear() - 1;
 }
 
-/** 入学年度から学年（1〜6）。6年を過ぎていたら 7 以上を返す。 */
+/** 入学年度から学年（1年生が 1）。学校の年数を過ぎていたら、年数より大きい値を返す。 */
 export function gradeOf(entryYear: number, now = new Date()): number {
   return currentSchoolYear(now) - entryYear + 1;
 }
@@ -29,6 +30,9 @@ type Attrs = {
   stream: Stream | null;
   club_type: ClubType | null;
   university_year: number | null;
+  school_kind?: SchoolKind | null;
+  /** 公開している学校名（匿名・非公開なら null） */
+  school?: string | null;
 };
 
 /** 回答者・投稿者の属性ラベル。例：{ role: "卒業生", meta: "大学2回生・理系・運動部" } */
@@ -37,13 +41,15 @@ export function attrLabel(a: Attrs): { role: string; meta: string } {
   if (a.role === "student") {
     if (a.entry_year) {
       const g = gradeOf(a.entry_year);
-      if (g >= 1 && g <= 6) parts.push(`${g}年`);
+      // 種類が分からない（移行前のデータ）ときは 6年制として数える
+      if (g >= 1 && g <= yearsOf(a.school_kind)) parts.push(gradeLabel(a.school_kind ?? "secondary", g));
     }
   } else if (a.role === "alumni") {
     if (a.university_year) parts.push(a.university_year >= 7 ? "卒業済み・社会人" : `大学${a.university_year}回生`);
   }
   if (a.stream && a.stream !== "undecided") parts.push(streamLabels[a.stream]);
   if (a.club_type && a.club_type !== "none") parts.push(clubLabels[a.club_type]);
+  if (a.school) parts.push(a.school);
   return { role: a.role === "alumni" ? "卒業生" : a.role === "admin" ? "運営" : "在校生", meta: parts.join("・") };
 }
 
@@ -54,6 +60,8 @@ export function attrFromAuthor(a: {
   stream: Stream | null;
   clubType: ClubType | null;
   universityYear: number | null;
+  schoolKind?: SchoolKind | null;
+  school?: string | null;
 }) {
   return attrLabel({
     role: a.role,
@@ -62,6 +70,8 @@ export function attrFromAuthor(a: {
     stream: a.stream,
     club_type: a.clubType,
     university_year: a.universityYear,
+    school_kind: a.schoolKind ?? null,
+    school: a.school ?? null,
   });
 }
 

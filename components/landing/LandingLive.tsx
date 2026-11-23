@@ -39,7 +39,7 @@ export function LatestQuestions() {
   useEffect(() => {
     const f = fb();
     if (!ready || !f) return;
-    getDocs(query(collection(f.db, "questions"), where("visible", "==", true), orderBy("createdAt", "desc"), limit(3)))
+    getDocs(query(collection(f.db, "questions"), where("visible", "==", true), where("audience", "==", "national"), orderBy("createdAt", "desc"), limit(3)))
       .then(async (s) => {
         const list = s.docs.map(toQuestion);
         setItems(list);
@@ -95,10 +95,10 @@ export function Numbers({ heading }: { heading: React.ReactNode }) {
     if (!ready || !f) return;
     (async () => {
       try {
-        const visible = query(collection(f.db, "questions"), where("visible", "==", true));
+        const visible = query(collection(f.db, "questions"), where("visible", "==", true), where("audience", "==", "national"));
         const [qs, answered] = await Promise.all([
           getCountFromServer(visible),
-          getCountFromServer(query(collection(f.db, "questions"), where("visible", "==", true), where("answerCount", ">", 0))),
+          getCountFromServer(query(collection(f.db, "questions"), where("visible", "==", true), where("audience", "==", "national"), where("answerCount", ">", 0))),
         ]);
         const total = qs.data().count;
         // 登録者数はプロフィールを読めるログイン中の人にだけ出す

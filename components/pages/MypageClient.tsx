@@ -73,6 +73,8 @@ function Inner({ tab }: { tab: Tab }) {
     stream: profile.stream,
     club_type: profile.clubType,
     university_year: profile.universityYear,
+    school_kind: profile.schoolKind ?? null,
+    school: profile.schoolName ?? null,
   });
   const noticeText: Record<string, string> = { best_answer: "あなたの回答がベストアンサーに選ばれました" };
 

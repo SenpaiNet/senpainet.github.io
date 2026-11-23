@@ -1,6 +1,6 @@
 # SenpaiNet
 
-TGUISS の在校生が先輩に相談できるサイト。Next.js (App Router) + Tailwind CSS + **Firebase（Authentication + Firestore）**。
+全国の中学生・高校生が、全国の先輩や自分の学校の先輩に相談できるサイト。Next.js (App Router) + Tailwind CSS + **Firebase（Authentication + Firestore）**。
 機能の仕様は `SPEC.md`、見た目は `design-system/` と `design/`。進め方は `CLAUDE.md`。
 
 Firebase プロジェクトは、旧サイト（senpainet.github.io）と同じ **`senpainet-console`**。

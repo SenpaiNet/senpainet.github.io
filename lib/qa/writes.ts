@@ -13,6 +13,7 @@ import {
   type Firestore,
 } from "firebase/firestore";
 import type { Author, QaAnswer, QaProfile } from "./types";
+import { bigrams, normalizeName, type SchoolKind } from "../schools";
 
 export function authorOf(uid: string, p: QaProfile, anonymous: boolean): Author {
   return {
@@ -23,7 +24,26 @@ export function authorOf(uid: string, p: QaProfile, anonymous: boolean): Author 
     stream: p.stream ?? null,
     clubType: p.clubType ?? null,
     universityYear: p.universityYear ?? null,
+    schoolKind: p.schoolKind ?? null,
+    // 学校名は、本人が公開にしていて、匿名でないときだけ出す
+    school: !anonymous && p.schoolPublic && p.schoolName ? p.schoolName : null,
   };
+}
+
+/** 見つからなかった学校を追加する（運営があとで確認する） */
+export async function createSchool(db: Firestore, uid: string, s: { name: string; prefecture: string; kind: SchoolKind }) {
+  const ref = doc(collection(db, "schools"));
+  await setDoc(ref, {
+    name: s.name.trim(),
+    nameKey: normalizeName(s.name),
+    ngrams: bigrams(s.name),
+    prefecture: s.prefecture,
+    kind: s.kind,
+    status: "pending",
+    createdBy: uid,
+    createdAt: serverTimestamp(),
+  });
+  return ref.id;
 }
 
 export type ProfileInput = Omit<QaProfile, "isSuspended" | "lastPostAt" | "createdAt" | "updatedAt"> & {
@@ -50,6 +70,8 @@ export type QuestionInput = {
   title: string;
   body: string;
   categories: string[];
+  /** national か school:学校ID */
+  audience: string;
   isAnonymous: boolean;
   targetStream: string | null;
   targetPathType: string | null;
@@ -63,6 +85,7 @@ export async function createQuestion(db: Firestore, uid: string, profile: QaProf
   batch.set(qRef, {
     title: input.title,
     categories: input.categories,
+    audience: input.audience,
     isAnonymous: input.isAnonymous,
     author: authorOf(uid, profile, input.isAnonymous),
     targetStream: input.targetStream,
@@ -92,6 +115,8 @@ export async function addAnswer(db: Firestore, uid: string, profile: QaProfile, 
     const count = (q.data().answerCount as number) ?? 0;
     tx.set(aRef, {
       body,
+      // 回答も相談と同じ範囲（全国／学内）でだけ読めるようにする
+      audience: (q.data().audience as string) ?? "national",
       author: authorOf(uid, profile, false),
       helpfulCount: 0,
       status: "visible",

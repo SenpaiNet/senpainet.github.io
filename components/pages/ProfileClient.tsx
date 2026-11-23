@@ -29,9 +29,9 @@ function Inner({ id }: { id: string }) {
         const snap = await getDoc(doc(f.db, "profiles", id));
         if (!snap.exists() || !snap.data().isProfileComplete) return setMissing(true);
         const [answers, ac, bc] = await Promise.all([
-          answersBy(f.db, id, true, 20).catch(() => [] as QaAnswer[]),
-          getCountFromServer(query(collectionGroup(f.db, "qaAnswers"), where("author.id", "==", id), where("status", "==", "visible"))).catch(() => null),
-          getCountFromServer(query(collection(f.db, "questions"), where("visible", "==", true), where("bestAnswerAuthorId", "==", id))).catch(() => null),
+          answersBy(f.db, id, true, 20, "national").catch(() => [] as QaAnswer[]),
+          getCountFromServer(query(collectionGroup(f.db, "qaAnswers"), where("author.id", "==", id), where("status", "==", "visible"), where("audience", "==", "national"))).catch(() => null),
+          getCountFromServer(query(collection(f.db, "questions"), where("visible", "==", true), where("audience", "==", "national"), where("bestAnswerAuthorId", "==", id))).catch(() => null),
         ]);
         const titles = await titlesOf(f.db, answers.map((a) => a.questionId));
         setData({ p: snap.data() as QaProfile, answers, titles, answerCount: ac?.data().count ?? answers.length, bestCount: bc?.data().count ?? 0 });
@@ -58,6 +58,8 @@ function Inner({ id }: { id: string }) {
     stream: p.stream,
     club_type: p.clubType,
     university_year: p.universityYear,
+    school_kind: p.schoolKind ?? null,
+    school: p.schoolPublic ? p.schoolName ?? null : null,
   });
   const mine = id === user.uid;
   const askHref = p.categories[0] ? `/board/new?category=${p.categories[0]}` : "/board/new";

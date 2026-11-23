@@ -1,5 +1,6 @@
 import type { Timestamp } from "firebase/firestore";
 import type { ClubType, PathType, Stream } from "@/lib/profile";
+import type { SchoolKind } from "@/lib/schools";
 
 export type QaRole = "student" | "alumni";
 
@@ -24,6 +25,12 @@ export type QaProfile = {
   isProfileComplete: boolean;
   isSuspended: boolean;
   categories: string[];
+  /** 所属する学校（schools/{id}）。学校名と種類は表示用に写しを持つ */
+  schoolId?: string | null;
+  schoolName?: string | null;
+  schoolKind?: SchoolKind | null;
+  /** 相談・回答に学校名を出すか */
+  schoolPublic?: boolean;
   lastPostAt?: Timestamp | null;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
@@ -38,13 +45,20 @@ export type Author = {
   stream: Stream | null;
   clubType: ClubType | null;
   universityYear: number | null;
+  schoolKind?: SchoolKind | null;
+  /** 学校名（匿名・非公開なら null） */
+  school?: string | null;
 };
+
+/** 公開範囲：全国（national）か、学内（school:学校ID） */
+export type Audience = string;
 
 /** questions/{qid} */
 export type QaQuestion = {
   id: string;
   title: string;
   categories: string[];
+  audience: Audience;
   isAnonymous: boolean;
   author: Author;
   targetStream: Stream | null;
@@ -64,6 +78,7 @@ export type QaAnswer = {
   id: string;
   questionId: string;
   body: string;
+  audience: Audience;
   author: Author;
   helpfulCount: number;
   status: "visible" | "hidden";

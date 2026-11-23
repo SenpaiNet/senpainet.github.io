@@ -6,7 +6,7 @@ export const alt = "SenpaiNet | その悩み、先輩に相談しよう";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const TEXT = "その悩み、先輩に相談しよう同じ学校を歩いた先輩が答えます";
+const TEXT = "その悩み、先輩に相談しよう同じ道を歩いた先輩が答えます";
 
 // 画像に使う文字だけの Noto Sans JP を Google Fonts から取得する（失敗したら英字だけで描く）
 async function loadFont(): Promise<ArrayBuffer | null> {
@@ -31,7 +31,7 @@ export default async function OpengraphImage() {
         {font && (
           <>
             <div style={{ marginTop: 40, fontSize: 84, fontWeight: 700, letterSpacing: 4 }}>その悩み、先輩に相談しよう</div>
-            <div style={{ marginTop: 32, fontSize: 36 }}>同じ学校を歩いた先輩が答えます</div>
+            <div style={{ marginTop: 32, fontSize: 36 }}>同じ道を歩いた先輩が答えます</div>
           </>
         )}
       </div>

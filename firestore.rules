@@ -215,6 +215,16 @@ service cloud.firestore {
     }
     function strMax(v, n) { return v == null || (v is string && v.size() <= n); }
 
+    // ---------- 学校と公開範囲 ----------
+    // 公開範囲（audience）は 'national'（全国）か 'school:学校ID'（学内）。
+    // 学内の相談・回答は、プロフィールの schoolId が同じ人だけが読める。
+    function mySchoolAudience() {
+      return signedIn() && exists(profPath(me())) && prof().get('schoolId', null) is string
+        ? 'school:' + prof().schoolId : 'national';
+    }
+    function canSee(aud) { return aud == 'national' || aud == mySchoolAudience(); }
+    function schoolKinds() { return ['secondary', 'combined', 'junior', 'high', 'kosen']; }
+
     // ---------- プロフィール ----------
     function validProfile(d) {
       return d.displayName is string && d.displayName.size() >= 1 && d.displayName.size() <= 20
@@ -225,7 +235,10 @@ service cloud.firestore {
         && strMax(d.get('faculty', null), 60)
         && d.isPublic is bool
         && d.isProfileComplete is bool
-        && (d.get('categories', []) is list && d.get('categories', []).size() <= 12);
+        && (d.get('categories', []) is list && d.get('categories', []).size() <= 12)
+        && strMax(d.get('schoolName', null), 80)
+        && (d.get('schoolKind', null) == null || d.schoolKind in schoolKinds())
+        && (d.isProfileComplete == false || d.get('schoolId', null) is string);
     }
     match /profiles/{u} {
       allow read: if isAdmin() || (signedIn() && (u == me() || resource.data.isPublic == true));
@@ -263,15 +276,19 @@ service cloud.firestore {
       return a.role == prof().role
         && a.get('entryYear', null) == prof().get('entryYear', null)
         && ((anon == true && a.id == null && a.name == null)
-            || (anon == false && a.id == me() && a.name == prof().displayName));
+            || (anon == false && a.id == me() && a.name == prof().displayName))
+        && a.get('schoolKind', null) == prof().get('schoolKind', null)
+        && (a.get('school', null) == null
+            || (anon == false && prof().get('schoolPublic', false) == true && a.school == prof().get('schoolName', null)));
     }
     function validQuestionNew(d) {
-      return d.keys().hasOnly(['title', 'categories', 'isAnonymous', 'author', 'targetStream', 'targetPathType',
+      return d.keys().hasOnly(['title', 'categories', 'audience', 'isAnonymous', 'author', 'targetStream', 'targetPathType',
                                'targetClubType', 'answerCount', 'bestAnswerId', 'bestAnswerAuthorId', 'status',
                                'visible', 'createdAt'])
         && d.title is string && d.title.size() >= 1 && d.title.size() <= 60
         && d.categories is list && d.categories.size() >= 1 && d.categories.size() <= 3
         && d.isAnonymous is bool
+        && (d.audience == 'national' || d.audience == mySchoolAudience())
         && validAuthor(d.author, d.isAnonymous)
         && d.answerCount == 0 && d.bestAnswerId == null && d.bestAnswerAuthorId == null
         && d.status == 'open' && d.visible == true && d.createdAt == request.time;
@@ -311,7 +328,7 @@ service cloud.firestore {
         && d.author.role == o.author.role;
     }
     match /questions/{q} {
-      allow read: if resource.data.visible == true || isAdmin() || isQOwner(q);
+      allow read: if (resource.data.visible == true && canSee(resource.data.audience)) || isAdmin() || isQOwner(q);
       allow create: if isMember() && validQuestionNew(request.resource.data) && postStamped()
         && !exists(ownerPath(q))
         && existsAfter(ownerPath(q)) && getAfter(ownerPath(q)).data.uid == me()
@@ -322,8 +339,10 @@ service cloud.firestore {
       // 回答
       match /qaAnswers/{a} {
         allow create: if isMember() && postStamped()
-          && request.resource.data.keys().hasOnly(['body', 'author', 'helpfulCount', 'status', 'parentId',
+          && request.resource.data.keys().hasOnly(['body', 'audience', 'author', 'helpfulCount', 'status', 'parentId',
                                                     'isAnonymous', 'createdAt'])
+          && request.resource.data.audience == get(qPath(q)).data.audience
+          && canSee(request.resource.data.audience)
           && request.resource.data.body is string
           && request.resource.data.body.size() >= 1 && request.resource.data.body.size() <= 2000
           && request.resource.data.helpfulCount == 0
@@ -350,6 +369,7 @@ service cloud.firestore {
           allow create: if isMember() && v == me()
             && request.resource.data.keys().hasOnly(['createdAt'])
             && get(ansPath(q, a)).data.author.id != me()
+            && canSee(get(ansPath(q, a)).data.audience)
             && getAfter(ansPath(q, a)).data.helpfulCount == get(ansPath(q, a)).data.helpfulCount + 1;
           allow delete: if signedIn() && v == me()
             && getAfter(ansPath(q, a)).data.helpfulCount == get(ansPath(q, a)).data.helpfulCount - 1;
@@ -372,12 +392,14 @@ service cloud.firestore {
     // 回答の一覧（マイページ・公開プロフィールのコレクショングループ検索を含む）
     match /{path=**}/qaAnswers/{a} {
       allow read: if signedIn()
-        && (resource.data.status == 'visible' || resource.data.author.id == me() || isAdmin());
+        && ((resource.data.status == 'visible' && canSee(resource.data.audience))
+            || resource.data.author.id == me() || isAdmin());
     }
 
     // 相談の本文：ログインした人だけが読める（未ログインはタイトルとカテゴリだけ）
     match /questionBodies/{q} {
-      allow read: if signedIn() && (get(qPath(q)).data.visible == true || isQOwner(q) || isAdmin());
+      allow read: if signedIn()
+        && ((get(qPath(q)).data.visible == true && canSee(get(qPath(q)).data.audience)) || isQOwner(q) || isAdmin());
       allow create: if isMember()
         && !exists(qPath(q)) && existsAfter(qPath(q))
         && getAfter(ownerPath(q)).data.uid == me()
@@ -435,6 +457,23 @@ service cloud.firestore {
         && strMax(request.resource.data.get('detail', null), 500)
         && request.resource.data.status == 'pending';
       allow read, update, delete: if isAdmin();
+    }
+
+    // ---------- 学校 ----------
+    match /schools/{sc} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['name', 'nameKey', 'ngrams', 'prefecture', 'kind', 'status', 'createdBy', 'createdAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2 && request.resource.data.name.size() <= 60
+        && request.resource.data.nameKey is string && request.resource.data.nameKey.size() <= 80
+        && request.resource.data.ngrams is list && request.resource.data.ngrams.size() <= 60
+        && request.resource.data.prefecture is string && request.resource.data.prefecture.size() <= 5
+        && request.resource.data.kind in schoolKinds()
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdBy == me()
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if isAdmin();
     }
 
     // ---------- カテゴリ（運営が編集）----------

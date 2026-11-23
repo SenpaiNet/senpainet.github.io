@@ -5,7 +5,8 @@ import Link from "next/link";
 import { questionHref } from "@/lib/routes";
 import { useEffect, useMemo, useState } from "react";
 import type { DocumentSnapshot } from "firebase/firestore";
-import { MessageCircle, Plus, Search } from "lucide-react";
+import { Globe, MessageCircle, Plus, School as SchoolIcon, Search } from "lucide-react";
+import { audienceOf } from "@/lib/schools";
 import { useAuth } from "@/components/AuthProvider";
 import { Button, buttonClass } from "@/components/Button";
 import { QuestionCard } from "@/components/QuestionCard";
@@ -22,7 +23,7 @@ const sorts = [
   { id: "open", label: "未解決" },
 ] as const;
 
-export type BoardParams = { category?: string; sort?: string; unanswered?: string; q?: string };
+export type BoardParams = { scope?: string; category?: string; sort?: string; unanswered?: string; q?: string };
 
 function href(p: BoardParams, patch: Partial<BoardParams>) {
   const sp = new URLSearchParams();
@@ -32,8 +33,12 @@ function href(p: BoardParams, patch: Partial<BoardParams>) {
 }
 
 export function BoardClient({ params: p }: { params: BoardParams }) {
-  const { ready, user } = useAuth();
+  const { ready, user, profile } = useAuth();
   const cats = useCategories();
+  // 全国／学内の切り替え。学内は、学校を登録したログイン中の人だけ
+  const canSchool = Boolean(user && profile?.schoolId);
+  const scope: "national" | "school" = p.scope === "school" && canSchool ? "school" : "national";
+  const audience = audienceOf(profile?.schoolId, scope);
   const sort = (sorts.some((s) => s.id === p.sort) ? p.sort : "new") as BoardSort;
   const unanswered = p.unanswered === "1";
   const q = (p.q ?? "").trim().slice(0, 50);
@@ -48,7 +53,7 @@ export function BoardClient({ params: p }: { params: BoardParams }) {
     const f = fb();
     if (!f) return;
     try {
-      const r = await listQuestions(f.db, { category: p.category, sort, unanswered }, after);
+      const r = await listQuestions(f.db, { audience, category: p.category, sort, unanswered }, after);
       setItems((prev) => (after ? [...prev, ...r.items] : r.items));
       setLast(r.last);
       setMore(r.full);
@@ -69,7 +74,7 @@ export function BoardClient({ params: p }: { params: BoardParams }) {
     setItems([]);
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, user, p.category, sort, unanswered]);
+  }, [ready, user, audience, p.category, sort, unanswered]);
 
   // キーワード検索は、読み込んだ相談のタイトルと本文から探す（Firestore は部分一致検索ができないため）
   const shown = useMemo(() => {
@@ -91,11 +96,37 @@ export function BoardClient({ params: p }: { params: BoardParams }) {
             <p className="text-label text-brand">相談一覧</p>
             <KineticWord as="h1" text="Board" className="font-display text-display-xl text-brand" />
           </div>
-          <Link href="/board/new" className={buttonClass("accent", "min-h-[52px] px-7 text-[15px]")}>
+          <Link href={scope === "school" ? "/board/new?scope=school" : "/board/new"} className={buttonClass("accent", "group min-h-[52px] px-7 text-[15px]")}>
             <Plus size={18} strokeWidth={1.75} aria-hidden="true" />
             先輩に相談する
           </Link>
         </div>
+
+        <div role="tablist" aria-label="相談の範囲" className="relative grid grid-cols-2 self-start rounded-pill border border-line bg-surface p-1 sm:min-w-[360px]">
+          {/* 選んでいる側へ滑って動く下地 */}
+          <span aria-hidden="true"
+            className="absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-pill bg-brand transition-transform duration-300 [transition-timing-function:var(--ease-out)]"
+            style={{ transform: scope === "school" ? "translateX(100%)" : "none" }} />
+          <Link role="tab" aria-selected={scope === "national"} href={href({ ...p, scope: undefined }, {})}
+            className={`relative z-[1] inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-pill px-4 text-label no-underline transition-colors hover:no-underline ${scope === "national" ? "text-on-brand hover:text-on-brand" : "text-ink hover:text-ink"}`}>
+            <Globe size={18} strokeWidth={1.75} aria-hidden="true" />全国の相談
+          </Link>
+          {canSchool ? (
+            <Link role="tab" aria-selected={scope === "school"} href={href(p, { scope: "school" })}
+              className={`relative z-[1] inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-pill px-4 text-label no-underline transition-colors hover:no-underline ${scope === "school" ? "text-on-brand hover:text-on-brand" : "text-ink hover:text-ink"}`}>
+              <SchoolIcon size={18} strokeWidth={1.75} aria-hidden="true" />学内の相談
+            </Link>
+          ) : (
+            <Link role="tab" aria-selected={false} href={user ? "/onboarding?next=/board?scope=school" : "/login?next=/board?scope=school"}
+              className="relative z-[1] inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-pill px-4 text-label text-ink-muted no-underline hover:text-ink hover:no-underline"
+              title={user ? "学校を登録すると使えます" : "ログインすると使えます"}>
+              <SchoolIcon size={18} strokeWidth={1.75} aria-hidden="true" />学内の相談
+            </Link>
+          )}
+        </div>
+        {scope === "school" && (
+          <p className="sn-enter -mt-4 text-body-sm text-ink-muted">{profile?.schoolName} の在校生・卒業生だけが見られる相談です。</p>
+        )}
 
         <div className="flex flex-wrap items-center gap-3">
           <form action="/board" className="flex min-h-[48px] flex-[1_1_320px] items-center gap-2.5 rounded-pill border border-line bg-surface px-4">
@@ -103,6 +134,7 @@ export function BoardClient({ params: p }: { params: BoardParams }) {
             <Search size={20} strokeWidth={1.75} className="text-ink-muted" aria-hidden="true" />
             <input id="search" name="q" type="search" defaultValue={q} placeholder="キーワードで相談を探す"
               className="min-w-0 flex-1 bg-transparent text-body text-ink outline-none placeholder:text-ink-muted focus-visible:outline-none" />
+            {scope === "school" && <input type="hidden" name="scope" value="school" />}
             {p.category && <input type="hidden" name="category" value={p.category} />}
             {sort !== "new" && <input type="hidden" name="sort" value={sort} />}
             {unanswered && <input type="hidden" name="unanswered" value="1" />}

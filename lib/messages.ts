@@ -5,7 +5,7 @@ export const messages = {
     catchcopy: "その悩み、先輩に相談しよう",
     heroLine1: "その悩み、",
     heroLine2: "先輩に相談しよう",
-    lead: "同じ学校を歩いた先輩が、あなたの進路と毎日の悩みに答えます。",
+    lead: "同じ道を歩いた先輩が、あなたの進路と毎日の悩みに答えます。",
   },
   nav: {
     features: "できること",
@@ -50,7 +50,7 @@ export const messages = {
     },
   },
   footer: {
-    copy: "© SenpaiNet / TGUISS",
-    note: "東京学芸大学附属国際中等教育学校の在校生と先輩をつなぐ相談サイトです。",
+    copy: "© SenpaiNet",
+    note: "全国の中学生・高校生と、先輩をつなぐ相談サイトです。",
   },
 } as const;

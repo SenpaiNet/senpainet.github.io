@@ -29,12 +29,13 @@ export function toAnswer(d: DocumentSnapshot, questionId?: string): QaAnswer {
 }
 
 export type BoardSort = "new" | "many" | "open";
-export type BoardFilter = { category?: string; sort: BoardSort; unanswered: boolean };
+/** audience：national（全国）か school:学校ID（学内）。ルールで必須 */
+export type BoardFilter = { audience: string; category?: string; sort: BoardSort; unanswered: boolean };
 
 export const PAGE_SIZE = 20;
 
 export async function listQuestions(db: Firestore, f: BoardFilter, after?: DocumentSnapshot) {
-  const cs: QueryConstraint[] = [where("visible", "==", true)];
+  const cs: QueryConstraint[] = [where("visible", "==", true), where("audience", "==", f.audience)];
   if (f.category) cs.push(where("categories", "array-contains", f.category));
   if (f.unanswered) cs.push(where("answerCount", "==", 0));
   if (f.sort === "open") cs.push(where("status", "==", "open"));
@@ -66,9 +67,14 @@ export async function getOwnership(db: Firestore, id: string, uid: string) {
   }
 }
 
-export async function listAnswers(db: Firestore, questionId: string) {
+export async function listAnswers(db: Firestore, questionId: string, audience: string) {
   const snap = await getDocs(
-    query(collection(db, "questions", questionId, "qaAnswers"), where("status", "==", "visible"), orderBy("createdAt", "asc")),
+    query(
+      collection(db, "questions", questionId, "qaAnswers"),
+      where("status", "==", "visible"),
+      where("audience", "==", audience),
+      orderBy("createdAt", "asc"),
+    ),
   );
   return snap.docs.map((d) => toAnswer(d, questionId));
 }
@@ -103,10 +109,10 @@ export async function myQuestions(db: Firestore, uid: string) {
     .sort((a, b) => (b.question.createdAt?.toMillis() ?? 0) - (a.question.createdAt?.toMillis() ?? 0));
 }
 
-/** ある人の回答（自分なら非表示中も含む） */
-export async function answersBy(db: Firestore, uid: string, onlyVisible: boolean, max = 50) {
+/** ある人の回答。自分の回答（onlyVisible=false）は非表示中・学内も含めて全部。ほかの人の回答は公開範囲ごとに読む */
+export async function answersBy(db: Firestore, uid: string, onlyVisible: boolean, max = 50, audience = "national") {
   const cs: QueryConstraint[] = [where("author.id", "==", uid)];
-  if (onlyVisible) cs.push(where("status", "==", "visible"));
+  if (onlyVisible) cs.push(where("status", "==", "visible"), where("audience", "==", audience));
   cs.push(orderBy("createdAt", "desc"), limit(max));
   const snap = await getDocs(query(collectionGroup(db, "qaAnswers"), ...cs));
   return snap.docs.map((d) => toAnswer(d));
@@ -125,10 +131,10 @@ export async function titlesOf(db: Firestore, ids: string[]) {
 }
 
 export async function siteStats(db: Firestore) {
-  const visible = query(collection(db, "questions"), where("visible", "==", true));
+  const visible = query(collection(db, "questions"), where("visible", "==", true), where("audience", "==", "national"));
   const [all, answered] = await Promise.all([
     getCountFromServer(visible),
-    getCountFromServer(query(collection(db, "questions"), where("visible", "==", true), where("answerCount", ">", 0))),
+    getCountFromServer(query(collection(db, "questions"), where("visible", "==", true), where("audience", "==", "national"), where("answerCount", ">", 0))),
   ]);
   return { questions: all.data().count, answered: answered.data().count };
 }

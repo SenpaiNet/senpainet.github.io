@@ -6,6 +6,7 @@ import { onAuthStateChanged, type User } from "firebase/auth";
 import { collection, doc, getCountFromServer, getDoc, getDocs, onSnapshot, query, updateDoc, where } from "firebase/firestore";
 import { fb } from "@/lib/firebase/client";
 import { gradeOf } from "@/lib/profile";
+import { yearsOf } from "@/lib/schools";
 import type { QaProfile } from "@/lib/qa/types";
 
 type AuthState = {
@@ -98,11 +99,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         doc(f.db, "profiles", u.uid),
         async (snap) => {
           const p = snap.exists() ? (snap.data() as QaProfile) : null;
-          // 6年生の年度が終わった在校生は卒業生にし、進路の入力をやり直してもらう
-          if (p && p.role === "student" && p.entryYear && gradeOf(p.entryYear) > 6) {
+          // 学校の最終学年の年度が終わった在校生は卒業生にし、進路の入力をやり直してもらう
+          if (p && p.role === "student" && p.entryYear && gradeOf(p.entryYear) > yearsOf(p.schoolKind ?? "secondary")) {
             await updateDoc(doc(f.db, "profiles", u.uid), {
               role: "alumni",
-              graduationYear: p.entryYear + 5,
+              graduationYear: p.entryYear + yearsOf(p.schoolKind ?? "secondary") - 1,
               isProfileComplete: false,
               pathType: null,
               universityYear: null,
@@ -142,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     profile,
     isAdmin,
-    isMember: Boolean(user && verified && profile?.isProfileComplete && !profile.isSuspended),
+    isMember: Boolean(user && verified && profile?.isProfileComplete && profile.schoolId && !profile.isSuspended),
     needsVerify: Boolean(user && !verified),
     unread,
     refreshUnread,
@@ -167,12 +168,13 @@ export function Loading() {
 export function Gate({ children, member = false, next }: { children: ReactNode; member?: boolean; next: string }) {
   const { ready, user, profile, needsVerify } = useAuth();
   const router = useRouter();
-  const blocked = ready && (!user || (member && (needsVerify || !profile?.isProfileComplete)));
+  const incomplete = !profile?.isProfileComplete || !profile?.schoolId;
+  const blocked = ready && (!user || (member && (needsVerify || incomplete)));
   useEffect(() => {
     if (!ready) return;
     if (!user) router.replace(`/login?next=${encodeURIComponent(next)}`);
-    else if (member && (needsVerify || !profile?.isProfileComplete)) router.replace(`/onboarding?next=${encodeURIComponent(next)}`);
-  }, [ready, user, profile, needsVerify, member, next, router]);
+    else if (member && (needsVerify || incomplete)) router.replace(`/onboarding?next=${encodeURIComponent(next)}`);
+  }, [ready, user, incomplete, needsVerify, member, next, router]);
   if (!ready || blocked) return <Loading />;
   return <>{children}</>;
 }

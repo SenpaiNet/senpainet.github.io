@@ -46,6 +46,10 @@ const baseProfile = (over: Partial<QaProfile> = {}): QaProfile => ({
   isProfileComplete: true,
   isSuspended: false,
   categories: [],
+  schoolId: "sA",
+  schoolName: "A高校",
+  schoolKind: "high",
+  schoolPublic: true,
   ...over,
 });
 
@@ -53,6 +57,7 @@ const users = {
   asker: { uid: "asker", email: "asker@example.ed.jp" },
   senpai: { uid: "senpai", email: "senpai@example.ed.jp" },
   other: { uid: "other", email: "other@example.ed.jp" },
+  outsider: { uid: "outsider", email: "outsider@example.ed.jp" },
   newbie: { uid: "newbie", email: "newbie@example.ed.jp" },
   admin: { uid: "admin", email: "admin@example.ed.jp" },
 };
@@ -76,6 +81,8 @@ const profiles: Record<string, QaProfile> = {
   asker: baseProfile({ displayName: "あすか" }),
   senpai: baseProfile({ displayName: "せんぱい", role: "alumni", entryYear: 2015, universityYear: 2 }),
   other: baseProfile({ displayName: "ほか" }),
+  // 別の学校の人
+  outsider: baseProfile({ displayName: "たこう", schoolId: "sB", schoolName: "B高校" }),
   admin: baseProfile({ displayName: "運営" }),
 };
 
@@ -83,6 +90,7 @@ const qInput = (title = "理系か文系か") => ({
   title,
   body: "本文です",
   categories: ["shinro"],
+  audience: "national",
   isAnonymous: false,
   targetStream: null,
   targetPathType: null,
@@ -94,7 +102,7 @@ beforeAll(async () => {
     projectId: "senpainet-console",
     firestore: { rules: readFileSync("firestore.rules", "utf8"), host: "127.0.0.1", port: 8080 },
   });
-});
+}, 60_000); // エミュレーターの起動直後は時間がかかる
 afterAll(async () => env?.cleanup());
 beforeEach(async () => {
   await env.clearFirestore();
@@ -167,7 +175,7 @@ describe("相談の投稿", () => {
     const fake = (author: object) => {
       const b = writeBatch(d);
       b.set(qRef, {
-        title: "x", categories: ["shinro"], isAnonymous: false, targetStream: null, targetPathType: null,
+        title: "x", categories: ["shinro"], audience: "national", isAnonymous: false, targetStream: null, targetPathType: null,
         targetClubType: null, author, answerCount: 0, bestAnswerId: null, bestAnswerAuthorId: null,
         status: "open", visible: true, createdAt: serverTimestamp(),
       });
@@ -185,7 +193,7 @@ describe("相談の投稿", () => {
     const d = db(users.asker);
     await assertFails(
       setDoc(doc(collection(d, "questions")), {
-        title: "x", categories: ["shinro"], isAnonymous: true, author: authorOf("asker", profiles.asker, true),
+        title: "x", categories: ["shinro"], audience: "national", isAnonymous: true, author: authorOf("asker", profiles.asker, true),
         targetStream: null, targetPathType: null, targetClubType: null, answerCount: 0, bestAnswerId: null,
         bestAnswerAuthorId: null, status: "open", visible: true, createdAt: serverTimestamp(),
       }),
@@ -196,7 +204,7 @@ describe("相談の投稿", () => {
 describe("相談の閲覧と匿名", () => {
   it("未ログインでも相談の一覧（タイトル）は読めるが、本文は読めない", async () => {
     const id = await newQuestion();
-    await assertSucceeds(getDocs(query(collection(db(null), "questions"), where("visible", "==", true))));
+    await assertSucceeds(getDocs(query(collection(db(null), "questions"), where("visible", "==", true), where("audience", "==", "national"))));
     await assertFails(getDoc(doc(db(null), "questionBodies", id)));
     await assertSucceeds(getDoc(doc(db(users.other), "questionBodies", id)));
   });
@@ -311,5 +319,86 @@ describe("旧サイト（senpainet.github.io）のルールが変わっていな
     await assertSucceeds(
       updateDoc(doc(db(users.admin, { provider: "google.com" }), "consultations", "u_2"), { hidden: true }),
     );
+  });
+});
+
+describe("学校と公開範囲（全国／学内）", () => {
+  const schoolQuestion = async () => {
+    const id = await createQuestion(db(users.asker), "asker", profiles.asker, { ...qInput("学内の相談"), audience: "school:sA" });
+    await rewindPost("asker");
+    return id;
+  };
+
+  it("学校が未設定のまま、プロフィールを完成にはできない", async () => {
+    const p = baseProfile({ schoolId: null });
+    await assertFails(setDoc(doc(db(users.newbie), "profiles", "newbie"), p));
+    await assertSucceeds(setDoc(doc(db(users.newbie), "profiles", "newbie"), { ...p, isProfileComplete: false }));
+  });
+
+  it("学内の相談：同じ学校の人は本文・回答まで読めて回答できる。他校の人と未ログインは読めない", async () => {
+    const id = await schoolQuestion();
+    // 同じ学校
+    await assertSucceeds(getDoc(doc(db(users.other), "questions", id)));
+    await assertSucceeds(getDoc(doc(db(users.other), "questionBodies", id)));
+    const aid = await addAnswer(db(users.senpai), "senpai", profiles.senpai, id, "同じ学校の先輩です");
+    await assertSucceeds(
+      getDocs(query(collection(db(users.other), "questions", id, "qaAnswers"), where("status", "==", "visible"), where("audience", "==", "school:sA"))),
+    );
+    // 他校・未ログイン
+    await assertFails(getDoc(doc(db(users.outsider), "questions", id)));
+    await assertFails(getDoc(doc(db(users.outsider), "questionBodies", id)));
+    await assertFails(getDoc(doc(db(users.outsider), "questions", id, "qaAnswers", aid)));
+    await assertFails(getDoc(doc(db(null), "questions", id)));
+    await assertFails(addAnswer(db(users.outsider), "outsider", profiles.outsider, id, "他校から"));
+    await assertFails(setVote(db(users.outsider), "outsider", id, aid, true));
+  });
+
+  it("学内の一覧は自分の学校だけ。全国の一覧は未ログインでも読める", async () => {
+    await schoolQuestion();
+    await assertSucceeds(getDocs(query(collection(db(users.other), "questions"), where("visible", "==", true), where("audience", "==", "school:sA"))));
+    await assertFails(getDocs(query(collection(db(users.outsider), "questions"), where("visible", "==", true), where("audience", "==", "school:sA"))));
+    await assertSucceeds(getDocs(query(collection(db(null), "questions"), where("visible", "==", true), where("audience", "==", "national"))));
+    // 公開範囲で絞らない一覧は、学内の相談が混ざりうるので許可されない
+    await assertFails(getDocs(query(collection(db(null), "questions"), where("visible", "==", true))));
+  });
+
+  it("他校の学内として投稿することはできない", async () => {
+    await assertFails(createQuestion(db(users.asker), "asker", profiles.asker, { ...qInput(), audience: "school:sB" }));
+  });
+
+  it("回答の公開範囲は相談と同じでなければならない（学内の相談に全国の回答として書けない）", async () => {
+    const id = await schoolQuestion();
+    const d = db(users.senpai);
+    const aRef = doc(collection(d, "questions", id, "qaAnswers"));
+    const b = writeBatch(d);
+    b.set(aRef, {
+      body: "x", audience: "national", author: authorOf("senpai", profiles.senpai, false), helpfulCount: 0,
+      status: "visible", parentId: null, isAnonymous: false, createdAt: serverTimestamp(),
+    });
+    b.update(doc(d, "questions", id), { answerCount: 1, lastAnswerId: aRef.id, firstAnswerAt: serverTimestamp() });
+    b.update(doc(d, "profiles", "senpai"), { lastPostAt: serverTimestamp() });
+    await assertFails(b.commit());
+  });
+
+  it("学校名は、本人が公開にしているときだけ載せられる", async () => {
+    await seed(async (dd) => updateDoc(doc(dd, "profiles", "asker"), { schoolPublic: false }));
+    const hidden = { ...profiles.asker, schoolPublic: false };
+    await assertSucceeds(createQuestion(db(users.asker), "asker", hidden, qInput("学校名なし")));
+    await rewindPost("asker");
+    // 非公開なのに学校名を載せようとする
+    await assertFails(createQuestion(db(users.asker), "asker", profiles.asker, qInput("学校名あり")));
+  });
+
+  it("学校の追加：ログインしていれば「確認待ち」で追加できる。確認済みとしては追加できない", async () => {
+    const base = {
+      name: "C高等学校", nameKey: "c高等学校", ngrams: ["c高", "高等"], prefecture: "東京都", kind: "high",
+      createdBy: "newbie", createdAt: serverTimestamp(),
+    };
+    await assertSucceeds(setDoc(doc(db(users.newbie), "schools", "c1"), { ...base, status: "pending" }));
+    await assertFails(setDoc(doc(db(users.newbie), "schools", "c2"), { ...base, status: "verified" }));
+    await assertFails(setDoc(doc(db(null), "schools", "c3"), { ...base, status: "pending" }));
+    await assertFails(updateDoc(doc(db(users.newbie), "schools", "c1"), { status: "verified" }));
+    await assertSucceeds(updateDoc(doc(db(users.admin), "schools", "c1"), { status: "verified" }));
+    await assertSucceeds(getDoc(doc(db(null), "schools", "c1")));
   });
 });

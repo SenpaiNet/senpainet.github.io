@@ -8,6 +8,8 @@ import { fb } from "@/lib/firebase/client";
 import type { Category } from "@/lib/qa/categories";
 import type { QaProfile, QaRole } from "@/lib/qa/types";
 import { saveProfile } from "@/lib/qa/writes";
+import { SchoolPicker, type PickedSchool } from "./SchoolPicker";
+import { gradeLabel, yearsOf } from "@/lib/schools";
 import { clubLabels, pathLabels, streamLabels, type ClubType, type PathType, type Stream } from "@/lib/profile";
 
 const schema = z.object({
@@ -52,14 +54,20 @@ export function OnboardingForm({
   const [skills, setSkills] = useState<string[]>(profile?.categories ?? []);
   const [accepting, setAccepting] = useState(profile?.isAccepting ?? true);
   const [isPublic, setIsPublic] = useState(profile?.isPublic ?? true);
+  const [school, setSchool] = useState<PickedSchool | null>(
+    profile?.schoolId && profile.schoolName ? { id: profile.schoolId, name: profile.schoolName, kind: profile.schoolKind ?? "secondary" } : null,
+  );
+  const [schoolPublic, setSchoolPublic] = useState(profile?.schoolPublic ?? true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
 
   const isStudent = role === "student";
+  // 学年の数え方・卒業までの年数は、学校の種類で決まる（高校は3年、中高一貫は6年など）
+  const years = yearsOf(school?.kind);
   const grade = schoolYear - entry + 1;
-  const entryYears = Array.from({ length: 6 }, (_, i) => schoolYear - i);
+  const entryYears = Array.from({ length: years }, (_, i) => schoolYear - i);
   const gradYears = Array.from({ length: 5 }, (_, i) => schoolYear - 1 - i);
   const oldestGrad = schoolYear - 6;
 
@@ -80,6 +88,15 @@ export function OnboardingForm({
       setErrors(errs);
       return;
     }
+    if (!school) {
+      setErrors({ school: "学校を選んでください。" });
+      document.getElementById("school-field")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (isStudent && (grade < 1 || grade > years)) {
+      setErrors({ entry: `入学した年度を選び直してください（この学校は${years}年制です）。` });
+      return;
+    }
     setErrors({});
     const f = fb();
     if (!f) return setFormError("Firebase の接続設定がまだありません。");
@@ -97,10 +114,15 @@ export function OnboardingForm({
           clubType: club,
           clubName: clubName.trim() || null,
           isPublic,
+          schoolId: school.id,
+          schoolName: school.name,
+          schoolKind: school.kind,
+          schoolPublic,
           isProfileComplete: true,
           categories: isStudent ? [] : skills,
           // 6年制のため、卒業生の入学年度は卒業年度の5年前
-          entryYear: isStudent ? entry : grad - 5,
+          // 卒業生の入学年度は、卒業年度から学校の年数をさかのぼって求める
+          entryYear: isStudent ? entry : grad - years + 1,
           graduationYear: isStudent ? null : grad,
           pathType: isStudent ? null : path,
           universityYear: !isStudent && (path === "university" || path === "grad_school") ? uyear : null,
@@ -159,8 +181,8 @@ export function OnboardingForm({
             <legend className="float-left font-heading text-[17px] font-bold">あなたは</legend>
             <div className="clear-both grid gap-3 sm:grid-cols-2">
               {([
-                ["student", "在校生", "1〜6年生。先輩に相談したい人"],
-                ["alumni", "卒業生", "大学生や社会人。後輩の相談に答えたい人"],
+                ["student", "在校生", "中学生・高校生など。先輩に相談したい人"],
+                ["alumni", "卒業生", "卒業した大学生や社会人。後輩の相談に答えたい人"],
               ] as const).map(([id, label, desc]) => (
                 <button
                   key={id}
@@ -190,6 +212,16 @@ export function OnboardingForm({
             <p className="text-caption text-ink-muted">{email} でログイン中</p>
           </div>
 
+          <div id="school-field" className="flex flex-col gap-2">
+            <span className={labelClass}>{isStudent ? "通っている学校" : "卒業した学校"}{requiredMark}</span>
+            <SchoolPicker uid={uid} value={school} onChange={(v) => { setSchool(v); setErrors((e) => ({ ...e, school: "" })); }} invalid={!!errors.school} />
+            {errors.school && <p role="alert" className="text-body-sm text-accent-strong">{errors.school}</p>}
+            <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-body-sm">
+              <input type="checkbox" className="h-[18px] w-[18px] accent-[var(--brand)]" checked={schoolPublic} onChange={(e) => setSchoolPublic(e.target.checked)} />
+              相談や回答に学校名を表示する（匿名で投稿したときは表示しません）
+            </label>
+          </div>
+
           {isStudent ? (
             <div className="flex flex-wrap items-end gap-4">
               <div className="flex flex-[1_1_220px] flex-col gap-2">
@@ -197,9 +229,10 @@ export function OnboardingForm({
                 <select id="entry" className={select} value={entry} onChange={(e) => setEntry(Number(e.target.value))}>
                   {entryYears.map((y) => <option key={y} value={y}>{y}年度</option>)}
                 </select>
+                {errors.entry && <p role="alert" className="text-body-sm text-accent-strong">{errors.entry}</p>}
               </div>
               <p className="flex min-h-[52px] flex-[1_1_220px] items-center gap-2 rounded-md bg-brand-soft px-4 text-label font-normal">
-                今は <strong className="font-heading text-[17px]">{grade}年生</strong>（4月1日に自動で進級）
+                今は <strong className="font-heading text-[17px]">{grade >= 1 && grade <= years ? gradeLabel(school?.kind ?? "secondary", grade) : "—"}</strong>（4月1日に自動で進級）
               </p>
             </div>
           ) : (
